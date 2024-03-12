@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("/loan-payment", async function (req, res, next) {
     try {
-        const data = await ReportController.reportLoan(req);
+        const data = await ReportController.borrowReturnReport(req);
         return res.json(data);
     } catch (error) {
         next(error);
