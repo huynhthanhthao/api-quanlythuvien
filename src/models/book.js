@@ -173,7 +173,6 @@ module.exports = (sequelize, DataTypes) => {
                 validate: {
                     isNumeric: true,
                 },
-                defaultValue: DEFAULT_YEAR_PUBLICATION,
             },
             price: {
                 type: DataTypes.DOUBLE,

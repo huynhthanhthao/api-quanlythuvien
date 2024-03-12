@@ -127,7 +127,6 @@ module.exports = (sequelize, DataTypes) => {
                 validate: {
                     isNumeric: true,
                 },
-                defaultValue: DEFAULT_YEAR_PUBLICATION,
             },
             yearPublication: {
                 type: DataTypes.INTEGER,
