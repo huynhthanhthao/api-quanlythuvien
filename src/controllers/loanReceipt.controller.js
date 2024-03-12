@@ -24,7 +24,7 @@ class LoanReceiptController {
 
         if (checkIsDuplicates(bookIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
-                field: "bookIds",
+                field: "books",
             });
         }
 
@@ -62,7 +62,7 @@ class LoanReceiptController {
 
         if (checkIsDuplicates(bookIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
-                field: "bookIds",
+                field: "books",
             });
         }
 

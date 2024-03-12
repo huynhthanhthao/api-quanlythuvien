@@ -1,0 +1,24 @@
+{
+    "development": {
+        "username": "postgres",
+        "password": "0000",
+        "database": "librarian",
+        "host": "127.0.0.1",
+        "dialect": "postgres",
+        "timezone": "+07:00"
+    },
+    "test": {
+        "username": "postgres",
+        "password": "0000",
+        "database": "librarian",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "production": {
+        "username": "postgres",
+        "password": "0000",
+        "database": "librarian",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    }
+}

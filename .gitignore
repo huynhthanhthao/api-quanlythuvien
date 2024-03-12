@@ -2,5 +2,4 @@
 /public/images/
 .env
 package-lock.json
-/src/config/config.json
 ecosystem.config.js

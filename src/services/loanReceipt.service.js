@@ -108,7 +108,6 @@ class LoanReceiptService {
         const booksOutOfStock = [];
         const bookList = await BookService.getQuantityByBookIds(bookIds, loanReceiptId, account.schoolId);
         for (const book of bookList) {
-            console.log(book.id, book.maxQuantity, book.amountBorrowed);
             if (book.maxQuantity == book.amountBorrowed) {
                 booksOutOfStock.push(book.id);
             }
