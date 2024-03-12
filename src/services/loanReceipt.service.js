@@ -23,7 +23,7 @@ class LoanReceiptService {
     static async createLoanReceipt(newLoanReceipt, account) {
         if (newLoanReceipt.books?.length <= 0)
             throw new CatchException("Phải có ít nhất 1 quyển sách.", errorCodes.MISSING_DATA, {
-                field: "bookIds",
+                field: "books",
             });
 
         // check time and limit borrow
@@ -108,7 +108,8 @@ class LoanReceiptService {
         const booksOutOfStock = [];
         const bookList = await BookService.getQuantityByBookIds(bookIds, loanReceiptId, account.schoolId);
         for (const book of bookList) {
-            if (book.maxQuantity == book.amountBorrowed) {
+            console.log(book.maxQuantity, book.amountBorrowed);
+            if (book.maxQuantity <= book.amountBorrowed) {
                 booksOutOfStock.push(book.id);
             }
         }
