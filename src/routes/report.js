@@ -11,4 +11,22 @@ router.get("/loan-payment", async function (req, res, next) {
     }
 });
 
+router.get("/reader", async function (req, res, next) {
+    try {
+        const data = await ReportController.readerReport(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/book", async function (req, res, next) {
+    try {
+        const data = await ReportController.bookReport(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = router;

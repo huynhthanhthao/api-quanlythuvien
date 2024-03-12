@@ -53,6 +53,8 @@ const SETTING_STATUS = {
     NOT_ACTIVE: 2,
 };
 
+const DEFAULT_REGULAR_BORROW_COUNT = 4;
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -68,4 +70,5 @@ module.exports = {
     BOOK_CONDITION,
     PENALTY_TICKET_STATUS,
     SETTING_STATUS,
+    DEFAULT_REGULAR_BORROW_COUNT,
 };

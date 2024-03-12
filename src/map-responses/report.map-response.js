@@ -1,3 +1,4 @@
+const { DEFAULT_REGULAR_BORROW_COUNT } = require("../../enums/common");
 const { fDate } = require("../../utils/server");
 
 module.exports.mapResponseBorrowReturnReport = function (dataList) {
@@ -12,10 +13,61 @@ module.exports.mapResponseBorrowReturnReport = function (dataList) {
         result[borrowedMonth - 1].dataBorrow.push({
             id: data.id,
             type: data.type,
-            receiveDate: data.loanReceipt.receiveDate,
-            returnDate: data.loanReceipt.returnDate,
+            receiveDate: fDate(data.loanReceipt.receiveDate),
+            returnDate: fDate(data.loanReceipt.returnDate),
         });
     });
 
     return result;
+};
+
+module.exports.mapResponseReaderReport = function (dataList, year) {
+    const result = [];
+
+    for (let month = 1; month <= 12; month++) {
+        let dataInMonth = { month, totalReaders: 0, totalNewReaders: 0, regularReaders: [] };
+
+        dataList.map((data) => {
+            let createdAt = data?.createdAt?.getMonth() + 1;
+
+            if (createdAt == month) {
+                dataInMonth.totalNewReaders += 1;
+            }
+
+            if (createdAt <= month) {
+                dataInMonth.totalReaders += 1;
+            }
+
+            const loanReceiptCountInMonth = module.exports.countBorrowsInMonth(data.loanReceiptList, month, year);
+
+            if (loanReceiptCountInMonth >= DEFAULT_REGULAR_BORROW_COUNT) {
+                dataInMonth.regularReaders.push({
+                    fullName: data.fullName,
+                    readerCode: data.readerCode,
+                    photoURL: data.photoURL,
+                    phone: data.phone,
+                    groupName: data?.readerGroup?.groupName,
+                    quantityLimit: data?.readerGroup?.quantityLimit,
+                    timeLimit: data?.readerGroup?.timeLimit,
+                    borrowCountInMonth: loanReceiptCountInMonth,
+                });
+            }
+        });
+
+        dataInMonth.regularReaders.sort((a, b) => b.borrowCountInMonth - a.borrowCountInMonth).slice(0, 10);
+
+        result.push(dataInMonth);
+    }
+    return result;
+};
+
+module.exports.countBorrowsInMonth = function (data, month, year) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+
+    return data.filter((item) => {
+        const receiveDate = new Date(item.receiveDate);
+
+        return receiveDate >= startDate && receiveDate < endDate;
+    }).length;
 };

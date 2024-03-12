@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            Field.hasMany(models.FieldHasBook, {
+                foreignKey: "fieldId",
+                as: "fieldHasBook",
+            });
         }
     }
     Field.init(
