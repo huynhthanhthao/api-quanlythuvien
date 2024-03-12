@@ -37,6 +37,8 @@ const settingRouter = require("./setting");
 
 const reportRouter = require("./report");
 
+const commonRouter = require("./common");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -74,5 +76,7 @@ router.use("/penalty-ticket", checkToken, penaltyTicketRouter);
 router.use("/setting", checkToken, settingRouter);
 
 router.use("/report", checkToken, reportRouter);
+
+router.use("/common", checkToken, commonRouter);
 
 module.exports = router;
