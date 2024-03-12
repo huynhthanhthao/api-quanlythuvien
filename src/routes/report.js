@@ -29,4 +29,13 @@ router.get("/book", async function (req, res, next) {
     }
 });
 
+router.get("/loan-receipt", async function (req, res, next) {
+    try {
+        const data = await ReportController.loanReceiptReport(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = router;

@@ -183,7 +183,7 @@ class ReportService {
         return dataReport;
     }
 
-    static async getFieldBookCounts(year, account) {
+    static async getFieldBookCounts(query, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         const dataReport = await db.Field.findAll({
@@ -196,30 +196,57 @@ class ReportService {
             ],
             include: [
                 {
-                    model: db.FieldHasBook,
-                    as: "fieldHasBook",
+                    model: db.Book,
+                    as: "book",
                     where: {
-                        [Op.and]: [
-                            whereCondition,
-                            db.sequelize.literal(`EXTRACT(YEAR FROM "fieldHasBook"."createdAt") = ${year}`),
-                        ],
+                        [Op.and]: [whereCondition],
                     },
                     attributes: [],
                     required: false,
-                    include: [
-                        {
-                            model: db.Book,
-                            as: "book",
-                            where: {
-                                [Op.and]: [whereCondition],
-                            },
-                            attributes: [],
-                            required: false,
-                        },
-                    ],
                 },
             ],
+            limit: 10,
+            subQuery: false,
             group: ["Field.id"],
+        });
+
+        return dataReport;
+    }
+
+    static async loanReceiptReport(query, account) {
+        const year = query.year || new Date().getFullYear();
+
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        const dataReport = await db.User.findAll({
+            where: {
+                [Op.and]: [whereCondition],
+            },
+            attributes: [
+                "fullName",
+                "readerCode",
+                "photoURL",
+                "phone",
+                [db.sequelize.fn("COUNT", db.sequelize.col("loanReceiptList.id")), "totalLoans"],
+            ],
+            include: [
+                {
+                    model: db.LoanReceipt,
+                    as: "loanReceiptList",
+                    where: {
+                        [Op.and]: [
+                            whereCondition,
+                            db.sequelize.literal(`EXTRACT('year' FROM "loanReceiptList"."createdAt") = ${year}`),
+                        ],
+                    },
+                    required: false,
+                    attributes: [],
+                },
+            ],
+            group: ["User.id"],
+            order: [[db.sequelize.fn("COUNT", db.sequelize.col("loanReceiptList.id")), "DESC"]],
+            limit: 10,
+            subQuery: false,
         });
 
         return dataReport;
