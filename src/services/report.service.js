@@ -5,14 +5,14 @@ const { mapResponseBorrowReturnReport } = require("../map-responses/report.map-r
 
 class ReportService {
     static async borrowReturnReport(query, account) {
-        const currentYear = new Date().getFullYear();
+        const year = query.year || new Date().getFullYear();
 
         const whereCondition = { active: true, schoolId: account.schoolId };
         const dataReport = await db.ReceiptHasBook.findAll({
             where: {
                 [Op.and]: [
                     whereCondition,
-                    db.sequelize.literal(`EXTRACT('year' FROM "loanReceipt"."receiveDate") = ${currentYear}`),
+                    db.sequelize.literal(`EXTRACT('year' FROM "loanReceipt"."receiveDate") = ${year}`),
                 ],
             },
             attributes: ["type"],
