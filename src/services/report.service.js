@@ -77,7 +77,7 @@ class ReportService {
 
         if (type == 2) {
             // Sách được mượn nhiều nhất trong tháng
-            return this.getMostBorrowedBooksReport(month, account);
+            return this.getMostBorrowedBooksReport(month, year, account);
         }
 
         if (type == 3) {
@@ -111,7 +111,7 @@ class ReportService {
         return dataReport;
     }
 
-    static async getMostBorrowedBooksReport(month, account) {
+    static async getMostBorrowedBooksReport(month, year, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         const dataReport = await db.Book.findAll({
@@ -133,6 +133,7 @@ class ReportService {
                         [Op.and]: [
                             whereCondition,
                             db.sequelize.literal(`EXTRACT('month' FROM "receiptHasBook"."createdAt") = ${month}`),
+                            db.sequelize.literal(`EXTRACT('year' FROM "receiptHasBook"."createdAt") = ${year}`),
                         ],
                     },
                     attributes: [],
@@ -145,6 +146,7 @@ class ReportService {
                 },
             ],
             group: ["Book.id", "category.id"],
+            having: db.sequelize.literal('COUNT("receiptHasBook"."id") > 0'),
             order: [[db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "DESC"]],
             limit: 10,
             subQuery: false,
@@ -258,6 +260,7 @@ class ReportService {
                 },
             ],
             group: ["User.id"],
+            having: db.sequelize.literal('COUNT("loanReceiptList"."id") > 0'),
             order: [[db.sequelize.fn("COUNT", db.sequelize.col("loanReceiptList.id")), "DESC"]],
             limit: 10,
             subQuery: false,
