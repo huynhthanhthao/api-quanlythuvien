@@ -6,11 +6,11 @@ class SettingController {
         return transformer(await SettingService.createSetting(req.body, req.account), "Đã thêm dữ liệu cài đặt mới.");
     }
 
-    static async updateSettingById(req) {
+    static async updateSettingBySchoolId(req) {
         const { id } = req.params;
 
         return transformer(
-            await SettingService.updateSettingById({ ...req.body, id }, req.account),
+            await SettingService.updateSettingBySchoolId({ ...req.body, id }, req.account),
             "Cập nhật thành công."
         );
     }
