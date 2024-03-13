@@ -8,7 +8,7 @@ const BookLostService = require("../services/bookLost.service");
 class BookLostController {
     static async createBookLost(req) {
         const { schoolId } = req.account;
-        const { bookIds, loanReceiptId } = req.body;
+        const { bookIds = [], loanReceiptId } = req.body;
 
         if (bookIds?.length <= 0)
             throw new CatchException("Phải có ít nhất 1 quyển sách.", errorCodes.MISSING_DATA, {
@@ -36,7 +36,7 @@ class BookLostController {
 
     static async updateBookLostById(req) {
         const { schoolId } = req.account;
-        const { bookIds } = req.body;
+        const { bookIds = [] } = req.body;
         const { id } = req.params;
 
         if (bookIds?.length <= 0)
