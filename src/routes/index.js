@@ -41,6 +41,8 @@ const commonRouter = require("./common");
 
 const activityRouter = require("./activityLog");
 
+const bookLostRouter = require("./bookLost");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -82,5 +84,7 @@ router.use("/report", checkToken, reportRouter);
 router.use("/common", checkToken, commonRouter);
 
 router.use("/activity", checkToken, activityRouter);
+
+router.use("/book-lost", checkToken, bookLostRouter);
 
 module.exports = router;

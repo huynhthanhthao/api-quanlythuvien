@@ -1,13 +1,7 @@
 "use strict";
 const { Model, Op } = require("sequelize");
-const { checkForeignKey, checkEmptyForeignKey, isUnique, isInEnum } = require("../../utils/customer-validate");
-const {
-    DEFAULT_YEAR_PUBLICATION,
-    BOOK_URL_DEFAULT,
-    BOOK_STATUS,
-    DEFAULT_QUANTITY,
-    BOOK_CONDITION,
-} = require("../../enums/common");
+const { checkForeignKey, checkEmptyForeignKey, isUnique } = require("../../utils/customer-validate");
+const { BOOK_URL_DEFAULT } = require("../../enums/common");
 
 module.exports = (sequelize, DataTypes) => {
     class Book extends Model {
