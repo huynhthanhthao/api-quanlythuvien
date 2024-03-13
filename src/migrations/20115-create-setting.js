@@ -21,9 +21,6 @@ module.exports = {
             hasFineFee: {
                 type: Sequelize.BOOLEAN,
             },
-            status: {
-                type: Sequelize.INTEGER,
-            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

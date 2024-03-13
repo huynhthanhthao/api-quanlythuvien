@@ -1,11 +1,11 @@
 const { Op } = require("sequelize");
+const db = require("../models");
 const unidecode = require("unidecode");
 const { CatchException } = require("../../utils/api-error");
 const ReaderGroupService = require("./readerGroup.service");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const BookService = require("./book.service");
 const { errorCodes } = require("../../enums/error-code");
-const db = require("../models");
 const { LOAN_STATUS, DEFAULT_LIMIT } = require("../../enums/common");
 const {
     calculateDaysDiff,
@@ -439,7 +439,7 @@ class LoanReceiptService {
                 }
             );
 
-            const setting = await SettingService.getSettingActive(account);
+            const setting = await SettingService.getSettingBySchoolId(account);
 
             if (setting?.hasFineFee && overdueBooks.length > 0) {
                 const penaltyTicketId = await PenaltyTicketService.createPenaltyTicket(

@@ -39,6 +39,8 @@ const reportRouter = require("./report");
 
 const commonRouter = require("./common");
 
+const activityRouter = require("./activityLog");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -78,5 +80,7 @@ router.use("/setting", checkToken, settingRouter);
 router.use("/report", checkToken, reportRouter);
 
 router.use("/common", checkToken, commonRouter);
+
+router.use("/activity", checkToken, activityRouter);
 
 module.exports = router;

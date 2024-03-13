@@ -1,12 +1,14 @@
 const { Op } = require("sequelize");
 const db = require("../models");
 const { customerURL, convertToIntArray } = require("../../utils/server");
-const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, BOOK_CONDITION } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, BOOK_CONDITION, ACTIVITY_TYPE } = require("../../enums/common");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { mapResponseBookList, mapResponseBookItem } = require("../map-responses/book.map-response");
 const unidecode = require("unidecode");
 const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
+const ActivityService = require("./activityLog.service");
+const { tableName } = require("../../enums/languages");
 
 class BookService {
     static async createBook(newBook, account) {
@@ -53,6 +55,12 @@ class BookService {
                     updatedBy: account.id,
                 })),
                 { transaction }
+            );
+
+            await ActivityService.createActivity(
+                { dataTarget: bookCode, tableTarget: tableName.BOOK, action: ACTIVITY_TYPE.CREATED },
+                transaction,
+                account
             );
 
             await transaction.commit();
@@ -129,6 +137,12 @@ class BookService {
                 { bookId: updateBook.id, schoolId: account.schoolId },
                 account,
                 transaction
+            );
+
+            await ActivityService.createActivity(
+                { dataTarget: bookCode, tableTarget: tableName.BOOK, action: ACTIVITY_TYPE.UPDATED },
+                transaction,
+                account
             );
 
             await transaction.commit();
@@ -394,7 +408,7 @@ class BookService {
 
         const bookHasLoanReceipt = await db.Book.findAll({
             where: { ...whereCondition, id: { [Op.in]: ids } },
-            attributes: ["id"],
+            attributes: ["id", "bookCode"],
             include: [
                 {
                     model: db.ReceiptHasBook,

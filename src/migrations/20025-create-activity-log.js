@@ -18,20 +18,14 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            activityName: {
-                type: Sequelize.BOOLEAN,
+            dataTarget: {
+                type: Sequelize.STRING,
+            },
+            tableTarget: {
+                type: Sequelize.STRING,
             },
             action: {
                 type: Sequelize.INTEGER,
-            },
-            accountId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "Accounts",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
             },
             active: {
                 type: Sequelize.BOOLEAN,

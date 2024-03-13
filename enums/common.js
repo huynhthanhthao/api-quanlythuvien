@@ -55,6 +55,12 @@ const SETTING_STATUS = {
 
 const DEFAULT_REGULAR_BORROW_COUNT = 4;
 
+const ACTIVITY_TYPE = {
+    CREATED: 1,
+    UPDATED: 2,
+    DELETED: 3,
+};
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -71,4 +77,5 @@ module.exports = {
     PENALTY_TICKET_STATUS,
     SETTING_STATUS,
     DEFAULT_REGULAR_BORROW_COUNT,
+    ACTIVITY_TYPE,
 };

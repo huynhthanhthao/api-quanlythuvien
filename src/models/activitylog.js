@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            ActivityLog.belongsTo(models.Account, {
+                foreignKey: "createdBy",
+                as: "account",
+            });
         }
     }
     ActivityLog.init(
@@ -17,14 +21,14 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            activityName: {
-                type: DataTypes.BOOLEAN,
+            dataTarget: {
+                type: DataTypes.STRING,
+            },
+            tableTarget: {
+                type: DataTypes.STRING,
             },
             action: {
                 type: DataTypes.INTEGER,
-            },
-            accountId: {
-                type: DataTypes.BIGINT,
             },
             active: {
                 type: DataTypes.BOOLEAN,
