@@ -513,49 +513,6 @@ class BookService {
             }, 0),
         }));
     }
-
-    static async generateBookLostCode(schoolId) {
-        const { dataValues: highestBook } = (await db.Book.findOne({
-            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("bookCode")), "maxBookCode"]],
-            where: { schoolId },
-        })) || { dataValues: null };
-
-        let newBookCode = "M00001";
-
-        if (highestBook && highestBook?.maxBookCode) {
-            const currentNumber = parseInt(highestBook.maxBookCode.slice(2), 10);
-            const nextNumber = currentNumber + 1;
-            newBookCode = `M${nextNumber.toString().padStart(5, "0")}`;
-        }
-
-        return newBookCode;
-    }
-
-    static async lostBook(book, account) {
-        const bookExist = await this.getBookByIdOrCode(book.bookId, account);
-
-        await this.createBook(
-            {
-                bookCode: await this.generateBookLostCode(account.schoolId),
-                bookName: bookExist.bookName,
-                otherName: bookExist.otherName,
-                author: bookExist.author,
-                pages: bookExist.pages,
-                yearPublication: bookExist.yearPublication,
-                rePublic: bookExist.rePublic,
-                price: bookExist.price,
-                photoURL: bookExist.photoURL,
-                bookDes: book.description,
-                publisherId: bookExist.pubId,
-                categoryId: bookExist.categoryId,
-                languageId: bookExist.lanId,
-                statusId: bookExist.statusId,
-                bookCondition: BOOK_CONDITION.LOST,
-                fieldIds: bookExist.fieldList,
-            },
-            account
-        );
-    }
 }
 
 module.exports = BookService;

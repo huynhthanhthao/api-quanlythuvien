@@ -12,15 +12,6 @@ router.post("/create", upload.single("photoFile"), async function (req, res, nex
     }
 });
 
-router.post("/lost-book", async function (req, res, next) {
-    try {
-        const data = await BookController.lostBook(req);
-        return res.json(data);
-    } catch (error) {
-        next(error);
-    }
-});
-
 router.put("/:id/update", upload.single("photoFile"), async function (req, res, next) {
     try {
         const data = await BookController.updateBookById(req);

@@ -114,22 +114,6 @@ class BookController {
 
         return transformer(await BookService.deleteBookByIds(ids, req.account), "Cập nhật thành công.");
     }
-
-    static async lostBook(req) {
-        const { quantity, bookId } = req.body;
-
-        if (!quantity || quantity <= 0)
-            throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
-                field: "quantity",
-            });
-
-        if (!bookId)
-            throw new CatchException("Id sách không được để trống.", errorCodes.MISSING_DATA, {
-                field: "bookId",
-            });
-
-        return transformer(await BookService.lostBook(req.body, req.account), "Báo cáo thành công.");
-    }
 }
 
 module.exports = BookController;
