@@ -183,7 +183,7 @@ class ReportService {
         return dataReport;
     }
 
-    static async getFieldBookCounts(query, account) {
+    static async getFieldBookCounts(year, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         const dataReport = await db.Field.findAll({
@@ -196,13 +196,27 @@ class ReportService {
             ],
             include: [
                 {
-                    model: db.Book,
-                    as: "book",
+                    model: db.FieldHasBook,
+                    as: "fieldHasBook",
                     where: {
-                        [Op.and]: [whereCondition],
+                        [Op.and]: [
+                            whereCondition,
+                            db.sequelize.literal(`EXTRACT(YEAR FROM "fieldHasBook"."createdAt") = ${year}`),
+                        ],
                     },
                     attributes: [],
                     required: false,
+                    include: [
+                        {
+                            model: db.Book,
+                            as: "book",
+                            where: {
+                                [Op.and]: [whereCondition],
+                            },
+                            attributes: [],
+                            required: false,
+                        },
+                    ],
                 },
             ],
             limit: 10,
