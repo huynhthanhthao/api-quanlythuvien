@@ -15,12 +15,12 @@ class SettingService {
         });
     }
 
-    static async updateSettingById(updateSetting, account) {
+    static async updateSettingBySchoolId(updateSetting, account) {
         const whereCondition = { schoolId: account.schoolId, active: true };
 
         await db.Setting.update(
             { hasFineFee: updateSetting.hasFineFee, updatedBy: account.id },
-            { where: { ...whereCondition, id: updateSetting.id } }
+            { where: { ...whereCondition } }
         );
     }
 

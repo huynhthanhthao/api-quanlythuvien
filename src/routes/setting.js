@@ -11,9 +11,9 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/update", async function (req, res, next) {
     try {
-        const data = await SettingController.updateSettingById(req);
+        const data = await SettingController.updateSettingBySchoolId(req);
         return res.json(data);
     } catch (error) {
         next(error);
