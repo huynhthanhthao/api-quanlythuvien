@@ -25,8 +25,8 @@ class SettingController {
         return transformer(await SettingService.getSettingById(id, req.account), "Lấy chi tiết thành công.");
     }
 
-    static async getSettingActive(req) {
-        return transformer(await SettingService.getSettingActive(req.account), "Lấy chi tiết thành công.");
+    static async getSettingBySchoolId(req) {
+        return transformer(await SettingService.getSettingBySchoolId(req.account), "Lấy chi tiết thành công.");
     }
 
     static async getSettings(req) {

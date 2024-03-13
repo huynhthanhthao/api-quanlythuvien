@@ -31,7 +31,7 @@ router.put("/delete", async function (req, res, next) {
 
 router.get("/active", async function (req, res, next) {
     try {
-        const data = await SettingController.getSettingActive(req);
+        const data = await SettingController.getSettingBySchoolId(req);
         return res.json(data);
     } catch (error) {
         next(error);

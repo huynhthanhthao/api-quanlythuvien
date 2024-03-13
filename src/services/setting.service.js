@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { UNLIMITED, DEFAULT_LIMIT, SETTING_STATUS } = require("../../enums/common");
+const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
@@ -7,11 +7,6 @@ const db = require("../models");
 
 class SettingService {
     static async createSetting(newSetting, account) {
-        const whereCondition = { schoolId: account.schoolId, active: true };
-
-        if (newSetting.status == SETTING_STATUS.ACTIVE)
-            await db.Setting.update({ status: SETTING_STATUS.NOT_ACTIVE }, { where: whereCondition });
-
         await db.Setting.create({
             ...newSetting,
             createdBy: account.id,
@@ -23,11 +18,8 @@ class SettingService {
     static async updateSettingById(updateSetting, account) {
         const whereCondition = { schoolId: account.schoolId, active: true };
 
-        if (updateSetting.status == SETTING_STATUS.ACTIVE)
-            await db.Setting.update({ status: SETTING_STATUS.NOT_ACTIVE }, { where: whereCondition });
-
         await db.Setting.update(
-            { ...updateSetting, status: updateSetting?.status, updatedBy: account.id },
+            { hasFineFee: updateSetting.hasFineFee, updatedBy: account.id },
             { where: { ...whereCondition, id: updateSetting.id } }
         );
     }
@@ -52,11 +44,11 @@ class SettingService {
         return setting;
     }
 
-    static async getSettingActive(account) {
+    static async getSettingBySchoolId(account) {
         const setting = await db.Setting.findOne({
-            where: { status: SETTING_STATUS.ACTIVE, active: true, schoolId: account.schoolId },
+            where: { active: true, schoolId: account.schoolId },
             attributes: {
-                exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+                exclude: ["createdAt", "createdBy", "updatedBy", "active", "schoolId"],
             },
         });
 
@@ -75,11 +67,7 @@ class SettingService {
         }
 
         const whereCondition = {
-            [Op.and]: [
-                { active: true },
-                { schoolId: account.schoolId },
-                query.status && { status: query.status },
-            ].filter(Boolean),
+            [Op.and]: [{ active: true }, { schoolId: account.schoolId }].filter(Boolean),
         };
 
         const { rows, count } = await db.Setting.findAndCountAll({
