@@ -1,11 +1,13 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const { CatchException } = require("../../utils/api-error");
-const { errorCodes } = require("../../enums/error-code");
-const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const unidecode = require("unidecode");
+const { CatchException } = require("../../utils/api-error");
+const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { errorCodes } = require("../../enums/error-code");
 const { mapResponseBookLostList, mapResponseBookLostItem } = require("../map-responses/bookLost.map-response");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class BookLostService {
     static async checkBooksInLoanReceipt(bookIds, loanReceiptId, account) {
@@ -51,6 +53,12 @@ class BookLostService {
             }));
 
             await db.LostReportHasBook.bulkCreate(lostBookData, { transaction });
+
+            await ActivityService.createActivity(
+                { dataTarget: lostReport.id, tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.CREATED },
+                account,
+                transaction
+            );
 
             await transaction.commit();
         } catch (error) {
@@ -100,6 +108,12 @@ class BookLostService {
                 lostBookData,
                 db.LostReportHasBook,
                 { lostReportId: updateBookLost.id, schoolId: account.schoolId },
+                account,
+                transaction
+            );
+
+            await ActivityService.createActivity(
+                { dataTarget: updateBookLost.id, tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.UPDATED },
                 account,
                 transaction
             );
@@ -262,6 +276,11 @@ class BookLostService {
         await db.LostReportHasBook.update(
             { active: false, updatedBy: account.id },
             { where: { ...whereCondition, lostReportId: { [Op.in]: ids } } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.DELETED },
+            account
         );
     }
 }

@@ -1,15 +1,17 @@
 const { Op } = require("sequelize");
-const { errorCodes } = require("../../enums/error-code");
-const { CatchException } = require("../../utils/api-error");
-const { calculateDaysDiff, fDate, convertToIntArray } = require("../../utils/server");
 const db = require("../models");
+const unidecode = require("unidecode");
+const { CatchException } = require("../../utils/api-error");
+const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { errorCodes } = require("../../enums/error-code");
+const { calculateDaysDiff, fDate, convertToIntArray } = require("../../utils/server");
 const {
     mapResponsePenaltyTicketItem,
     mapResponsePenaltyTicketList,
 } = require("../map-responses/penaltyTicket.map-response");
-const { getPagination } = require("../../utils/customer-sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
-const unidecode = require("unidecode");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class PenaltyTicketService {
     static async createPenaltyTicket(userId, bookList, account, transaction) {
@@ -112,6 +114,12 @@ class PenaltyTicketService {
 
         await db.DetailPenaltyTicket.bulkCreate(penaltyTicketData, { transaction });
 
+        await ActivityService.createActivity(
+            { dataTarget: penaltyTicket.id, tableTarget: TABLE_NAME.PENALTY_TICKET, action: ACTIVITY_TYPE.CREATED },
+            account,
+            transaction
+        );
+
         return penaltyTicket.id;
     }
 
@@ -124,6 +132,12 @@ class PenaltyTicketService {
         await db.PenaltyTicket.update(
             { status: ticket.status, updatedBy: account.id },
             { where: { ...whereCondition, id: ticket.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: ticket.id, tableTarget: TABLE_NAME.PENALTY_TICKET, action: ACTIVITY_TYPE.UPDATED },
+            account,
+            transaction
         );
     }
 
@@ -141,6 +155,15 @@ class PenaltyTicketService {
         await db.DetailPenaltyTicket.update(
             { active: false, updatedBy: account.id },
             { where: { ...whereCondition, finePolicyId: { [Op.in]: ticketIds } } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(ticketIds),
+                tableTarget: TABLE_NAME.PENALTY_TICKET,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 
@@ -344,12 +367,12 @@ class PenaltyTicketService {
             where: { schoolId },
         })) || { dataValues: null };
 
-        let newTicketCode = "S00001";
+        let newTicketCode = "PP00001";
 
         if (highestPenalty && highestPenalty?.maxTicketCode) {
             const currentNumber = parseInt(highestPenalty.maxTicketCode.slice(2), 10);
             const nextNumber = currentNumber + 1;
-            newTicketCode = `S${nextNumber.toString().padStart(5, "0")}`;
+            newTicketCode = `PP${nextNumber.toString().padStart(5, "0")}`;
         }
 
         return newTicketCode;

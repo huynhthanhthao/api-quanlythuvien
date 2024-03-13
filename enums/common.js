@@ -59,6 +59,7 @@ const ACTIVITY_TYPE = {
     CREATED: 1,
     UPDATED: 2,
     DELETED: 3,
+    GIVE_BOOK_BACK: 4,
 };
 
 module.exports = {

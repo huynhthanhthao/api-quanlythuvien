@@ -1,12 +1,14 @@
 const { Op } = require("sequelize");
 const db = require("../models");
 const unidecode = require("unidecode");
-const { CatchException } = require("../../utils/api-error");
-const ReaderGroupService = require("./readerGroup.service");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
+const ReaderGroupService = require("./readerGroup.service");
+const { CatchException } = require("../../utils/api-error");
 const BookService = require("./book.service");
+const ActivityService = require("./activityLog.service");
 const { errorCodes } = require("../../enums/error-code");
-const { LOAN_STATUS, DEFAULT_LIMIT } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
+const { LOAN_STATUS, DEFAULT_LIMIT, ACTIVITY_TYPE } = require("../../enums/common");
 const {
     calculateDaysDiff,
     convertToIntArray,
@@ -65,6 +67,13 @@ class LoanReceiptService {
             }));
 
             await db.ReceiptHasBook.bulkCreate(receiptBookData, { transaction });
+
+            await ActivityService.createActivity(
+                { dataTarget: loanReceipt.id, tableTarget: TABLE_NAME.LOAN_RECEIPT, action: ACTIVITY_TYPE.CREATED },
+                account,
+                transaction
+            );
+
             await transaction.commit();
         } catch (error) {
             await transaction.rollback();
@@ -167,6 +176,16 @@ class LoanReceiptService {
                 receiptBookData,
                 db.ReceiptHasBook,
                 { loanReceiptId: loanReceiptUpdate.id, schoolId: account.schoolId },
+                account,
+                transaction
+            );
+
+            await ActivityService.createActivity(
+                {
+                    dataTarget: loanReceiptUpdate.id,
+                    tableTarget: TABLE_NAME.LOAN_RECEIPT,
+                    action: ACTIVITY_TYPE.UPDATED,
+                },
                 account,
                 transaction
             );
@@ -448,9 +467,30 @@ class LoanReceiptService {
                     account,
                     transaction
                 );
+
+                await ActivityService.createActivity(
+                    {
+                        dataTarget: JSON.stringify(bookIds),
+                        tableTarget: TABLE_NAME.LOAN_RECEIPT,
+                        action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
+                    },
+                    account,
+                    transaction
+                );
+
                 await transaction.commit();
                 return { code: errorCodes.BOOKS_ARE_LATE, penaltyTicketId, overdueBooks };
             }
+
+            await ActivityService.createActivity(
+                {
+                    dataTarget: JSON.stringify(bookIds),
+                    tableTarget: TABLE_NAME.LOAN_RECEIPT,
+                    action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
+                },
+                account,
+                transaction
+            );
 
             await transaction.commit();
             return { code: errorCodes.BOOKS_ARE_LATE, overdueBooks };
@@ -492,6 +532,15 @@ class LoanReceiptService {
                 updatedBy: account.id,
             },
             { where: { loanReceiptId: { [Op.in]: ids }, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(ids),
+                tableTarget: TABLE_NAME.LOAN_RECEIPT,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 }

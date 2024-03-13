@@ -1,9 +1,11 @@
+const db = require("../models");
 const { Op } = require("sequelize");
-const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
+const { UNLIMITED, DEFAULT_LIMIT, ACTIVITY_TYPE } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
-const db = require("../models");
+const ActivityService = require("./activityLog.service");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class SettingService {
     static async createSetting(newSetting, account) {
@@ -21,6 +23,11 @@ class SettingService {
         await db.Setting.update(
             { hasFineFee: updateSetting.hasFineFee, updatedBy: account.id },
             { where: { ...whereCondition } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: null, tableTarget: TABLE_NAME.SETTING, action: ACTIVITY_TYPE.UPDATED },
+            account
         );
     }
 

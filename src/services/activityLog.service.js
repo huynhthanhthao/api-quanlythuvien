@@ -4,7 +4,7 @@ const { getPagination } = require("../../utils/customer-sequelize");
 const db = require("../models");
 
 class ActivityService {
-    static async createActivity(newActivity, transaction, account) {
+    static async createActivity(newActivity, account, transaction) {
         await db.ActivityLog.create(
             {
                 ...newActivity,

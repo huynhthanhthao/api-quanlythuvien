@@ -1,10 +1,12 @@
-const { Op } = require("sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
-const db = require("../models");
 const unidecode = require("unidecode");
+const { Op } = require("sequelize");
+const db = require("../models");
 const { CatchException } = require("../../utils/api-error");
-const { errorCodes } = require("../../enums/error-code");
 const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { errorCodes } = require("../../enums/error-code");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class CategoryService {
     static async getCategories(query, account) {
@@ -67,7 +69,7 @@ class CategoryService {
     static async createCategory(newCategory, account) {
         const categoryCode = await this.generateCategoryCode(account.schoolId);
 
-        await db.Category.create({
+        const category = await db.Category.create({
             categoryCode,
             categoryName: newCategory.categoryName,
             categoryDes: newCategory.categoryDes,
@@ -75,6 +77,11 @@ class CategoryService {
             createdBy: account.id,
             updatedBy: account.id,
         });
+
+        await ActivityService.createActivity(
+            { dataTarget: category.id, tableTarget: TABLE_NAME.CATEGORY, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
     }
 
     static async generateCategoryCode(schoolId) {
@@ -105,6 +112,11 @@ class CategoryService {
             },
             { where: { id: updateCategory.id, active: true, schoolId: account.schoolId } }
         );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateCategory.id, tableTarget: TABLE_NAME.CATEGORY, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
     }
 
     static async deleteCategoryByIds(categoryIds, account) {
@@ -114,6 +126,15 @@ class CategoryService {
                 updatedBy: account.id,
             },
             { where: { id: { [Op.in]: categoryIds }, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(categoryIds),
+                tableTarget: TABLE_NAME.CATEGORY,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 }

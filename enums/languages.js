@@ -1,5 +1,13 @@
-const tableName = {
-    BOOK: "Dữ liệu sách",
+const TABLE_NAME = {
+    BOOK: "BOOK",
+    BOOK_LOST: "BOOK_LOST",
+    BOOK_REQUEST: "BOOK_REQUEST",
+    POSITION: "POSITION",
+    CATEGORY: "CATEGORY",
+    LOAN_RECEIPT: "LOAN_RECEIPT",
+    FINE_POLICY: "FINE_POLICY",
+    PENALTY_TICKET: "PENALTY_TICKET",
+    SETTING: "SETTING",
 };
 
-module.exports = { tableName };
+module.exports = { TABLE_NAME };

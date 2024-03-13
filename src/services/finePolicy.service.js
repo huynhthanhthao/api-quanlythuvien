@@ -1,24 +1,31 @@
-const { Op } = require("sequelize");
-const { CatchException } = require("../../utils/api-error");
-const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
 const unidecode = require("unidecode");
+const { Op } = require("sequelize");
+const db = require("../models");
+const { CatchException } = require("../../utils/api-error");
+const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
 const { convertToIntArray } = require("../../utils/server");
 const { mapResponseFinePolicyList, mapResponseFinePolicyItem } = require("../map-responses/finePolicy.map-response");
-const { getPagination } = require("../../utils/customer-sequelize");
 const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class FinePolicyService {
     static async createFinePolicy(newFinePolicy, account) {
         const policyCode = newFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
 
-        await db.FinePolicy.create({
+        const finePolicy = await db.FinePolicy.create({
             ...newFinePolicy,
             policyCode: policyCode,
             createdBy: account.id,
             updatedBy: account.id,
             schoolId: account.schoolId,
         });
+
+        await ActivityService.createActivity(
+            { dataTarget: finePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
     }
 
     static async updateFinePolicyById(updateFinePolicy, account) {
@@ -33,6 +40,11 @@ class FinePolicyService {
             },
             { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId } }
         );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateFinePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
     }
 
     static async generateFinePolicyCode(schoolId) {
@@ -41,12 +53,12 @@ class FinePolicyService {
             where: { schoolId },
         })) || { dataValues: null };
 
-        let newFinePolicyCode = "PP0001";
+        let newFinePolicyCode = "CS0001";
 
         if (highestFinePolicy && highestFinePolicy?.maxFinePolicyCode) {
             const currentNumber = parseInt(highestFinePolicy.maxFinePolicyCode.slice(2), 10);
             const nextNumber = currentNumber + 1;
-            newFinePolicyCode = `PP${nextNumber.toString().padStart(4, "0")}`;
+            newFinePolicyCode = `CS${nextNumber.toString().padStart(4, "0")}`;
         }
 
         return newFinePolicyCode;
@@ -63,6 +75,11 @@ class FinePolicyService {
             updatedBy: account.id,
         }));
 
+        await ActivityService.createActivity(
+            { dataTarget: finePolicy.finePolicyId, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
+
         await db.FinePolicyHasBook.bulkCreate(dataInput);
     }
 
@@ -75,6 +92,15 @@ class FinePolicyService {
                 updatedBy: account.id,
             },
             { where: { active: true, schoolId: account.schoolId, id: finePolicyHasBook.id } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: finePolicyHasBook.finePolicyId,
+                tableTarget: TABLE_NAME.FINE_POLICY,
+                action: ACTIVITY_TYPE.UPDATED,
+            },
+            account
         );
     }
 
@@ -95,6 +121,15 @@ class FinePolicyService {
                     },
                 },
             }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(policyIds),
+                tableTarget: TABLE_NAME.FINE_POLICY,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 
@@ -275,8 +310,6 @@ class FinePolicyService {
         });
 
         if (!finePolicy) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
-
-        return finePolicy;
 
         return mapResponseFinePolicyItem(finePolicy);
     }

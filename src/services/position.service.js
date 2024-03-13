@@ -1,16 +1,18 @@
-const { Op } = require("sequelize");
-const { CatchException } = require("../../utils/api-error");
-const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
 const unidecode = require("unidecode");
-const { errorCodes } = require("../../enums/error-code");
+const { Op } = require("sequelize");
+const db = require("../models");
+const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class PositionService {
     static async createPosition(newPosition, account) {
         const positionCode = await this.generatePositionCode(account.schoolId);
 
-        await db.Position.create({
+        const position = await db.Position.create({
             positionCode,
             positionName: newPosition.positionName,
             positionDes: newPosition.positionDes,
@@ -18,6 +20,11 @@ class PositionService {
             createdBy: account.id,
             updatedBy: account.id,
         });
+
+        await ActivityService.createActivity(
+            { dataTarget: position.id, tableTarget: TABLE_NAME.POSITION, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
     }
 
     static async updatePositionById(updatePosition, account) {
@@ -31,6 +38,11 @@ class PositionService {
             },
             { where: { id: updatePosition.id, active: true, schoolId: account.schoolId } }
         );
+
+        await ActivityService.createActivity(
+            { dataTarget: updatePosition.id, tableTarget: TABLE_NAME.POSITION, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
     }
 
     static async deletePositionByIds(positionIds, account) {
@@ -40,6 +52,15 @@ class PositionService {
                 updatedBy: account.id,
             },
             { where: { id: { [Op.in]: positionIds }, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(positionIds),
+                tableTarget: TABLE_NAME.POSITION,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 

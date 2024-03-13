@@ -1,17 +1,19 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const { customerURL, convertToIntArray } = require("../../utils/server");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
-const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
-const { mapResponseBookRequestList, mapResponseBookRequestItem } = require("../map-responses/bookRequest.map-response");
 const unidecode = require("unidecode");
 const { CatchException } = require("../../utils/api-error");
+const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { customerURL, convertToIntArray } = require("../../utils/server");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { mapResponseBookRequestList, mapResponseBookRequestItem } = require("../map-responses/bookRequest.map-response");
 const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
 
 class BookRequestService {
     static async createBookRequest(newBookRequest, account) {
         const readerCode = newBookRequest.readerCode || (await this.generateBookRequestCode(account.schoolId));
-        await db.BookRequest.create({
+        const bookRequest = await db.BookRequest.create({
             ...newBookRequest,
             bookCode: readerCode,
             photoURL: customerURL(newBookRequest.photoURL),
@@ -19,6 +21,11 @@ class BookRequestService {
             createdBy: account.id,
             updatedBy: account.id,
         });
+
+        await ActivityService.createActivity(
+            { dataTarget: bookRequest.id, tableTarget: TABLE_NAME.BOOK_REQUEST, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
     }
 
     static async updateBookRequestById(updateBookRequest, account) {
@@ -45,6 +52,11 @@ class BookRequestService {
                 updatedBy: account.id,
             },
             { where: { id: updateBookRequest.id, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateBookRequest.id, tableTarget: TABLE_NAME.BOOK_REQUEST, action: ACTIVITY_TYPE.UPDATED },
+            account
         );
     }
 
@@ -221,6 +233,15 @@ class BookRequestService {
                 updatedBy: account.id,
             },
             { where: { id: { [Op.in]: bookIds }, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(bookIds),
+                tableTarget: TABLE_NAME.BOOK_REQUEST,
+                action: ACTIVITY_TYPE.UPDATED,
+            },
+            account
         );
     }
 

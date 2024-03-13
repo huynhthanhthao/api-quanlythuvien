@@ -1,14 +1,14 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const { customerURL, convertToIntArray } = require("../../utils/server");
-const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, BOOK_CONDITION, ACTIVITY_TYPE } = require("../../enums/common");
-const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
-const { mapResponseBookList, mapResponseBookItem } = require("../map-responses/book.map-response");
 const unidecode = require("unidecode");
+const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { CatchException } = require("../../utils/api-error");
-const { errorCodes } = require("../../enums/error-code");
 const ActivityService = require("./activityLog.service");
-const { tableName } = require("../../enums/languages");
+const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, ACTIVITY_TYPE } = require("../../enums/common");
+const { mapResponseBookList, mapResponseBookItem } = require("../map-responses/book.map-response");
+const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
+const { customerURL, convertToIntArray } = require("../../utils/server");
 
 class BookService {
     static async createBook(newBook, account) {
@@ -58,9 +58,9 @@ class BookService {
             );
 
             await ActivityService.createActivity(
-                { dataTarget: bookCode, tableTarget: tableName.BOOK, action: ACTIVITY_TYPE.CREATED },
-                transaction,
-                account
+                { dataTarget: book.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.CREATED },
+                account,
+                transaction
             );
 
             await transaction.commit();
@@ -140,9 +140,9 @@ class BookService {
             );
 
             await ActivityService.createActivity(
-                { dataTarget: bookCode, tableTarget: tableName.BOOK, action: ACTIVITY_TYPE.UPDATED },
-                transaction,
-                account
+                { dataTarget: updateBook.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.UPDATED },
+                account,
+                transaction
             );
 
             await transaction.commit();
@@ -448,6 +448,11 @@ class BookService {
                 updatedBy: account.id,
             },
             { where: { bookId: { [Op.in]: ids }, active: true, schoolId: account.schoolId } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.DELETED },
+            account
         );
     }
 

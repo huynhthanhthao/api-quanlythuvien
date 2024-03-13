@@ -20,7 +20,10 @@ class CategoryController {
 
         await position.validate();
 
-        return transformer(await CategoryService.createCategory(req.body, req.account), "Đã thêm dữ liệu kệ sách mới.");
+        return transformer(
+            await CategoryService.createCategory(req.body, req.account),
+            "Đã thêm dữ liệu danh mục sách mới."
+        );
     }
 
     static async updateCategoryById(req) {
