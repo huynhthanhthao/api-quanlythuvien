@@ -29,13 +29,20 @@ class BookLostService {
             active: true,
             schoolId: account.schoolId,
             bookId: { [Op.in]: bookIds },
-            type: LOAN_STATUS.LOST,
-            loanReceiptId,
         };
 
-        const bookLostReported = await db.ReceiptHasBook.findAll({
+        const bookLostReported = await db.LostReportHasBook.findAll({
             where: whereCondition,
             attributes: ["bookId"],
+            include: [
+                {
+                    model: db.BookLostReport,
+                    as: "lostReport",
+                    where: { active: true, schoolId: account.schoolId, loanReceiptId },
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
         });
 
         if (bookLostReported.length > 0) {
@@ -80,12 +87,6 @@ class BookLostService {
             }));
 
             await db.LostReportHasBook.bulkCreate(lostBookData, { transaction });
-
-            // Cập nhật trạng thái mất sách
-            await db.ReceiptHasBook.update(
-                { type: LOAN_STATUS.LOST },
-                { where: { ...whereCondition, bookId: { [Op.in]: bookIds } }, transaction }
-            );
 
             await ActivityService.createActivity(
                 { dataTarget: lostReport.id, tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.CREATED },

@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "bookId",
                 as: "book",
             });
+
+            LostReportHasBook.belongsTo(models.BookLostReport, {
+                foreignKey: "lostReportId",
+                as: "lostReport",
+            });
         }
     }
     LostReportHasBook.init(

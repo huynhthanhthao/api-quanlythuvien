@@ -265,6 +265,22 @@ class LoanReceiptService {
                     },
                 },
                 {
+                    model: db.BookLostReport,
+                    as: "bookLostReport",
+                    where: whereCommonCondition,
+                    required: false,
+                    attributes: ["loanReceiptId"],
+                    include: [
+                        {
+                            model: db.LostReportHasBook,
+                            as: "lostReportHasBook",
+                            where: whereCommonCondition,
+                            required: false,
+                            attributes: ["bookId"],
+                        },
+                    ],
+                },
+                {
                     model: db.ReceiptHasBook,
                     as: "receiptHasBook",
                     where: whereReceiptHasBookCondition,
