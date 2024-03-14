@@ -12,9 +12,6 @@ module.exports = {
             groupName: {
                 type: Sequelize.STRING,
             },
-            groupDes: {
-                type: Sequelize.TEXT,
-            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

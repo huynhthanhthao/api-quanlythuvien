@@ -18,14 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     }
     GroupRole.init(
         {
-            schoolId: {
-                type: DataTypes.BIGINT,
-            },
-            perName: {
+            groupName: {
                 type: DataTypes.STRING,
-            },
-            perDes: {
-                type: DataTypes.TEXT,
             },
             active: {
                 type: DataTypes.BOOLEAN,

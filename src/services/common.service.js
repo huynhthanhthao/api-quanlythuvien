@@ -10,34 +10,36 @@ class CommonService {
         // const tables = Object.keys(db.sequelize.models);
 
         const tables = [
-            "Account",
-            "Book",
-            "BookHasStatus",
-            "BookRequest",
-            "BookStatus",
-            "Category",
-            "Class",
-            "ClassHasUser",
-            "DetailPenaltyTicket",
-            "Field",
-            "FieldHasBook",
-            "FinePolicy",
-            "FinePolicyHasBook",
-            "Group",
-            "GroupHasRole",
-            "Language",
-            "LoanReceipt",
-            "PenaltyTicket",
-            "Position",
-            "Publisher",
-            "ReaderGroup",
+            "Role",
+            "GroupRole",
+            // "Account",
+            // "Book",
+            // "BookHasStatus",
+            // "BookRequest",
+            // "BookStatus",
+            // "Category",
+            // "Class",
+            // "ClassHasUser",
+            // "DetailPenaltyTicket",
+            // "Field",
+            // "FieldHasBook",
+            // "FinePolicy",
+            // "FinePolicyHasBook",
+            // "GroupRole",
+            // "Language",
+            // "Role",
+            // "LoanReceipt",
+            // "PenaltyTicket",
+            // "Position",
+            // "Publisher",
+            // "ReaderGroup",
         ];
 
         const queryPromises = tables.map(async (table) => {
             const data = await db[table].findAll({
-                where: {
-                    schoolId: account.schoolId,
-                },
+                // where: {
+                //     schoolId: account.schoolId,
+                // },
             });
             return { table, data: data.map((entry) => entry.toJSON()) };
         });
