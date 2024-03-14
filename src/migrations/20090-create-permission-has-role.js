@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("GroupHasRoles", {
+        await queryInterface.createTable("PermissionHasRoles", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -27,7 +27,7 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            groupId: {
+            permissionId: {
                 type: Sequelize.BIGINT,
                 references: {
                     model: "Groups",
@@ -71,6 +71,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("GroupHasRoles");
+        await queryInterface.dropTable("PermissionHasRoles");
     },
 };

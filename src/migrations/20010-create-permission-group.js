@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("Roles", {
+        await queryInterface.createTable("PermissionGroups", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,20 +12,11 @@ module.exports = {
             schoolId: {
                 type: Sequelize.BIGINT,
             },
-            roleName: {
+            groupCode: {
                 type: Sequelize.STRING,
             },
-            roleCode: {
+            groupName: {
                 type: Sequelize.STRING,
-            },
-            groupId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "GroupRoles",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
             },
             active: {
                 type: Sequelize.BOOLEAN,
@@ -50,6 +41,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("Roles");
+        await queryInterface.dropTable("PermissionGroups");
     },
 };

@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("Groups", {
+        await queryInterface.createTable("GroupRoles", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,11 +12,11 @@ module.exports = {
             schoolId: {
                 type: Sequelize.BIGINT,
             },
-            groupCode: {
-                type: Sequelize.STRING,
-            },
             groupName: {
                 type: Sequelize.STRING,
+            },
+            groupDes: {
+                type: Sequelize.TEXT,
             },
             active: {
                 type: Sequelize.BOOLEAN,
@@ -41,6 +41,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("Groups");
+        await queryInterface.dropTable("GroupRoles");
     },
 };

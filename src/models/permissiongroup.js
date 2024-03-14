@@ -2,7 +2,7 @@
 const { Model, Op } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-    class Role extends Model {
+    class PermissionGroup extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -10,25 +10,18 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Role.belongsTo(models.GroupRole, {
-                foreignKey: "groupId",
-                as: "group",
-            });
         }
     }
-    Role.init(
+    PermissionGroup.init(
         {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            roleName: {
+            groupCode: {
                 type: DataTypes.STRING,
             },
-            roleCode: {
+            groupName: {
                 type: DataTypes.STRING,
-            },
-            groupId: {
-                type: DataTypes.BIGINT,
             },
             active: {
                 type: DataTypes.BOOLEAN,
@@ -43,14 +36,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "Role",
+            modelName: "PermissionGroup",
             timestamps: true,
             underscored: false,
             hooks: {
-                beforeValidate: (Role) => {},
+                beforeValidate: (PermissionGroup) => {},
             },
         }
     );
 
-    return Role;
+    return PermissionGroup;
 };
