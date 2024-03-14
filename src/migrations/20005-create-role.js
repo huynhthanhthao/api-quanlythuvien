@@ -9,9 +9,6 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.BIGINT,
             },
-            schoolId: {
-                type: Sequelize.BIGINT,
-            },
             roleName: {
                 type: Sequelize.STRING,
             },

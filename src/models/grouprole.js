@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            GroupRole.hasMany(models.Role, {
+                foreignKey: "groupId",
+                as: "roleList",
+            });
         }
     }
     GroupRole.init(
@@ -17,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            groupName: {
+            perName: {
                 type: DataTypes.STRING,
             },
-            groupDes: {
+            perDes: {
                 type: DataTypes.TEXT,
             },
             active: {

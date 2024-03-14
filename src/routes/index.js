@@ -43,6 +43,12 @@ const activityRouter = require("./activityLog");
 
 const bookLostRouter = require("./bookLost");
 
+const roleRouter = require("./role");
+
+const groupRoleRouter = require("./groupRole");
+
+const PermissionRouter = require("./permission");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -86,5 +92,11 @@ router.use("/common", checkToken, commonRouter);
 router.use("/activity", checkToken, activityRouter);
 
 router.use("/book-lost", checkToken, bookLostRouter);
+
+router.use("/role", checkToken, roleRouter);
+
+router.use("/group-role", checkToken, groupRoleRouter);
+
+router.use("/permission", checkToken, PermissionRouter);
 
 module.exports = router;

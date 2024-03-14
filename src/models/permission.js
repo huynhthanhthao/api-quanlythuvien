@@ -2,7 +2,7 @@
 const { Model, Op } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-    class PermissionGroup extends Model {
+    class Permission extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
         }
     }
-    PermissionGroup.init(
+    Permission.init(
         {
             schoolId: {
                 type: DataTypes.BIGINT,
@@ -36,14 +36,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "PermissionGroup",
+            modelName: "Permission",
             timestamps: true,
             underscored: false,
             hooks: {
-                beforeValidate: (PermissionGroup) => {},
+                beforeValidate: (Permission) => {},
             },
         }
     );
 
-    return PermissionGroup;
+    return Permission;
 };

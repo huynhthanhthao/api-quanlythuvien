@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("PermissionGroups", {
+        await queryInterface.createTable("Permissions", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,10 +12,10 @@ module.exports = {
             schoolId: {
                 type: Sequelize.BIGINT,
             },
-            groupCode: {
-                type: Sequelize.STRING,
+            perDes: {
+                type: Sequelize.TEXT,
             },
-            groupName: {
+            perName: {
                 type: Sequelize.STRING,
             },
             active: {
@@ -41,6 +41,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("PermissionGroups");
+        await queryInterface.dropTable("Permissions");
     },
 };

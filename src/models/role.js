@@ -18,9 +18,6 @@ module.exports = (sequelize, DataTypes) => {
     }
     Role.init(
         {
-            schoolId: {
-                type: DataTypes.BIGINT,
-            },
             roleName: {
                 type: DataTypes.STRING,
             },
