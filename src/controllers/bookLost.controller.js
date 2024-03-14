@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
 const { checkIsDuplicates } = require("../../utils/customer-validate");

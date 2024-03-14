@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "loanReceiptId",
                 as: "receiptHasBook",
             });
+
+            LoanReceipt.hasMany(models.BookLostReport, {
+                foreignKey: "loanReceiptId",
+                as: "bookLostReport",
+            });
         }
     }
     LoanReceipt.init(

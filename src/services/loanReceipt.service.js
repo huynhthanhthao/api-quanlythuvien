@@ -253,9 +253,7 @@ class LoanReceiptService {
 
         const { rows, count } = await db.LoanReceipt.findAndCountAll({
             where: whereLoanReceiptCondition,
-            attributes: {
-                exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-            },
+            attributes: ["id", "userId", "receiptCode", "receiveDate", "returnDate", "createdAt"],
             include: [
                 {
                     model: db.User,

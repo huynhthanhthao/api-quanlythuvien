@@ -6,7 +6,7 @@ const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
 const { errorCodes } = require("../../enums/error-code");
 const { mapResponseBookLostList, mapResponseBookLostItem } = require("../map-responses/bookLost.map-response");
-const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE, LOAN_STATUS, API_ACTION } = require("../../enums/common");
 const { TABLE_NAME } = require("../../enums/languages");
 
 class BookLostService {
@@ -24,10 +24,37 @@ class BookLostService {
         }
     }
 
+    static async checkBookLostReported(bookIds, loanReceiptId, account) {
+        const whereCondition = {
+            active: true,
+            schoolId: account.schoolId,
+            bookId: { [Op.in]: bookIds },
+            type: LOAN_STATUS.LOST,
+            loanReceiptId,
+        };
+
+        const bookLostReported = await db.ReceiptHasBook.findAll({
+            where: whereCondition,
+            attributes: ["bookId"],
+        });
+
+        if (bookLostReported.length > 0) {
+            throw new CatchException("Sách đã báo mất rồi!", errorCodes.INVALID_DATA, {
+                field: "bookIds",
+                bookIds: bookLostReported.map((item) => item.bookId),
+            });
+        }
+    }
+
     static async createBookLost(newBookLost, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
         const bookIds = newBookLost.bookIds || [];
 
+        // Kiểm tra sách có trong phiếu mượn không
         await this.checkBooksInLoanReceipt(bookIds, newBookLost.loanReceiptId, account);
+
+        // Kiểm tra sách báo mất chưa
+        await this.checkBookLostReported(bookIds, newBookLost.loanReceiptId, account);
 
         let transaction;
 
@@ -54,6 +81,12 @@ class BookLostService {
 
             await db.LostReportHasBook.bulkCreate(lostBookData, { transaction });
 
+            // Cập nhật trạng thái mất sách
+            await db.ReceiptHasBook.update(
+                { type: LOAN_STATUS.LOST },
+                { where: { ...whereCondition, bookId: { [Op.in]: bookIds } }, transaction }
+            );
+
             await ActivityService.createActivity(
                 { dataTarget: lostReport.id, tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.CREATED },
                 account,
@@ -78,6 +111,7 @@ class BookLostService {
 
         if (!bookLost) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
+        // Kiểm tra sách có trong phiếu mượn không
         await this.checkBooksInLoanReceipt(bookIds, bookLost.loanReceiptId, account);
 
         let transaction;
