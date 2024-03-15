@@ -1,7 +1,7 @@
 const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE } = require("../../enums/common");
 const { flattenArray, customerURL, convertToIntArray } = require("../../utils/server");
 const { getPagination } = require("../../utils/customer-sequelize");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
@@ -14,7 +14,9 @@ class UserService {
         try {
             transaction = await db.sequelize.transaction();
 
-            let readerCode = await this.generateReaderCode(account.schoolId);
+            let readerCode = null;
+
+            if (newUser.type != USER_TYPE.SYSTEM_USER) readerCode = await this.generateReaderCode(account.schoolId);
 
             const user = await db.User.create(
                 {
@@ -106,6 +108,7 @@ class UserService {
         const page = +query.page || 1;
         const offset = (page - 1) * limit;
         const keyword = query.keyword?.trim() || "";
+        const type = query.type || USER_TYPE.READER;
         const groupIds = query.groupIds ? convertToIntArray(query.groupIds) : [];
         const classIds = query.classIds ? convertToIntArray(query.classIds) : [];
 
@@ -118,6 +121,7 @@ class UserService {
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
+            type,
             [Op.and]: [
                 query.groupIds && { groupId: { [Op.in]: groupIds } },
                 keyword && {
@@ -192,6 +196,7 @@ class UserService {
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
+            type: USER_TYPE.READER,
         };
 
         if (isNaN(keyword)) {

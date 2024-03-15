@@ -8,7 +8,7 @@ const {
     isPhone,
     isEmail,
 } = require("../../utils/customer-validate");
-const { GENDER, AVATAR_URL_DEFAULT } = require("../../enums/common");
+const { GENDER, AVATAR_URL_DEFAULT, USER_TYPE } = require("../../enums/common");
 
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {
@@ -80,7 +80,6 @@ module.exports = (sequelize, DataTypes) => {
             },
             photoURL: {
                 type: DataTypes.TEXT,
-                defaultValue: AVATAR_URL_DEFAULT,
             },
             phone: {
                 type: DataTypes.STRING,
@@ -184,6 +183,15 @@ module.exports = (sequelize, DataTypes) => {
             },
             cardAddress: {
                 type: DataTypes.TEXT,
+            },
+            type: {
+                type: DataTypes.INTEGER,
+                defaultValue: USER_TYPE.READER,
+                validate: {
+                    isInEnum: (value) => {
+                        isInEnum(value, [USER_TYPE.READER, USER_TYPE.SYSTEM_USER]);
+                    },
+                },
             },
             active: {
                 type: DataTypes.BOOLEAN,
