@@ -56,6 +56,7 @@ module.exports = (sequelize, DataTypes) => {
             positionId: {
                 type: DataTypes.BIGINT,
                 validate: {
+                    notEmpty: true,
                     async checkEmptyForeignKey(value) {
                         await checkEmptyForeignKey(value, sequelize.models.Position, {
                             schoolId: this.schoolId,

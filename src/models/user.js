@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
             groupId: {
                 type: DataTypes.BIGINT,
                 validate: {
+                    notEmpty: true,
                     async checkEmptyForeignKey(value) {
                         await checkEmptyForeignKey(value, sequelize.models.ReaderGroup, {
                             schoolId: this.schoolId,
