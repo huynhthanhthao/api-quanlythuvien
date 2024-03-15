@@ -1,9 +1,11 @@
 const db = require("../models");
 const bcrypt = require("bcryptjs");
-const { flattenObject } = require("../../utils/server");
+const { flattenObject, convertToIntArray } = require("../../utils/server");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { Op } = require("sequelize");
 const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
+const unidecode = require("unidecode");
+const { mapResponseAccountList, mapResponseAccountItem } = require("../map-responses/account.map-response");
 
 class AccountService {
     static async createAccount(newAccount, account) {
@@ -116,8 +118,9 @@ class AccountService {
         let limit = +query.limit || DEFAULT_LIMIT;
         const page = +query.page || 1;
         const offset = (page - 1) * limit;
+        const statusIds = query.statusIds ? convertToIntArray(query.statusIds) : [];
         const keyword = query.keyword?.trim() || "";
-        const searchableFields = [""];
+        const searchableFields = ["username"];
 
         if (query.unlimited && query.unlimited == UNLIMITED) {
             limit = null;
@@ -125,13 +128,19 @@ class AccountService {
 
         const whereAccountCondition = {
             [Op.and]: [
-                // keyword && {
-                //     [Op.or]: searchableFields.map((field) =>
-                //         db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(field)), {
-                //             [Op.iLike]: `%${unidecode(keyword)}%`,
-                //         })
-                //     ),
-                // },
+                keyword && {
+                    [Op.or]: [
+                        ...searchableFields.map((field) =>
+                            db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(field)), {
+                                [Op.iLike]: `%${unidecode(keyword)}%`,
+                            })
+                        ),
+                        db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col("user.fullName")), {
+                            [Op.iLike]: `%${unidecode(keyword)}%`,
+                        }),
+                    ],
+                },
+                query.statusIds && { status: { [Op.in]: statusIds } },
                 { active: true },
                 { schoolId: account.schoolId },
             ].filter(Boolean),
@@ -143,18 +152,37 @@ class AccountService {
             where: whereAccountCondition,
             limit,
             offset,
-            attributes: {
-                exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId", "password", "userId"],
-            },
+            attributes: ["id", "username", "status", "createdAt", "updatedAt"],
             include: [
                 {
                     model: db.User,
                     as: "user",
                     where: whereCondition,
                     required: false,
-                    attributes: {
-                        exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId", "groupId"],
-                    },
+                    attributes: ["id", "fullName", "photoURL", "phone", "birthday", "email"],
+                },
+                {
+                    model: db.Permission,
+                    as: "permission",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["perName"],
+                },
+                {
+                    model: db.AccountHasRole,
+                    as: "accountHasRole",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Role,
+                            as: "role",
+                            where: { active: true },
+                            required: false,
+                            attributes: ["id", "roleName", "roleCode"],
+                        },
+                    ],
                 },
             ],
             order: [["createdAt", "DESC"]],
@@ -165,11 +193,53 @@ class AccountService {
 
         return {
             pagination,
-            list: rows,
+            list: mapResponseAccountList(rows),
         };
     }
 
-    static async getAccountById(id, account) {}
+    static async getAccountById(id, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        const data = await db.Account.findOne({
+            where: { ...whereCondition, id },
+            attributes: ["id", "username", "status", "createdAt", "updatedAt"],
+            include: [
+                {
+                    model: db.User,
+                    as: "user",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id", "fullName", "photoURL", "phone", "birthday", "email"],
+                },
+                {
+                    model: db.Permission,
+                    as: "permission",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["perName"],
+                },
+                {
+                    model: db.AccountHasRole,
+                    as: "accountHasRole",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Role,
+                            as: "role",
+                            where: { active: true },
+                            required: false,
+                            attributes: ["id", "roleName", "roleCode"],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!data) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
+        return mapResponseAccountItem(data);
+    }
 
     static async getByUsernameAndSchoolId(params) {
         const trimmedUsername = (params.username || "").trim();
@@ -177,7 +247,7 @@ class AccountService {
 
         const account = await db.Account.findOne({
             where: { username: trimmedUsername, schoolId, active: true },
-            attributes: ["username", "password", "active", "status"],
+            attributes: ["id", "username", "password", "active", "status"],
             include: [
                 {
                     model: db.User,
@@ -189,10 +259,9 @@ class AccountService {
                     },
                 },
             ],
-            raw: true,
         });
 
-        return flattenObject(account);
+        return mapResponseAccountItem(account);
     }
 
     static async getRoleSchoolId(schoolId) {

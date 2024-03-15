@@ -1,3 +1,6 @@
+const { errorCodes } = require("../../enums/error-code");
+const { CatchException } = require("../../utils/api-error");
+const { checkIsDuplicates } = require("../../utils/customer-validate");
 const { transformer } = require("../../utils/server");
 const db = require("../models");
 const PermissionService = require("../services/permission.service");
@@ -5,6 +8,14 @@ const PermissionService = require("../services/permission.service");
 class PermissionController {
     static async createPermission(req) {
         const { schoolId } = req.account;
+
+        const roleIds = req.body?.roleIds || [];
+
+        if (checkIsDuplicates(roleIds)) {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+                field: "roleIds",
+            });
+        }
 
         const permission = await db.Permission.build({ ...req.body, schoolId });
 
@@ -20,6 +31,14 @@ class PermissionController {
         const { id } = req.params;
 
         const { schoolId } = req.account;
+
+        const roleIds = req.body?.roleIds || [];
+
+        if (checkIsDuplicates(roleIds)) {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+                field: "roleIds",
+            });
+        }
 
         const permission = await db.Permission.build({ ...req.body, schoolId });
 

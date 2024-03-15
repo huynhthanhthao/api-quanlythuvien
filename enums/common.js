@@ -63,6 +63,11 @@ const ACTIVITY_TYPE = {
     GIVE_BOOK_BACK: 4,
 };
 
+const USER_TYPE = {
+    SYSTEM_USER: 1,
+    READER: 2,
+};
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -80,4 +85,5 @@ module.exports = {
     SETTING_STATUS,
     DEFAULT_REGULAR_BORROW_COUNT,
     ACTIVITY_TYPE,
+    USER_TYPE,
 };

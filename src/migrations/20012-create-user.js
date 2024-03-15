@@ -65,6 +65,9 @@ module.exports = {
             cardAddress: {
                 type: Sequelize.TEXT,
             },
+            type: {
+                type: Sequelize.INTEGER,
+            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

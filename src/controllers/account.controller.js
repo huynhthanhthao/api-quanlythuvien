@@ -1,10 +1,20 @@
+const { errorCodes } = require("../../enums/error-code");
+const { checkIsDuplicates } = require("../../utils/customer-validate");
 const { transformer } = require("../../utils/server");
 const db = require("../models");
+const { CatchException } = require("../../utils/api-error");
 const AccountService = require("../services/account.service");
 
 class AccountController {
     static async createAccount(req) {
         const { schoolId } = req.account;
+        const roleIds = req.body?.roleIds || [];
+
+        if (checkIsDuplicates(roleIds)) {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+                field: "roleIds",
+            });
+        }
 
         const account = await db.Account.build({ ...req.body, schoolId });
 
@@ -16,6 +26,14 @@ class AccountController {
     static async updateAccountById(req) {
         const { schoolId } = req.account;
         const { id } = req.params;
+
+        const roleIds = req.body?.roleIds || [];
+
+        if (checkIsDuplicates(roleIds)) {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+                field: "roleIds",
+            });
+        }
 
         const account = await db.Account.build({ ...req.body, id, schoolId });
 

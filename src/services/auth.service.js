@@ -10,6 +10,7 @@ const { ACCOUNT_STATUS } = require("../../enums/common");
 class AuthService {
     static async login(account) {
         const accountExisted = await AccountService.getByUsernameAndSchoolId(account);
+
         const passwordValid = await bcrypt.compare(account.password || "", accountExisted?.password || "");
 
         if (!accountExisted || !passwordValid)
