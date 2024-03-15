@@ -7,7 +7,6 @@ const AccountService = require("../services/account.service");
 
 class AccountController {
     static async createAccount(req) {
-        const { schoolId } = req.account;
         const roleIds = req.body?.roleIds || [];
 
         if (checkIsDuplicates(roleIds)) {
@@ -16,15 +15,10 @@ class AccountController {
             });
         }
 
-        const account = await db.Account.build({ ...req.body, schoolId });
-
-        await account.validate();
-
         return transformer(await AccountService.createAccount(req.body, req.account), "Tạo tài khoản thành công.");
     }
 
     static async updateAccountById(req) {
-        const { schoolId } = req.account;
         const { id } = req.params;
 
         const roleIds = req.body?.roleIds || [];
@@ -34,10 +28,6 @@ class AccountController {
                 field: "roleIds",
             });
         }
-
-        const account = await db.Account.build({ ...req.body, id, schoolId });
-
-        await account.validate({ fields: ["username", "permissionId", "status"] });
 
         return transformer(
             await AccountService.updateAccountById({ ...req.body, id }, req.account),
