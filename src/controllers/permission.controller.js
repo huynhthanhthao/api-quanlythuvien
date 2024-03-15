@@ -1,8 +1,15 @@
 const { transformer } = require("../../utils/server");
+const db = require("../models");
 const PermissionService = require("../services/permission.service");
 
 class PermissionController {
     static async createPermission(req) {
+        const { schoolId } = req.account;
+
+        const permission = await db.Permission.build({ ...req.body, schoolId });
+
+        await permission.validate();
+
         return transformer(
             await PermissionService.createPermission(req.body, req.account),
             "Đã thêm dữ liệu nhóm quyền mới."
@@ -11,6 +18,13 @@ class PermissionController {
 
     static async updatePermission(req) {
         const { id } = req.params;
+
+        const { schoolId } = req.account;
+
+        const permission = await db.Permission.build({ ...req.body, schoolId });
+
+        await permission.validate();
+
         return transformer(
             await PermissionService.updatePermission({ ...req.body, id }, req.account),
             "Cập nhật thành công."
@@ -27,10 +41,8 @@ class PermissionController {
     }
 
     static async getPermissionById(req) {
-        return transformer(
-            await PermissionService.getPermissionById(req.query, req.account),
-            "Lấy chi tiết thành công."
-        );
+        const { id } = req.params;
+        return transformer(await PermissionService.getPermissionById(id, req.account), "Lấy chi tiết thành công.");
     }
 }
 

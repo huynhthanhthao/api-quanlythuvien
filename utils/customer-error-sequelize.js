@@ -78,5 +78,8 @@ module.exports.customErrorMessageDatabase = (error) => {
 
     if (error.original?.code == "22007")
         return { message: "Lỗi định dạng ngày!", code: errorCodes.DATA_INCORRECT_FORMAT };
+
+    if (error.original?.code == "23503")
+        return { message: "Không tìm thất tài nguyên!", code: errorCodes.RESOURCE_NOT_FOUND };
     return error;
 };

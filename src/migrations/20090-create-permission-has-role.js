@@ -30,7 +30,7 @@ module.exports = {
             permissionId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Groups",
+                    model: "Permissions",
                     key: "id",
                 },
                 onDelete: "SET NULL",

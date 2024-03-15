@@ -31,7 +31,7 @@ router.put("/delete", async function (req, res, next) {
 
 router.get("/:id", async function (req, res, next) {
     try {
-        const data = await PermissionController.getPermissions(req);
+        const data = await PermissionController.getPermissionById(req);
         return res.json(data);
     } catch (error) {
         next(error);

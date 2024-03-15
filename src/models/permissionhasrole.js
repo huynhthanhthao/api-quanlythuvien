@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { checkForeignKey } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class PermissionHasRole extends Model {
@@ -10,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            PermissionHasRole.belongsTo(models.Role, {
+                foreignKey: "roleId",
+                as: "role",
+            });
         }
     }
     PermissionHasRole.init(
@@ -19,9 +24,25 @@ module.exports = (sequelize, DataTypes) => {
             },
             permissionId: {
                 type: DataTypes.BIGINT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                    isNumeric: true,
+                    async checkForeignKey(value) {
+                        await checkForeignKey(value, sequelize.models.Permission);
+                    },
+                },
             },
-            groupId: {
+            roleId: {
                 type: DataTypes.BIGINT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                    isNumeric: true,
+                    async checkForeignKey(value) {
+                        await checkForeignKey(value, sequelize.models.Role);
+                    },
+                },
             },
             active: {
                 type: DataTypes.BOOLEAN,

@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            Permission.hasMany(models.PermissionHasRole, {
+                foreignKey: "permissionId",
+                as: "permissionHasRole",
+            });
         }
     }
     Permission.init(
@@ -17,11 +21,18 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            groupCode: {
-                type: DataTypes.STRING,
+            perDes: {
+                type: DataTypes.TEXT,
             },
-            groupName: {
+            perName: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             active: {
                 type: DataTypes.BOOLEAN,
