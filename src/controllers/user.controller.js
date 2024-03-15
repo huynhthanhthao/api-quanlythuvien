@@ -17,7 +17,6 @@ class UserController {
     }
 
     static async createUser(req) {
-        const { schoolId } = req.account;
         const photoURL = req.file?.path;
         let { birthday, cardDate, classId } = req.body;
 
@@ -35,18 +34,6 @@ class UserController {
         cardDate = convertDate(cardDate);
         birthday = convertDate(birthday);
 
-        const user = await db.User.build({ ...req.body, cardDate, birthday, schoolId });
-
-        const classHasUser = await db.ClassHasUser.build(
-            { classId, schoolId },
-            {
-                fields: ["classId"],
-            }
-        );
-
-        await user.validate();
-        await classHasUser.validate();
-
         return transformer(
             await UserService.createUser({ ...req.body, cardDate, birthday, photoURL }, req.account),
             "Đã thêm dữ liệu người dùng mới."
@@ -54,7 +41,6 @@ class UserController {
     }
 
     static async updateUserById(req) {
-        const { schoolId } = req.account;
         const { id } = req.params;
         const newPhotoURL = req.file?.path;
         let { birthday, cardDate, classId } = req.body;
@@ -73,18 +59,6 @@ class UserController {
 
         cardDate = convertDate(cardDate);
         birthday = convertDate(birthday);
-
-        const user = await db.User.build({ ...req.body, schoolId, cardDate, birthday, id });
-
-        const classHasUser = await db.ClassHasUser.build(
-            { classId, schoolId },
-            {
-                fields: ["classId"],
-            }
-        );
-
-        await user.validate();
-        await classHasUser.validate();
 
         return transformer(
             await UserService.updateUserById({ ...req.body, newPhotoURL, cardDate, birthday, id }, req.account),
