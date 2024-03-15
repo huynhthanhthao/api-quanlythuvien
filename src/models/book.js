@@ -123,9 +123,6 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
                 allowNull: false,
                 validate: {
-                    len: {
-                        args: [0, 255],
-                    },
                     notEmpty: true,
                 },
             },

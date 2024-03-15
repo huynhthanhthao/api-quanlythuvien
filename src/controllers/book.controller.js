@@ -26,7 +26,7 @@ class BookController {
         await book.validate();
 
         for (const id of fieldIds) {
-            const fieldHasBook = await db.FieldHasBook.build({ fieldId: id, schoolId }, { fields: ["fieldId"] });
+            const fieldHasBook = await db.FieldHasBook.build({ fieldId: id, schoolId });
 
             await fieldHasBook.validate({ fields: ["fieldId"] });
         }
