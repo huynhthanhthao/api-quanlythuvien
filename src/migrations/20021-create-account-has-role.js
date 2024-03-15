@@ -4,7 +4,7 @@ const { ACCOUNT_STATUS } = require("../../enums/common");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("Accounts", {
+        await queryInterface.createTable("AccountHasRoles", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -20,32 +20,23 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            userId: {
+            accountId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Users",
+                    model: "Accounts",
                     key: "id",
                 },
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            permissionId: {
+            roleId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Permissions",
+                    model: "Roles",
                     key: "id",
                 },
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
-            },
-            username: {
-                type: Sequelize.STRING,
-            },
-            password: {
-                type: Sequelize.STRING,
-            },
-            status: {
-                type: Sequelize.INTEGER,
             },
             active: {
                 type: Sequelize.BOOLEAN,
@@ -82,6 +73,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("Accounts");
+        await queryInterface.dropTable("AccountHasRoles");
     },
 };

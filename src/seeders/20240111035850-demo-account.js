@@ -7,7 +7,7 @@ module.exports = {
             {
                 schoolId: 1,
                 userId: 1,
-                groupId: null,
+                permissionId: null,
                 username: "admin1",
                 password: "$2a$10$CezixM9l3eDxSlbRNw8HueqTpHGQaKJ23oSNSixZyEhofR/6iiqBW",
                 active: true,
@@ -19,7 +19,7 @@ module.exports = {
             {
                 schoolId: 2,
                 userId: 2,
-                groupId: null,
+                permissionId: null,
                 username: "admin2",
                 password: "$2a$10$CezixM9l3eDxSlbRNw8HueqTpHGQaKJ23oSNSixZyEhofR/6iiqBW",
                 active: true,

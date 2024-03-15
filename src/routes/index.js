@@ -55,7 +55,7 @@ router.use("/auth", authRouter);
 
 router.use("/user", checkToken, userRouter);
 
-router.use("/account", accountRouter);
+router.use("/account", checkToken, accountRouter);
 
 router.use("/reader-group", checkToken, readerGroupRouter);
 

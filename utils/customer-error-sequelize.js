@@ -58,7 +58,7 @@ module.exports.customErrorMessage = (error) => {
             return messages.push({
                 field: error?.path,
                 code: errorCodes.REQUEST_TOO_LONG,
-                message: `Trường ${error?.path} vượt quá kí tự cho phép!`,
+                message: `Trường ${error?.path} số lượng kí tự không hợp lệ!`,
             });
 
         if (error?.validatorKey == "isUnique")
