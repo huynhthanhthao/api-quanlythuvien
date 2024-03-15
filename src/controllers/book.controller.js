@@ -17,19 +17,9 @@ class BookController {
     }
 
     static async createBook(req) {
-        const { schoolId } = req.account;
         const photoURL = req.file?.path;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
         const detailQuantity = JSON.parse(req.body.detailQuantity || "[]") || [];
-        const book = await db.Book.build({ ...req.body, schoolId });
-
-        await book.validate();
-
-        for (const id of fieldIds) {
-            const fieldHasBook = await db.FieldHasBook.build({ fieldId: id, schoolId });
-
-            await fieldHasBook.validate({ fields: ["fieldId"] });
-        }
 
         if (detailQuantity.length == 0) {
             throw new CatchException("Số lượng không được để trống.", errorCodes.MISSING_DATA, {
@@ -46,17 +36,10 @@ class BookController {
         }
 
         for (const detail of detailQuantity) {
-            const bookHasStatus = await db.BookHasStatus.build(
-                { statusId: detail.statusId, schoolId },
-                { fields: ["statusId"] }
-            );
-
             if (detail.quantity <= 0)
                 throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
                     field: "quantity",
                 });
-
-            await bookHasStatus.validate({ fields: ["statusId"] });
         }
 
         return transformer(
@@ -66,20 +49,10 @@ class BookController {
     }
 
     static async updateBookById(req) {
-        const { schoolId } = req.account;
         const { id } = req.params;
         const newPhotoURL = req.file?.path;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-        const book = await db.Book.build({ ...req.body, schoolId, id });
         const detailQuantity = JSON.parse(req.body.detailQuantity || "[]") || [];
-
-        await book.validate();
-
-        for (const id of fieldIds) {
-            const fieldHasBook = await db.FieldHasBook.build({ fieldId: id, schoolId }, { fields: ["fieldId"] });
-
-            await fieldHasBook.validate({ fields: ["fieldId"] });
-        }
 
         const statusIds = detailQuantity.map((book) => book.statusId);
 
@@ -90,17 +63,10 @@ class BookController {
         }
 
         for (const detail of detailQuantity) {
-            const bookHasStatus = await db.BookHasStatus.build(
-                { statusId: detail.statusId, schoolId },
-                { fields: ["statusId"] }
-            );
-
             if (detail.quantity <= 0)
                 throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
                     field: "quantity",
                 });
-
-            await bookHasStatus.validate({ fields: ["statusId"] });
         }
 
         return transformer(
