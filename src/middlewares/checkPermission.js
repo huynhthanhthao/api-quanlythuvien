@@ -1,37 +1,52 @@
 const { CatchException } = require("../../utils/api-error");
 
 const db = require("../models");
-const { Op } = require("sequelize");
-const HttpStatus = require("http-status-codes");
+const { errorCodes } = require("../../enums/error-code");
 
-const { ACCOUNT_STATUS } = require("../../enums");
-const { errorMessages } = require("../../enums/error-messages");
+function checkPermission(roleCode) {
+    return async function (req, res, next) {
+        try {
+            const { id: accountId, schoolId, permissionId } = req.account;
+            const whereCondition = { active: true, schoolId };
 
-async function checkPermission(req, permission) {
-    // check permission with role
+            const [roleInPermission, roleInAccount] = await Promise.all([
+                db.Role.findOne({
+                    where: { active: true, roleCode: roleCode?.trim() },
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.PermissionHasRole,
+                            as: "permissionHasRole",
+                            where: { ...whereCondition, permissionId },
+                            required: true,
+                            attributes: ["id"],
+                        },
+                    ],
+                }),
+                db.Role.findOne({
+                    where: { active: true, roleCode: roleCode?.trim() },
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.AccountHasRole,
+                            as: "accountHasRole",
+                            where: { ...whereCondition, accountId },
+                            required: true,
+                            attributes: ["id"],
+                        },
+                    ],
+                }),
+            ]);
 
-    const hadPermission = await db.RoleHasPermission.findOne({
-        where: { isDeleted: false, roleId: req.user.roleId },
-        include: [
-            {
-                model: db.Permission,
-                as: "permission",
-                where: { isDeleted: false, permissionCode: { [Op.like]: permission } },
-                required: true,
-            },
-        ],
-    });
-
-    const isBlocked = await db.User.findOne({
-        where: {
-            [Op.or]: [
-                { id: req.user.id, status: ACCOUNT_STATUS.BLOCKED },
-                { id: req.user.id, isDeleted: true },
-            ],
-        },
-    });
-
-    if (!hadPermission || isBlocked) throw new CatchException("Không có quyền truy cập!", errorMessages.FORBIDDEN);
+            if (roleInPermission || roleInAccount) {
+                next();
+            } else {
+                throw new CatchException("Không có quyền truy cập!", errorCodes.FORBIDDEN);
+            }
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 module.exports = checkPermission;

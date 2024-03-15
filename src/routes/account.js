@@ -1,8 +1,11 @@
 const express = require("express");
 const AccountController = require("../controllers/account.controller");
+const checkPermission = require("../middlewares/checkPermission");
+const { ROLES } = require("../../enums/permission");
+
 const router = express.Router();
 
-router.post("/create", async function (req, res, next) {
+router.post("/create", checkPermission(ROLES.ACCOUNT_CREATE), async function (req, res, next) {
     try {
         const data = await AccountController.createAccount(req);
         return res.json(data);
@@ -11,7 +14,7 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission(ROLES.ACCOUNT_UPDATE), async function (req, res, next) {
     try {
         const data = await AccountController.updateAccountById(req);
         return res.json(data);
@@ -20,7 +23,7 @@ router.put("/:id/update", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission(ROLES.ACCOUNT_DELETE), async function (req, res, next) {
     try {
         const data = await AccountController.deleteAccountByIds(req);
         return res.json(data);
@@ -29,7 +32,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission(ROLES.ACCOUNT_VIEW), async function (req, res, next) {
     try {
         const data = await AccountController.getAccountById(req);
         return res.json(data);

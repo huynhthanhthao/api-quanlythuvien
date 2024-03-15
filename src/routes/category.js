@@ -1,8 +1,10 @@
 const express = require("express");
 const CategoryController = require("../controllers/category.controller");
+const checkPermission = require("../middlewares/checkPermission");
+const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/create", async function (req, res, next) {
+router.post("/create", checkPermission(ROLES.CATEGORY_CREATE), async function (req, res, next) {
     try {
         const data = await CategoryController.createCategory(req);
         return res.json(data);
@@ -11,7 +13,7 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission(ROLES.CATEGORY_UPDATE), async function (req, res, next) {
     try {
         const data = await CategoryController.updateCategoryById(req);
         return res.json(data);
@@ -20,7 +22,7 @@ router.put("/:id/update", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission(ROLES.CATEGORY_DELETE), async function (req, res, next) {
     try {
         const data = await CategoryController.deleteCategoryByIds(req);
         return res.json(data);
@@ -29,7 +31,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission(ROLES.CATEGORY_VIEW), async function (req, res, next) {
     try {
         const data = await CategoryController.getCategoryById(req);
         return res.json(data);
@@ -38,7 +40,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-router.get("/", async function (req, res, next) {
+router.get("/", checkPermission(ROLES.CATEGORY_VIEW), async function (req, res, next) {
     try {
         const data = await CategoryController.getCategories(req);
         return res.json(data);

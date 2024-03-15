@@ -14,6 +14,16 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "groupId",
                 as: "group",
             });
+
+            Role.hasMany(models.PermissionHasRole, {
+                foreignKey: "roleId",
+                as: "permissionHasRole",
+            });
+
+            Role.hasMany(models.AccountHasRole, {
+                foreignKey: "roleId",
+                as: "accountHasRole",
+            });
         }
     }
     Role.init(

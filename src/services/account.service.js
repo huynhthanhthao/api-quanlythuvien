@@ -261,13 +261,13 @@ class AccountService {
             ],
         });
 
-        return mapResponseAccountItem(account);
+        return account ? mapResponseAccountItem(account) : null;
     }
 
     static async getRoleSchoolId(schoolId) {
         const account = await db.Account.findOne({
             where: { id: schoolId, active: true },
-            attributes: ["id", "schoolId"],
+            attributes: ["id", "schoolId", "status", "permissionId"],
         });
 
         return account;

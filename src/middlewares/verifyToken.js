@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { CatchException } = require("../../utils/api-error");
 const AccountService = require("../services/account.service");
 const { errorCodes } = require("../../enums/error-code");
+const { ACCOUNT_STATUS } = require("../../enums/common");
 
 function checkToken(req, res, next) {
     const authorization = req.headers.authorization;
@@ -17,8 +18,13 @@ function checkToken(req, res, next) {
         if (err) {
             throw new CatchException("Token không hợp lệ!", errorCodes.INVALID_TOKEN);
         }
+
         const account = await AccountService.getRoleSchoolId(decode.id);
-        req.account = { id: decode.id, schoolId: account?.schoolId };
+
+        if (account.status == ACCOUNT_STATUS.BLOCKED)
+            throw new CatchException("Tài khoản đã bị khóa!", errorCodes.FORBIDDEN);
+
+        req.account = { id: decode.id, schoolId: account?.schoolId, permissionId: account.permissionId };
 
         next();
     }).catch((error) => {

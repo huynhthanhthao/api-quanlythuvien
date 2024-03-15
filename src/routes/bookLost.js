@@ -1,8 +1,10 @@
 const express = require("express");
 const BookLostController = require("../controllers/bookLost.controller");
+const checkPermission = require("../middlewares/checkPermission");
+const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/create", async function (req, res, next) {
+router.post("/create", checkPermission(ROLES.BOOK_LOST_CREATE), async function (req, res, next) {
     try {
         const data = await BookLostController.createBookLost(req);
         return res.json(data);
@@ -11,7 +13,7 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission(ROLES.BOOK_LOST_UPDATE), async function (req, res, next) {
     try {
         const data = await BookLostController.updateBookLostById(req);
         return res.json(data);
@@ -20,7 +22,7 @@ router.put("/:id/update", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission(ROLES.BOOK_LOST_DELETE), async function (req, res, next) {
     try {
         const data = await BookLostController.deleteBookLostReportByIds(req);
         return res.json(data);
@@ -29,7 +31,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission(ROLES.BOOK_LOST_VIEW), async function (req, res, next) {
     try {
         const data = await BookLostController.getBookLostReportById(req);
         return res.json(data);
@@ -38,7 +40,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-router.get("/", async function (req, res, next) {
+router.get("/", checkPermission(ROLES.BOOK_LOST_VIEW), async function (req, res, next) {
     try {
         const data = await BookLostController.getBookLostReports(req);
         return res.json(data);

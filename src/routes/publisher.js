@@ -1,8 +1,10 @@
 const express = require("express");
 const PublisherController = require("../controllers/publisher.controller");
+const checkPermission = require("../middlewares/checkPermission");
+const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission(ROLES.PUBLISHER_VIEW), async function (req, res, next) {
     try {
         const data = await PublisherController.getPublisherById(req);
         return res.json(data);
@@ -11,7 +13,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-router.get("/", async function (req, res, next) {
+router.get("/", checkPermission(ROLES.PUBLISHER_VIEW), async function (req, res, next) {
     try {
         const data = await PublisherController.getPublishers(req);
         return res.json(data);
