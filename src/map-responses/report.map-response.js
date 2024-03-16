@@ -23,8 +23,9 @@ module.exports.mapResponseBorrowReturnReport = function (dataList) {
 
 module.exports.mapResponseReaderReport = function (dataList, year) {
     const result = [];
+    const currentMonth = new Date().getMonth() + 1;
 
-    for (let month = 1; month <= 12; month++) {
+    for (let month = 1; month <= currentMonth; month++) {
         let dataInMonth = { month, totalReaders: 0, totalNewReaders: 0, regularReaders: [] };
 
         dataList.map((data) => {

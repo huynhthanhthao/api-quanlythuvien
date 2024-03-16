@@ -216,7 +216,7 @@ class AccountService {
                     as: "permission",
                     where: whereCondition,
                     required: false,
-                    attributes: ["perName"],
+                    attributes: ["perName", "id"],
                 },
                 {
                     model: db.AccountHasRole,

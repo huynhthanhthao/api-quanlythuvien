@@ -13,7 +13,7 @@ router.post("/create", checkPermission(ROLES.LOAN_RECEIPT_CREATE), async functio
     }
 });
 
-router.put("/give-books-back", checkPermission(ROLES.LOAN_RECEIPT_UPDATED), async function (req, res, next) {
+router.put("/give-books-back", checkPermission(ROLES.LOAN_RECEIPT_UPDATE), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.giveBooksBack(req);
         return res.json(data);

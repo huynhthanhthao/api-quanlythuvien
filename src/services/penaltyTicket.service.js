@@ -136,8 +136,7 @@ class PenaltyTicketService {
 
         await ActivityService.createActivity(
             { dataTarget: ticket.id, tableTarget: TABLE_NAME.PENALTY_TICKET, action: ACTIVITY_TYPE.UPDATED },
-            account,
-            transaction
+            account
         );
     }
 
