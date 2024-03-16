@@ -1,6 +1,7 @@
-const { Op, literal } = require("sequelize");
+const { Op } = require("sequelize");
 const db = require("../models");
 const { mapResponseBorrowReturnReport, mapResponseReaderReport } = require("../map-responses/report.map-response");
+const { USER_TYPE } = require("../../enums/common");
 
 class ReportService {
     static async borrowReturnReport(query, account) {
@@ -37,7 +38,11 @@ class ReportService {
 
         const dataReport = await db.User.findAll({
             where: {
-                [Op.and]: [whereCondition, db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`)],
+                [Op.and]: [
+                    whereCondition,
+                    db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`),
+                    { type: USER_TYPE.READER },
+                ],
             },
             attributes: ["fullName", "readerCode", "photoURL", "phone", "createdAt"],
             include: [

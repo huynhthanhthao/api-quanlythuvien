@@ -14,9 +14,7 @@ class UserService {
         try {
             transaction = await db.sequelize.transaction();
 
-            let readerCode = null;
-
-            if (newUser.type != USER_TYPE.SYSTEM_USER) readerCode = await this.generateReaderCode(account.schoolId);
+            const readerCode = await this.generateUserCode(account.schoolId, newUser.type || USER_TYPE.READER);
 
             const user = await db.User.create(
                 {
@@ -77,24 +75,39 @@ class UserService {
                 { where: { id: updateUser.id, active: true, schoolId: account.schoolId } }
             );
 
-            if (updateUser.classId) {
-                const latestRecord = await db.ClassHasUser.findAll({
-                    where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
-                    order: [["createdAt", "DESC"]],
-                    limit: 1,
-                    transaction,
-                });
+            const latestRecord = await db.ClassHasUser.findAll({
+                where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
+                order: [["createdAt", "DESC"]],
+                limit: 1,
+                transaction,
+            });
 
-                if (latestRecord.length > 0) {
-                    await latestRecord[0].update(
-                        {
-                            classId: updateUser.classId,
-                            updatedBy: account.id,
-                        },
-                        { transaction }
-                    );
-                }
+            if (latestRecord.length > 0) {
+                await latestRecord[0].update(
+                    {
+                        classId: updateUser.classId,
+                        updatedBy: account.id,
+                    },
+                    { transaction }
+                );
+            } else {
+                await db.ClassHasUser.create(
+                    {
+                        userId: updateUser.id,
+                        classId: updateUser.classId,
+                        schoolId: account.schoolId,
+                        createdBy: account.id,
+                        updatedBy: account.id,
+                    },
+                    { transaction }
+                );
             }
+
+            if (!updateUser.classId)
+                await db.ClassHasUser.update(
+                    { active: false },
+                    { where: { userId: updateUser.id, active: true, schoolId: account.schoolId }, transaction }
+                );
 
             await transaction.commit();
         } catch (error) {
@@ -135,7 +148,14 @@ class UserService {
         };
 
         const whereClassCondition = {
-            id: { [Op.in]: classIds },
+            [Op.and]: [
+                classIds.length > 0 && { id: { [Op.in]: classIds } },
+                { schoolId: account.schoolId },
+                { active: true },
+            ].filter(Boolean),
+        };
+
+        const whereCommonCondition = {
             schoolId: account.schoolId,
             active: true,
         };
@@ -153,7 +173,7 @@ class UserService {
                     model: db.ReaderGroup,
                     as: "readerGroup",
                     required: false,
-                    where: { active: true },
+                    where: whereCommonCondition,
                     attributes: ["id", "groupName"],
                 },
                 {
@@ -162,21 +182,23 @@ class UserService {
                     required: false,
                     attributes: ["userId", "createdAt"],
                     order: [["createdAt", "DESC"]],
-                    where: { active: true },
+                    where: whereCommonCondition,
                     include: [
                         {
                             model: db.Class,
                             as: "class",
+                            required: classIds.length > 0 ? true : false,
                             attributes: ["id", "className"],
+                            where: whereClassCondition,
                             include: [
                                 {
                                     model: db.SchoolYear,
                                     as: "schoolYear",
                                     attributes: ["year"],
+                                    required: false,
+                                    where: whereCommonCondition,
                                 },
                             ],
-                            required: classIds.length > 0 ? true : false,
-                            where: whereClassCondition,
                         },
                     ],
                 },
@@ -196,7 +218,6 @@ class UserService {
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
-            type: USER_TYPE.READER,
         };
 
         if (isNaN(keyword)) {
@@ -204,6 +225,11 @@ class UserService {
         } else {
             whereCondition.id = Number(keyword);
         }
+
+        const whereCommonCondition = {
+            schoolId: account.schoolId,
+            active: true,
+        };
 
         const user = await db.User.findOne({
             where: whereCondition,
@@ -214,14 +240,14 @@ class UserService {
                 {
                     model: db.ReaderGroup,
                     as: "readerGroup",
-                    where: { active: true },
+                    where: whereCommonCondition,
                     required: false,
                     attributes: ["id", "groupName"],
                 },
                 {
                     model: db.ClassHasUser,
                     as: "classHasUser",
-                    where: { active: true },
+                    where: whereCommonCondition,
                     required: false,
                     attributes: ["userId", "createdAt"],
                     order: [["createdAt", "DESC"]],
@@ -231,13 +257,13 @@ class UserService {
                             as: "class",
                             attributes: ["id", "className"],
                             required: false,
-                            where: { active: true },
+                            where: whereCommonCondition,
                             include: [
                                 {
                                     model: db.SchoolYear,
                                     as: "schoolYear",
                                     attributes: ["year"],
-                                    where: { active: true },
+                                    where: whereCommonCondition,
                                     required: false,
                                 },
                             ],
@@ -287,18 +313,21 @@ class UserService {
         );
     }
 
-    static async generateReaderCode(schoolId) {
+    static async generateUserCode(schoolId, type) {
         const { dataValues: highestReader } = (await db.User.findOne({
             attributes: [[db.sequelize.fn("MAX", db.sequelize.col("readerCode")), "maxReaderCode"]],
             where: { schoolId },
         })) || { dataValues: null };
 
-        let newUserCode = "BD0001";
+        let newUserCode = type == USER_TYPE.READER ? "BD0001" : "ND0001";
 
         if (highestReader && highestReader?.maxReaderCode) {
             const currentNumber = parseInt(highestReader.maxReaderCode.slice(2), 10);
             const nextNumber = currentNumber + 1;
-            newUserCode = `BD${nextNumber.toString().padStart(4, "0")}`;
+            newUserCode =
+                type == USER_TYPE.READER
+                    ? `BD${nextNumber.toString().padStart(4, "0")}`
+                    : `ND${nextNumber.toString().padStart(4, "0")}`;
         }
 
         return newUserCode;

@@ -15,14 +15,8 @@ const storage = multer.diskStorage({
 
 const fileSizeLimit = DEFAULT_IMAGE_MAX_SIZE * 1024 * 1024;
 const fileFilter = (req, file, cb) => {
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        return cb(
-            new CatchException(
-                HttpStatus.default.BAD_REQUEST,
-                "Chỉ chấp nhận dữ liệu là hình ảnh!",
-                errorCodes.INVALID_DATA
-            )
-        );
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+        return cb(new CatchException("Chỉ chấp nhận dữ liệu là hình ảnh!", errorCodes.INVALID_DATA));
     }
 
     const fileSize = parseInt(req.headers["content-length"]);
