@@ -23,12 +23,8 @@ class BookRequestController {
     }
 
     static async createBookRequest(req) {
-        const { schoolId } = req.account;
         const photoURL = req.file?.path;
         let { requestDate } = req.body;
-        const book = await db.BookRequest.build({ ...req.body, schoolId });
-
-        await book.validate();
 
         if (!isDate(requestDate) && requestDate) {
             throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ.", errorCodes.DATA_INCORRECT_FORMAT, {
@@ -45,13 +41,9 @@ class BookRequestController {
     }
 
     static async updateBookRequestById(req) {
-        const { schoolId } = req.account;
         const { id } = req.params;
         const newPhotoURL = req.file?.path;
-        const bookRequest = await db.BookRequest.build({ ...req.body, schoolId, id });
         let { requestDate } = req.body;
-
-        await bookRequest.validate();
 
         if (!isDate(requestDate) && requestDate) {
             throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ.", errorCodes.DATA_INCORRECT_FORMAT, {

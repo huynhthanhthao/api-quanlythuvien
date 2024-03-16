@@ -14,22 +14,11 @@ class PositionController {
     }
 
     static async createPosition(req) {
-        const { schoolId } = req.account;
-
-        const position = await db.Position.build({ ...req.body, schoolId });
-
-        await position.validate();
-
         return transformer(await PositionService.createPosition(req.body, req.account), "Đã thêm dữ liệu kệ sách mới.");
     }
 
     static async updatePositionById(req) {
-        const { schoolId } = req.account;
         const { id } = req.params;
-        const position = await db.Position.build({ ...req.body, schoolId, id });
-
-        await position.validate();
-
         return transformer(
             await PositionService.updatePositionById({ ...req.body, id }, req.account),
             "Cập nhật thành công."

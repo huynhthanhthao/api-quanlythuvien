@@ -1,6 +1,9 @@
 const { transformer } = require("../../utils/server");
 const FinePolicyService = require("../services/finePolicy.service");
 const db = require("../models");
+const { checkIsDuplicates } = require("../../utils/customer-validate");
+const { errorCodes } = require("../../enums/error-code");
+const { CatchException } = require("../../utils/api-error");
 
 class FinePolicyController {
     static async getFinePolicies(req) {
@@ -43,13 +46,12 @@ class FinePolicyController {
     }
 
     static async connectPolicyWithBook(req) {
-        const { schoolId } = req.account;
-        const { bookIds, finePolicyId } = req.body;
+        const { bookIds } = req.body;
 
-        for (let bookId of bookIds || []) {
-            const book = await db.FinePolicyHasBook.build({ bookId, schoolId, finePolicyId });
-
-            await book.validate({ fields: ["bookId", "finePolicyId"] });
+        if (checkIsDuplicates(bookIds)) {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+                field: "bookIds",
+            });
         }
 
         return transformer(
@@ -59,13 +61,7 @@ class FinePolicyController {
     }
 
     static async updatePolicyWithBook(req) {
-        const { schoolId } = req.account;
-        const { bookId, finePolicyId } = req.body;
         const { id } = req.params;
-
-        const book = await db.FinePolicyHasBook.build({ bookId, schoolId, finePolicyId });
-
-        await book.validate({ fields: ["bookId", "finePolicyId"] });
 
         return transformer(
             await FinePolicyService.updatePolicyWithBook({ ...req.body, id }, req.account),

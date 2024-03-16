@@ -8,8 +8,7 @@ const BookLostService = require("../services/bookLost.service");
 
 class BookLostController {
     static async createBookLost(req) {
-        const { schoolId } = req.account;
-        const { bookIds = [], loanReceiptId } = req.body;
+        const { bookIds = [] } = req.body;
 
         if (bookIds?.length <= 0)
             throw new CatchException("Phải có ít nhất 1 quyển sách.", errorCodes.MISSING_DATA, {
@@ -22,21 +21,10 @@ class BookLostController {
             });
         }
 
-        const bookLostReport = await db.BookLostReport.build({ loanReceiptId: loanReceiptId, schoolId });
-
-        await bookLostReport.validate({ fields: ["loanReceiptId"] });
-
-        for (const id of bookIds) {
-            const lostReportHasBook = await db.LostReportHasBook.build({ bookId: id, schoolId });
-
-            await lostReportHasBook.validate({ fields: ["bookId"] });
-        }
-
         return transformer(await BookLostService.createBookLost(req.body, req.account), "Báo mất sách thành công.");
     }
 
     static async updateBookLostById(req) {
-        const { schoolId } = req.account;
         const { bookIds = [] } = req.body;
         const { id } = req.params;
 
@@ -49,12 +37,6 @@ class BookLostController {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
                 field: "bookIds",
             });
-        }
-
-        for (const id of bookIds) {
-            const lostReportHasBook = await db.LostReportHasBook.build({ bookId: id, schoolId });
-
-            await lostReportHasBook.validate({ fields: ["bookId"] });
         }
 
         return transformer(

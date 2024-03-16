@@ -43,7 +43,7 @@ class UserController {
     static async updateUserById(req) {
         const { id } = req.params;
         const newPhotoURL = req.file?.path;
-        let { birthday, cardDate, classId } = req.body;
+        let { birthday, cardDate } = req.body;
 
         if (!isBirthday(cardDate) && cardDate) {
             throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ!", errorCodes.DATA_INCORRECT_FORMAT, {

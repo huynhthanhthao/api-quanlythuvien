@@ -7,8 +7,6 @@ const PermissionService = require("../services/permission.service");
 
 class PermissionController {
     static async createPermission(req) {
-        const { schoolId } = req.account;
-
         const roleIds = req.body?.roleIds || [];
 
         if (checkIsDuplicates(roleIds)) {
@@ -16,10 +14,6 @@ class PermissionController {
                 field: "roleIds",
             });
         }
-
-        const permission = await db.Permission.build({ ...req.body, schoolId });
-
-        await permission.validate();
 
         return transformer(
             await PermissionService.createPermission(req.body, req.account),
@@ -30,8 +24,6 @@ class PermissionController {
     static async updatePermission(req) {
         const { id } = req.params;
 
-        const { schoolId } = req.account;
-
         const roleIds = req.body?.roleIds || [];
 
         if (checkIsDuplicates(roleIds)) {
@@ -39,10 +31,6 @@ class PermissionController {
                 field: "roleIds",
             });
         }
-
-        const permission = await db.Permission.build({ ...req.body, schoolId });
-
-        await permission.validate();
 
         return transformer(
             await PermissionService.updatePermission({ ...req.body, id }, req.account),

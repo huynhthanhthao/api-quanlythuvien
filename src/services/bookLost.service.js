@@ -54,7 +54,6 @@ class BookLostService {
     }
 
     static async createBookLost(newBookLost, account) {
-        const whereCondition = { active: true, schoolId: account.schoolId };
         const bookIds = newBookLost.bookIds || [];
 
         // Kiểm tra sách có trong phiếu mượn không

@@ -12,52 +12,78 @@ const { TABLE_NAME } = require("../../enums/languages");
 
 class BookRequestService {
     static async createBookRequest(newBookRequest, account) {
-        const readerCode = newBookRequest.readerCode || (await this.generateBookRequestCode(account.schoolId));
-        const bookRequest = await db.BookRequest.create({
-            ...newBookRequest,
-            bookCode: readerCode,
-            photoURL: customerURL(newBookRequest.photoURL),
-            schoolId: account.schoolId,
-            createdBy: account.id,
-            updatedBy: account.id,
-        });
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
 
-        await ActivityService.createActivity(
-            { dataTarget: bookRequest.id, tableTarget: TABLE_NAME.BOOK_REQUEST, action: ACTIVITY_TYPE.CREATED },
-            account
-        );
+            const readerCode = newBookRequest.readerCode || (await this.generateBookRequestCode(account.schoolId));
+            const bookRequest = await db.BookRequest.create(
+                {
+                    ...newBookRequest,
+                    bookCode: readerCode,
+                    photoURL: customerURL(newBookRequest.photoURL),
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                },
+                { transaction }
+            );
+
+            await ActivityService.createActivity(
+                { dataTarget: bookRequest.id, tableTarget: TABLE_NAME.BOOK_REQUEST, action: ACTIVITY_TYPE.CREATED },
+                account,
+                transaction
+            );
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     static async updateBookRequestById(updateBookRequest, account) {
-        const updatePhotoURL = updateBookRequest.newPhotoURL;
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
+            const updatePhotoURL = updateBookRequest.newPhotoURL;
 
-        const bookCode = updateBookRequest.bookCode || (await this.generateBookRequestCode(account.schoolId));
+            const bookCode = updateBookRequest.bookCode || (await this.generateBookRequestCode(account.schoolId));
 
-        await db.BookRequest.update(
-            {
-                id: updateBookRequest.id,
-                bookCode,
-                publisherId: updateBookRequest.publisherId ?? null,
-                categoryId: updateBookRequest.categoryId ?? null,
-                languageId: updateBookRequest.languageId ?? null,
-                bookName: updateBookRequest.bookName,
-                bookDes: updateBookRequest.bookDes,
-                otherName: updateBookRequest.otherName,
-                author: updateBookRequest.author,
-                yearPublication: updateBookRequest.yearPublication,
-                rePublic: updateBookRequest.rePublic,
-                requestDate: updateBookRequest.requestDate,
-                photoURL: customerURL(updatePhotoURL),
-                schoolId: account.schoolId,
-                updatedBy: account.id,
-            },
-            { where: { id: updateBookRequest.id, active: true, schoolId: account.schoolId } }
-        );
+            await db.BookRequest.update(
+                {
+                    id: updateBookRequest.id,
+                    bookCode,
+                    publisherId: updateBookRequest.publisherId ?? null,
+                    categoryId: updateBookRequest.categoryId ?? null,
+                    languageId: updateBookRequest.languageId ?? null,
+                    bookName: updateBookRequest.bookName,
+                    bookDes: updateBookRequest.bookDes,
+                    otherName: updateBookRequest.otherName,
+                    author: updateBookRequest.author,
+                    yearPublication: updateBookRequest.yearPublication,
+                    rePublic: updateBookRequest.rePublic,
+                    requestDate: updateBookRequest.requestDate,
+                    photoURL: customerURL(updatePhotoURL),
+                    schoolId: account.schoolId,
+                    updatedBy: account.id,
+                },
+                { where: { id: updateBookRequest.id, active: true, schoolId: account.schoolId }, transaction }
+            );
 
-        await ActivityService.createActivity(
-            { dataTarget: updateBookRequest.id, tableTarget: TABLE_NAME.BOOK_REQUEST, action: ACTIVITY_TYPE.UPDATED },
-            account
-        );
+            await ActivityService.createActivity(
+                {
+                    dataTarget: updateBookRequest.id,
+                    tableTarget: TABLE_NAME.BOOK_REQUEST,
+                    action: ACTIVITY_TYPE.UPDATED,
+                },
+                account,
+                transaction
+            );
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     static async getBookRequests(query, account) {

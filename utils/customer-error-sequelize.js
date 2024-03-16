@@ -69,6 +69,12 @@ module.exports.customErrorMessage = (error) => {
             });
     });
 
+    if (messages.length == 0)
+        messages.push({
+            code: "UNKNOWN_ERROR",
+            message: error.message || "Có lỗi xảy ra!",
+        });
+
     return module.exports.removeDuplicateFieldItems(messages);
 };
 
@@ -80,6 +86,6 @@ module.exports.customErrorMessageDatabase = (error) => {
         return { message: "Lỗi định dạng ngày!", code: errorCodes.DATA_INCORRECT_FORMAT };
 
     if (error.original?.code == "23503")
-        return { message: "Không tìm thất tài nguyên!", code: errorCodes.RESOURCE_NOT_FOUND };
+        return { message: "Không tìm thấy tài nguyên!", code: errorCodes.RESOURCE_NOT_FOUND };
     return error;
 };

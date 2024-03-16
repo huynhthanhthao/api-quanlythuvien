@@ -8,17 +8,8 @@ const db = require("../models");
 class LoanReceiptController {
     static async createLoanReceipt(req) {
         let { returnDate, books } = req.body;
-        const { schoolId } = req.account;
         const returnDateTime = new Date(convertDate(returnDate)).getTime() / 1000;
         const nowDateTime = getDateNowTypeInt();
-
-        const loanReceipt = await db.LoanReceipt.build({ ...req.body, schoolId });
-        await loanReceipt.validate();
-
-        for (const book of books) {
-            const bookHasStatus = await db.BookHasStatus.build({ schoolId, bookId: book.id, statusId: book.statusId });
-            await bookHasStatus.validate({ fields: ["bookId", "statusId"] });
-        }
 
         const bookIds = books.map((book) => book.id);
 
@@ -45,18 +36,8 @@ class LoanReceiptController {
     static async updateLoanReceiptById(req) {
         let { returnDate, books } = req.body;
         const { id } = req.params;
-        const { schoolId } = req.account;
         const returnDateTime = new Date(convertDate(returnDate)).getTime() / 1000;
         const nowDateTime = getDateNowTypeInt();
-
-        const loanReceipt = await db.LoanReceipt.build({ ...req.body, id, schoolId });
-
-        await loanReceipt.validate();
-
-        for (const book of books) {
-            const bookHasStatus = await db.BookHasStatus.build({ schoolId, bookId: book.id, statusId: book.statusId });
-            await bookHasStatus.validate({ fields: ["bookId", "statusId"] });
-        }
 
         const bookIds = books.map((book) => book.id);
 
