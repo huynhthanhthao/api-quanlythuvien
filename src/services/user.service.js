@@ -320,9 +320,6 @@ class UserService {
     }
 
     static async deleteUserByIds(ids, account) {
-        /* 
-            Kiểm tra phiếu mượn
-        */
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         const userHasLoanReceipt = await db.User.findAll({
@@ -339,19 +336,23 @@ class UserService {
             ],
         });
 
-        if (userHasLoanReceipt.length > 0)
-            throw new CatchException("Không thể xóa bạn đọc này!", errorCodes.DATA_IS_BINDING, {
-                field: "ids",
-                ids: userHasLoanReceipt.map((user) => user.id),
-            });
+        const borrowedUserIds = userHasLoanReceipt.map((user) => +user.id);
+
+        const validUserIds = ids.filter((id) => !borrowedUserIds.includes(+id));
 
         await db.User.update(
             {
                 active: false,
                 updatedBy: account.id,
             },
-            { where: { id: { [Op.in]: ids }, ...whereCondition } }
+            { where: { id: { [Op.in]: validUserIds }, ...whereCondition } }
         );
+
+        if (userHasLoanReceipt.length > 0)
+            throw new CatchException("Không thể xóa bạn đọc này!", errorCodes.DATA_IS_BINDING, {
+                field: "ids",
+                ids: borrowedUserIds,
+            });
     }
 
     static async generateUserCode(schoolId, type) {
