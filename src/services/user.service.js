@@ -1,12 +1,14 @@
 const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE } = require("../../enums/common");
-const { flattenArray, customerURL, convertToIntArray } = require("../../utils/server");
-const { getPagination } = require("../../utils/customer-sequelize");
+const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE } = require("../../enums/common");
+const { customerURL, convertToIntArray } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
-const { CatchException } = require("../../utils/api-error");
+const { TABLE_NAME } = require("../../enums/languages");
 const { errorCodes } = require("../../enums/error-code");
+const { getPagination } = require("../../utils/customer-sequelize");
+const ActivityService = require("./activityLog.service");
+const { CatchException } = require("../../utils/api-error");
 
 class UserService {
     static async createUser(newUser, account) {
@@ -39,6 +41,16 @@ class UserService {
                     },
                     { transaction }
                 );
+
+            await ActivityService.createActivity(
+                {
+                    dataTarget: user.id,
+                    tableTarget: TABLE_NAME.USER,
+                    action: ACTIVITY_TYPE.CREATED,
+                },
+                account,
+                transaction
+            );
 
             await transaction.commit();
         } catch (error) {
@@ -75,40 +87,17 @@ class UserService {
                 { where: { id: updateUser.id, active: true, schoolId: account.schoolId } }
             );
 
-            // const latestRecord = await db.ClassHasUser.findAll({
-            //     where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
-            //     order: [["createdAt", "DESC"]],
-            //     limit: 1,
-            //     transaction,
-            // });
-
-            // if (latestRecord.length > 0) {
-            //     await latestRecord[0].update(
-            //         {
-            //             classId: updateUser.classId,
-            //             updatedBy: account.id,
-            //         },
-            //         { transaction }
-            //     );
-            // } else {
-            //     await db.ClassHasUser.create(
-            //         {
-            //             userId: updateUser.id,
-            //             classId: updateUser.classId,
-            //             schoolId: account.schoolId,
-            //             createdBy: account.id,
-            //             updatedBy: account.id,
-            //         },
-            //         { transaction }
-            //     );
-            // }
-
-            // if (!updateUser.classId)
-            //     await db.ClassHasUser.update(
-            //         { active: false },
-            //         { where: { userId: updateUser.id, active: true, schoolId: account.schoolId }, transaction }
-            //     );
             await this.updateUserClass(updateUser, account, transaction);
+
+            await ActivityService.createActivity(
+                {
+                    dataTarget: updateUser.id,
+                    tableTarget: TABLE_NAME.USER,
+                    action: ACTIVITY_TYPE.UPDATED,
+                },
+                account,
+                transaction
+            );
 
             await transaction.commit();
         } catch (error) {
@@ -346,6 +335,15 @@ class UserService {
                 updatedBy: account.id,
             },
             { where: { id: { [Op.in]: validUserIds }, ...whereCondition } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(validUserIds),
+                tableTarget: TABLE_NAME.USER,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
 
         if (userHasLoanReceipt.length > 0)

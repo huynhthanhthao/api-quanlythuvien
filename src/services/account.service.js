@@ -1,13 +1,15 @@
-const db = require("../models");
-const bcrypt = require("bcryptjs");
-const { flattenObject, convertToIntArray } = require("../../utils/server");
-const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
-const { Op } = require("sequelize");
-const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
 const unidecode = require("unidecode");
+const db = require("../models");
+const { Op } = require("sequelize");
+const bcrypt = require("bcryptjs");
+const { convertToIntArray } = require("../../utils/server");
+const { UNLIMITED, DEFAULT_LIMIT, ACTIVITY_TYPE } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
 const { mapResponseAccountList, mapResponseAccountItem } = require("../map-responses/account.map-response");
-const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
+const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
+const { CatchException } = require("../../utils/api-error");
+const ActivityService = require("./activityLog.service");
 
 class AccountService {
     static async createAccount(newAccount, account) {
@@ -43,6 +45,17 @@ class AccountService {
                 })),
                 { transaction }
             );
+
+            await ActivityService.createActivity(
+                {
+                    dataTarget: accountCreated.id,
+                    tableTarget: TABLE_NAME.ACCOUNT,
+                    action: ACTIVITY_TYPE.CREATED,
+                },
+                account,
+                transaction
+            );
+
             await transaction.commit();
         } catch (error) {
             await transaction.rollback();
@@ -89,6 +102,16 @@ class AccountService {
                 transaction
             );
 
+            await ActivityService.createActivity(
+                {
+                    dataTarget: updateAccount.id,
+                    tableTarget: TABLE_NAME.ACCOUNT,
+                    action: ACTIVITY_TYPE.UPDATED,
+                },
+                account,
+                transaction
+            );
+
             await transaction.commit();
         } catch (error) {
             await transaction.rollback();
@@ -113,6 +136,15 @@ class AccountService {
                 updatedBy: account.id,
             },
             { where: { accountId: { [Op.in]: ids }, ...whereCondition } }
+        );
+
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(ids),
+                tableTarget: TABLE_NAME.ACCOUNT,
+                action: ACTIVITY_TYPE.DELETED,
+            },
+            account
         );
     }
 

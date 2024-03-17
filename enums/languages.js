@@ -8,6 +8,8 @@ const TABLE_NAME = {
     FINE_POLICY: "FINE_POLICY",
     PENALTY_TICKET: "PENALTY_TICKET",
     SETTING: "SETTING",
+    ACCOUNT: "ACCOUNT",
+    USER: "USER",
 };
 
 module.exports = { TABLE_NAME };
