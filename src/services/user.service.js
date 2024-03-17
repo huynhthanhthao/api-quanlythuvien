@@ -75,44 +75,85 @@ class UserService {
                 { where: { id: updateUser.id, active: true, schoolId: account.schoolId } }
             );
 
-            const latestRecord = await db.ClassHasUser.findAll({
-                where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
-                order: [["createdAt", "DESC"]],
-                limit: 1,
-                transaction,
-            });
+            // const latestRecord = await db.ClassHasUser.findAll({
+            //     where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
+            //     order: [["createdAt", "DESC"]],
+            //     limit: 1,
+            //     transaction,
+            // });
 
-            if (latestRecord.length > 0) {
-                await latestRecord[0].update(
-                    {
-                        classId: updateUser.classId,
-                        updatedBy: account.id,
-                    },
-                    { transaction }
-                );
-            } else {
-                await db.ClassHasUser.create(
-                    {
-                        userId: updateUser.id,
-                        classId: updateUser.classId,
-                        schoolId: account.schoolId,
-                        createdBy: account.id,
-                        updatedBy: account.id,
-                    },
-                    { transaction }
-                );
-            }
+            // if (latestRecord.length > 0) {
+            //     await latestRecord[0].update(
+            //         {
+            //             classId: updateUser.classId,
+            //             updatedBy: account.id,
+            //         },
+            //         { transaction }
+            //     );
+            // } else {
+            //     await db.ClassHasUser.create(
+            //         {
+            //             userId: updateUser.id,
+            //             classId: updateUser.classId,
+            //             schoolId: account.schoolId,
+            //             createdBy: account.id,
+            //             updatedBy: account.id,
+            //         },
+            //         { transaction }
+            //     );
+            // }
 
-            if (!updateUser.classId)
-                await db.ClassHasUser.update(
-                    { active: false },
-                    { where: { userId: updateUser.id, active: true, schoolId: account.schoolId }, transaction }
-                );
+            // if (!updateUser.classId)
+            //     await db.ClassHasUser.update(
+            //         { active: false },
+            //         { where: { userId: updateUser.id, active: true, schoolId: account.schoolId }, transaction }
+            //     );
+            await this.updateUserClass(updateUser, account, transaction);
 
             await transaction.commit();
         } catch (error) {
             await transaction.rollback();
             throw error;
+        }
+    }
+
+    static async updateUserClass(updateUser, account, transaction) {
+        const latestRecord = await db.ClassHasUser.findAll({
+            where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
+            order: [["createdAt", "DESC"]],
+            limit: 1,
+            transaction: transaction,
+        });
+
+        if (latestRecord.length > 0) {
+            await latestRecord[0].update(
+                {
+                    classId: updateUser.classId,
+                    updatedBy: account.id,
+                },
+                { transaction: transaction }
+            );
+        } else {
+            await db.ClassHasUser.create(
+                {
+                    userId: updateUser.id,
+                    classId: updateUser.classId,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                },
+                { transaction: transaction }
+            );
+        }
+
+        if (!updateUser.classId) {
+            await db.ClassHasUser.update(
+                { active: false },
+                {
+                    where: { userId: updateUser.id, active: true, schoolId: account.schoolId },
+                    transaction: transaction,
+                }
+            );
         }
     }
 

@@ -8,6 +8,13 @@ const AccountService = require("../services/account.service");
 class AccountController {
     static async createAccount(req) {
         const roleIds = req.body?.roleIds || [];
+        const password = req.body?.password || "";
+
+        if (!password || password.length < 6) {
+            throw new CatchException("Mật khẩu phải trên 6 kí tự!", errorCodes.INVALID_DATA, {
+                field: "password",
+            });
+        }
 
         if (checkIsDuplicates(roleIds)) {
             throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {

@@ -37,6 +37,16 @@ module.exports.mapResponseAccountItem = function (account) {
         perName: account?.permission?.perName || null,
         perId: account?.permission?.id || null,
         role:
-            account?.accountHasRole?.map((item) => ({ roleId: item?.role?.id, roleName: item?.role?.roleName })) || [],
+            [
+                ...account?.accountHasRole?.map((item) => ({
+                    roleId: item?.role?.id,
+                    roleName: item?.role?.roleName,
+                    roleCode: item?.role?.roleCode,
+                })),
+                ...(account?.permission?.permissionHasRole?.map((item) => ({
+                    roleId: item?.role?.id,
+                    roleCode: item?.role?.roleCode,
+                })) || []),
+            ] || [],
     };
 };

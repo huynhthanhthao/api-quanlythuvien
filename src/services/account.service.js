@@ -158,7 +158,7 @@ class AccountService {
                     model: db.User,
                     as: "user",
                     where: whereCondition,
-                    required: false,
+                    required: keyword ? true : false,
                     attributes: ["id", "fullName", "photoURL", "phone", "birthday", "email"],
                 },
                 {
