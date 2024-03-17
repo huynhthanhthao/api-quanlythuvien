@@ -6,6 +6,8 @@ const { Op } = require("sequelize");
 const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
 const unidecode = require("unidecode");
 const { mapResponseAccountList, mapResponseAccountItem } = require("../map-responses/account.map-response");
+const { CatchException } = require("../../utils/api-error");
+const { errorCodes } = require("../../enums/error-code");
 
 class AccountService {
     static async createAccount(newAccount, account) {
@@ -244,6 +246,7 @@ class AccountService {
     static async getByUsernameAndSchoolId(params) {
         const trimmedUsername = (params.username || "").trim();
         const schoolId = params.schoolId || 0;
+        const whereCondition = { active: true, schoolId: schoolId };
 
         const account = await db.Account.findOne({
             where: { username: trimmedUsername, schoolId, active: true },
@@ -257,6 +260,47 @@ class AccountService {
                     attributes: {
                         exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
                     },
+                },
+                {
+                    model: db.AccountHasRole,
+                    as: "accountHasRole",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Role,
+                            as: "role",
+                            where: { active: true },
+                            required: false,
+                            attributes: ["roleCode"],
+                        },
+                    ],
+                },
+                {
+                    model: db.Permission,
+                    as: "permission",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["perName", "id"],
+                    include: [
+                        {
+                            model: db.PermissionHasRole,
+                            as: "permissionHasRole",
+                            where: whereCondition,
+                            required: false,
+                            attributes: ["id"],
+                            include: [
+                                {
+                                    model: db.Role,
+                                    as: "role",
+                                    where: { active: true },
+                                    required: false,
+                                    attributes: ["roleCode"],
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
         });
