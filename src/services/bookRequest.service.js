@@ -100,7 +100,7 @@ class BookRequestService {
             limit = null;
         }
 
-        const searchableFields = ["bookCode", "bookName", "bookDes", "author", "otherName"];
+        const searchableFields = ["bookCode", "bookName", "author", "otherName"];
 
         const whereCondition = {
             [Op.and]: [

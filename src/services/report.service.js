@@ -226,7 +226,6 @@ class ReportService {
                     ],
                 },
             ],
-            limit: 10,
             subQuery: false,
             group: ["Field.id"],
         });

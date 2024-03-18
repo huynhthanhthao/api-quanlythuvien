@@ -16,7 +16,7 @@ class UserService {
         try {
             transaction = await db.sequelize.transaction();
 
-            const readerCode = await this.generateUserCode(account.schoolId, newUser.type || USER_TYPE.READER);
+            const readerCode = await this.generateUserCode(account.schoolId);
 
             const user = await db.User.create(
                 {
@@ -359,15 +359,12 @@ class UserService {
             where: { schoolId },
         })) || { dataValues: null };
 
-        let newUserCode = type == USER_TYPE.READER ? "BD0001" : "ND0001";
+        let newUserCode = "ND0001";
 
         if (highestReader && highestReader?.maxReaderCode) {
             const currentNumber = parseInt(highestReader.maxReaderCode.slice(2), 10);
             const nextNumber = currentNumber + 1;
-            newUserCode =
-                type == USER_TYPE.READER
-                    ? `BD${nextNumber.toString().padStart(4, "0")}`
-                    : `ND${nextNumber.toString().padStart(4, "0")}`;
+            newUserCode = `ND${nextNumber.toString().padStart(4, "0")}`;
         }
 
         return newUserCode;
