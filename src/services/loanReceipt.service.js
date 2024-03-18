@@ -101,13 +101,13 @@ class LoanReceiptService {
         const borrowLimit = await ReaderGroupService.getBorrowLimit(userId, account);
 
         if (borrowCount + newQuantity > borrowLimit?.quantityLimit) {
-            throw new CatchException("Vượt quá số lượng cho  phép.", errorCodes.INVALID_DATA, {
+            throw new CatchException("Vượt quá số lượng cho phép mượn.", errorCodes.BORROW_LIMIT, {
                 field: "books",
             });
         }
 
         if (calculateDaysDiff(returnDate) + 1 > borrowLimit.timeLimit)
-            throw new CatchException("Vượt quá thời gian cho phép.", errorCodes.INVALID_DATA, {
+            throw new CatchException("Vượt quá thời gian cho phép mượn.", errorCodes.BORROW_LIMIT, {
                 field: "returnDate",
             });
     }

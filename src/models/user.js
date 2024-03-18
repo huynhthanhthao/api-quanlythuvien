@@ -126,6 +126,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             email: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 validate: {
                     len: {
                         args: [0, 255],
@@ -147,6 +148,7 @@ module.exports = (sequelize, DataTypes) => {
                     isEmail(value) {
                         isEmail(value);
                     },
+                    notEmpty: true,
                 },
             },
             readerDes: {
