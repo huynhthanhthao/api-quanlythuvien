@@ -21,11 +21,11 @@ class BookController {
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
         const detailQuantity = JSON.parse(req.body.detailQuantity || "[]") || [];
 
-        if (detailQuantity.length == 0) {
-            throw new CatchException("Số lượng không được để trống.", errorCodes.MISSING_DATA, {
-                field: "detailQuantity",
-            });
-        }
+        // if (detailQuantity.length == 0) {
+        //     throw new CatchException("Số lượng không được để trống.", errorCodes.MISSING_DATA, {
+        //         field: "detailQuantity",
+        //     });
+        // }
 
         const statusIds = detailQuantity.map((book) => book.statusId);
 
@@ -35,12 +35,12 @@ class BookController {
             });
         }
 
-        for (const detail of detailQuantity) {
-            if (detail.quantity <= 0)
-                throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
-                    field: "quantity",
-                });
-        }
+        // for (const detail of detailQuantity) {
+        //     if (detail.quantity <= 0)
+        //         throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
+        //             field: "quantity",
+        //         });
+        // }
 
         return transformer(
             await BookService.createBook({ ...req.body, fieldIds, photoURL, detailQuantity }, req.account),
@@ -62,12 +62,12 @@ class BookController {
             });
         }
 
-        for (const detail of detailQuantity) {
-            if (detail.quantity <= 0)
-                throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
-                    field: "quantity",
-                });
-        }
+        // for (const detail of detailQuantity) {
+        //     if (detail.quantity <= 0)
+        //         throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
+        //             field: "quantity",
+        //         });
+        // }
 
         return transformer(
             await BookService.updateBookById({ ...req.body, newPhotoURL, fieldIds, detailQuantity, id }, req.account),

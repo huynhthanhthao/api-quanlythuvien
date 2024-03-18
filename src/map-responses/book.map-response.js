@@ -25,7 +25,7 @@ module.exports.mapResponseBookList = function (bookList) {
                 book.bookHasStatus?.map((item) => ({
                     statusName: item?.status?.statusName || null,
                     statusId: item?.status?.id || null,
-                    quantity: item?.quantity || null,
+                    quantity: item?.quantity || 0,
                 })) || [],
         };
     });
