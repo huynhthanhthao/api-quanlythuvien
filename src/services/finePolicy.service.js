@@ -17,14 +17,24 @@ class FinePolicyService {
             transaction = await db.sequelize.transaction();
             const whereCondition = { active: true, schoolId: account.schoolId };
             const policyCode = newFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
+            let isDefault = newFinePolicy.isDefault || false;
+
+            const finePolicyDefault = await db.FinePolicy.findOne({
+                where: { ...whereCondition, isDefault: true },
+                attributes: ["id", "isDefault"],
+            });
+
+            if (!finePolicyDefault) {
+                isDefault = true;
+            }
 
             // if default update false other policy
-            if (newFinePolicy.isDefault)
-                await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
+            if (isDefault) await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
 
             const finePolicy = await db.FinePolicy.create(
                 {
                     ...newFinePolicy,
+                    isDefault,
                     policyCode: policyCode,
                     createdBy: account.id,
                     updatedBy: account.id,
@@ -66,22 +76,22 @@ class FinePolicyService {
             const policyCode = updateFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
             const whereCondition = { active: true, schoolId: account.schoolId };
 
-            // check fine policy has default
-            if (!updateFinePolicy.isDefault) {
-                const finePolicy = await db.FinePolicy.findOne({
-                    where: { ...whereCondition, id: updateFinePolicy.id },
-                    attributes: ["id", "isDefault"],
-                });
+            // // check fine policy has default
+            // if (!updateFinePolicy.isDefault) {
+            //     const finePolicy = await db.FinePolicy.findOne({
+            //         where: { ...whereCondition, id: updateFinePolicy.id },
+            //         attributes: ["id", "isDefault"],
+            //     });
 
-                if (finePolicy.isDefault)
-                    throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
-                        field: "isDefault",
-                    });
-            }
+            //     if (finePolicy.isDefault)
+            //         throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
+            //             field: "isDefault",
+            //         });
+            // }
 
-            // if default update false other policy
-            if (updateFinePolicy.isDefault)
-                await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
+            // // if default update false other policy
+            // if (updateFinePolicy.isDefault)
+            //     await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
 
             await db.FinePolicy.update(
                 {
@@ -93,7 +103,7 @@ class FinePolicyService {
                 { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId } }
             );
 
-            const detailFinePolicy = newFinePolicy.detailFinePolicy || [];
+            const detailFinePolicy = updateFinePolicy.detailFinePolicy || [];
 
             const detailFinePolicyData = detailFinePolicy.map((detail) => ({
                 finePolicyId: updateFinePolicy.id,
@@ -184,32 +194,52 @@ class FinePolicyService {
     }
 
     static async deleteFinePolicyByIds(policyIds, account) {
-        await db.FinePolicy.update(
-            { active: false, updatedBy: account.id },
-            { where: { active: true, schoolId: account.schoolId, id: { [Op.in]: policyIds } } }
-        );
+        let transaction;
 
-        await db.FinePolicyHasBook.update(
-            { active: false, updatedBy: account.id },
-            {
-                where: {
-                    active: true,
-                    schoolId: account.schoolId,
-                    finePolicyId: {
-                        [Op.in]: policyIds,
+        try {
+            transaction = await db.sequelize.transaction();
+
+            const finePolicy = await db.FinePolicy.findOne({
+                where: { ...whereCondition, id: updateFinePolicy.id },
+                attributes: ["id", "isDefault"],
+            });
+
+            if (finePolicy.isDefault)
+                throw new CatchException("Không thể xóa vì đang là mặc định!", errorCodes.INVALID_DATA);
+
+            await db.FinePolicy.update(
+                { active: false, updatedBy: account.id },
+                { where: { active: true, schoolId: account.schoolId, id: { [Op.in]: policyIds } }, transaction }
+            );
+
+            await db.FinePolicyHasBook.update(
+                { active: false, updatedBy: account.id },
+                {
+                    where: {
+                        active: true,
+                        schoolId: account.schoolId,
+                        finePolicyId: {
+                            [Op.in]: policyIds,
+                        },
                     },
-                },
-            }
-        );
+                    transaction,
+                }
+            );
 
-        await ActivityService.createActivity(
-            {
-                dataTarget: JSON.stringify(policyIds),
-                tableTarget: TABLE_NAME.FINE_POLICY,
-                action: ACTIVITY_TYPE.DELETED,
-            },
-            account
-        );
+            await ActivityService.createActivity(
+                {
+                    dataTarget: JSON.stringify(policyIds),
+                    tableTarget: TABLE_NAME.FINE_POLICY,
+                    action: ACTIVITY_TYPE.DELETED,
+                },
+                account,
+                transaction
+            );
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     static async getFinePolicies(query, account) {
