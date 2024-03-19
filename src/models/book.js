@@ -172,6 +172,10 @@ module.exports = (sequelize, DataTypes) => {
                     isNumeric: true,
                 },
             },
+            penaltyApplied: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
+            },
             photoURL: {
                 type: DataTypes.TEXT,
                 defaultValue: BOOK_URL_DEFAULT,

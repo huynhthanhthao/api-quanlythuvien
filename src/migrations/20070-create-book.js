@@ -54,6 +54,9 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
+            penaltyApplied: {
+                type: Sequelize.BOOLEAN,
+            },
             bookCode: {
                 type: Sequelize.STRING,
             },
@@ -85,6 +88,9 @@ module.exports = {
                 type: Sequelize.TEXT,
             },
             active: {
+                type: Sequelize.BOOLEAN,
+            },
+            penaltyApplied: {
                 type: Sequelize.BOOLEAN,
             },
             createdBy: {

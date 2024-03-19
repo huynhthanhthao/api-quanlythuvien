@@ -21,6 +21,18 @@ module.exports = {
             hasFineFee: {
                 type: Sequelize.BOOLEAN,
             },
+            noSpecialPenalties: {
+                type: Sequelize.BOOLEAN,
+            },
+            hasLoanFee: {
+                type: Sequelize.BOOLEAN,
+            },
+            typeLoanFee: {
+                type: Sequelize.INTEGER,
+            },
+            valueLoanFee: {
+                type: Sequelize.DOUBLE,
+            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

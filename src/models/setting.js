@@ -22,6 +22,20 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            noSpecialPenalties: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            hasLoanFee: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            typeLoanFee: {
+                type: DataTypes.INTEGER,
+            },
+            valueLoanFee: {
+                type: DataTypes.DOUBLE,
+            },
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

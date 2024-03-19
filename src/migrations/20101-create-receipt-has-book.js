@@ -39,6 +39,9 @@ module.exports = {
             type: {
                 type: Sequelize.INTEGER,
             },
+            loanFee: {
+                type: Sequelize.DOUBLE,
+            },
             bookStatusId: {
                 type: Sequelize.BIGINT,
                 references: {

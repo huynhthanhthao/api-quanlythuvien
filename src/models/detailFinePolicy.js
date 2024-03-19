@@ -3,7 +3,7 @@ const { Model, Op } = require("sequelize");
 const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
-    class FinePolicy extends Model {
+    class DetailFinePolicy extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -11,46 +11,38 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            FinePolicy.hasMany(models.FinePolicyHasBook, {
-                foreignKey: "finePolicyId",
-                as: "finePolicyHasBook",
-            });
         }
     }
-    FinePolicy.init(
+    DetailFinePolicy.init(
         {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            policyCode: {
-                type: DataTypes.STRING,
-                validate: {
-                    len: {
-                        args: [0, 50],
-                    },
-                    async isUnique(value) {
-                        await isUnique({
-                            id: this.id,
-                            field: "policyCode",
-                            value,
-                            model: sequelize.models.FinePolicy,
-                            extraConditions: { schoolId: this.schoolId },
-                        });
-                    },
-                },
+            finePolicyId: {
+                type: DataTypes.BIGINT,
             },
-            policyName: {
-                type: DataTypes.STRING,
+            dayLate: {
                 allowNull: false,
+                type: DataTypes.INTEGER,
                 validate: {
-                    len: {
-                        args: [0, 255],
-                    },
+                    isNumeric: true,
                     notEmpty: true,
                 },
             },
-            policyDes: {
-                type: DataTypes.TEXT,
+            fineAmount: {
+                allowNull: false,
+                type: DataTypes.DOUBLE,
+                validate: {
+                    notEmpty: true,
+                    isNumeric: true,
+                },
+            },
+            overdueFine: {
+                type: DataTypes.DOUBLE,
+                validate: {
+                    isNumeric: true,
+                },
+                defaultValue: 0,
             },
             active: {
                 type: DataTypes.BOOLEAN,
@@ -65,14 +57,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "FinePolicy",
+            modelName: "DetailFinePolicy",
             timestamps: true,
             underscored: false,
-            hooks: {
-                beforeValidate: (FinePolicy) => {},
-            },
         }
     );
 
-    return FinePolicy;
+    return DetailFinePolicy;
 };

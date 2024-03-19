@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("LoanReceipts", {
+        await queryInterface.createTable("DetailFinePolicies", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -18,31 +18,23 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            userId: {
+            finePolicyId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Users",
+                    model: "FinePolicies",
                     key: "id",
                 },
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            receiptCode: {
-                type: Sequelize.STRING,
+            dayLate: {
+                type: Sequelize.INTEGER,
             },
-            receiveDate: {
-                type: "TIMESTAMP",
-                defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-            },
-            returnDate: {
-                type: "TIMESTAMP",
-                defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-            },
-            totalFee: {
+            fineAmount: {
                 type: Sequelize.DOUBLE,
             },
-            receiptDes: {
-                type: Sequelize.TEXT,
+            overdueFine: {
+                type: Sequelize.DOUBLE,
             },
             active: {
                 type: Sequelize.BOOLEAN,
@@ -79,6 +71,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("LoanReceipts");
+        await queryInterface.dropTable("DetailFinePolicies");
     },
 };

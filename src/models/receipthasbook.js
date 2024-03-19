@@ -72,6 +72,9 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 defaultValue: LOAN_STATUS.BORROWING,
             },
+            loanFee: {
+                type: DataTypes.DOUBLE,
+            },
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

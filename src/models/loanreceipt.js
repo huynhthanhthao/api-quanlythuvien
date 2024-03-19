@@ -79,6 +79,9 @@ module.exports = (sequelize, DataTypes) => {
             receiptDes: {
                 type: DataTypes.TEXT,
             },
+            totalFee: {
+                type: DataTypes.DOUBLE,
+            },
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
