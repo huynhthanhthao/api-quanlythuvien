@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "finePolicyId",
                 as: "finePolicyHasBook",
             });
+
+            FinePolicy.hasMany(models.DetailFinePolicy, {
+                foreignKey: "finePolicyId",
+                as: "detailFinePolicies",
+            });
         }
     }
     FinePolicy.init(

@@ -76,22 +76,22 @@ class FinePolicyService {
             const policyCode = updateFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
             const whereCondition = { active: true, schoolId: account.schoolId };
 
-            // // check fine policy has default
-            // if (!updateFinePolicy.isDefault) {
-            //     const finePolicy = await db.FinePolicy.findOne({
-            //         where: { ...whereCondition, id: updateFinePolicy.id },
-            //         attributes: ["id", "isDefault"],
-            //     });
+            // check fine policy has default
+            if (!updateFinePolicy.isDefault) {
+                const finePolicy = await db.FinePolicy.findOne({
+                    where: { ...whereCondition, id: updateFinePolicy.id },
+                    attributes: ["id", "isDefault"],
+                });
 
-            //     if (finePolicy.isDefault)
-            //         throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
-            //             field: "isDefault",
-            //         });
-            // }
+                if (finePolicy.isDefault)
+                    throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
+                        field: "isDefault",
+                    });
+            }
 
-            // // if default update false other policy
-            // if (updateFinePolicy.isDefault)
-            //     await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
+            // if default update false other policy
+            if (updateFinePolicy.isDefault)
+                await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
 
             await db.FinePolicy.update(
                 {
@@ -100,7 +100,7 @@ class FinePolicyService {
                     updatedBy: account.id,
                     schoolId: account.schoolId,
                 },
-                { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId } }
+                { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId }, transaction }
             );
 
             const detailFinePolicy = updateFinePolicy.detailFinePolicy || [];
@@ -110,6 +110,7 @@ class FinePolicyService {
                 dayLate: detail.dayLate,
                 overdueFine: detail.overdueFine,
                 fineAmount: detail.fineAmount,
+                schoolId: account.schoolId,
                 createdBy: account.id,
                 updatedBy: account.id,
             }));
@@ -121,6 +122,7 @@ class FinePolicyService {
                     finePolicyId: updateFinePolicy.id,
                     schoolId: account.schoolId,
                 },
+                account,
                 transaction
             );
 
@@ -198,14 +200,22 @@ class FinePolicyService {
 
         try {
             transaction = await db.sequelize.transaction();
+            const whereCondition = { active: true, schoolId: account.schoolId };
 
             const finePolicy = await db.FinePolicy.findOne({
-                where: { ...whereCondition, id: updateFinePolicy.id },
+                where: {
+                    ...whereCondition,
+                    id: {
+                        [Op.in]: policyIds,
+                    },
+                },
                 attributes: ["id", "isDefault"],
             });
 
             if (finePolicy.isDefault)
-                throw new CatchException("Không thể xóa vì đang là mặc định!", errorCodes.INVALID_DATA);
+                throw new CatchException("Không thể xóa vì đang là mặc định!", errorCodes.INVALID_DATA, {
+                    id: finePolicy.id,
+                });
 
             await db.FinePolicy.update(
                 { active: false, updatedBy: account.id },
@@ -276,6 +286,17 @@ class FinePolicyService {
             attributes: {
                 exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
             },
+            include: [
+                {
+                    model: db.DetailFinePolicy,
+                    as: "detailFinePolicies",
+                    where: { active: true, schoolId: account.schoolId },
+                    required: false,
+                    attributes: {
+                        exclude: ["id", "createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+                    },
+                },
+            ],
             distinct: true,
         });
 
@@ -384,6 +405,17 @@ class FinePolicyService {
             attributes: {
                 exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
             },
+            include: [
+                {
+                    model: db.DetailFinePolicy,
+                    as: "detailFinePolicies",
+                    where: { active: true, schoolId: account.schoolId },
+                    required: false,
+                    attributes: {
+                        exclude: ["id", "createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+                    },
+                },
+            ],
         });
 
         return finePolicy;
