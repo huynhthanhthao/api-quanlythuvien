@@ -2,7 +2,7 @@ const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
 const { CatchException } = require("../../utils/api-error");
-const { getPagination } = require("../../utils/customer-sequelize");
+const { getPagination, bulkUpdate } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
 const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
 const { convertToIntArray } = require("../../utils/server");
@@ -12,39 +12,118 @@ const { TABLE_NAME } = require("../../enums/languages");
 
 class FinePolicyService {
     static async createFinePolicy(newFinePolicy, account) {
-        const policyCode = newFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
+            const whereCondition = { active: true, schoolId: account.schoolId };
+            const policyCode = newFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
 
-        const finePolicy = await db.FinePolicy.create({
-            ...newFinePolicy,
-            policyCode: policyCode,
-            createdBy: account.id,
-            updatedBy: account.id,
-            schoolId: account.schoolId,
-        });
+            // if default update false other policy
+            if (newFinePolicy.isDefault)
+                await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
 
-        await ActivityService.createActivity(
-            { dataTarget: finePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.CREATED },
-            account
-        );
+            const finePolicy = await db.FinePolicy.create(
+                {
+                    ...newFinePolicy,
+                    policyCode: policyCode,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    schoolId: account.schoolId,
+                },
+                { transaction }
+            );
+
+            const detailFinePolicy = newFinePolicy.detailFinePolicy || [];
+
+            const detailFinePolicyData = detailFinePolicy.map((detail) => ({
+                finePolicyId: finePolicy.id,
+                dayLate: detail.dayLate,
+                overdueFine: detail.overdueFine,
+                fineAmount: detail.fineAmount,
+                schoolId: account.schoolId,
+                createdBy: account.id,
+                updatedBy: account.id,
+            }));
+
+            await db.DetailFinePolicy.bulkCreate(detailFinePolicyData, { transaction });
+
+            await ActivityService.createActivity(
+                { dataTarget: finePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.CREATED },
+                account,
+                transaction
+            );
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     static async updateFinePolicyById(updateFinePolicy, account) {
-        const policyCode = updateFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
+            const policyCode = updateFinePolicy.policyCode || (await this.generateFinePolicyCode(account.schoolId));
+            const whereCondition = { active: true, schoolId: account.schoolId };
 
-        await db.FinePolicy.update(
-            {
-                ...updateFinePolicy,
-                policyCode: policyCode,
+            // check fine policy has default
+            if (!updateFinePolicy.isDefault) {
+                const finePolicy = await db.FinePolicy.findOne({
+                    where: { ...whereCondition, id: updateFinePolicy.id },
+                    attributes: ["id", "isDefault"],
+                });
+
+                if (finePolicy.isDefault)
+                    throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
+                        field: "isDefault",
+                    });
+            }
+
+            // if default update false other policy
+            if (updateFinePolicy.isDefault)
+                await db.FinePolicy.update({ isDefault: false }, { where: whereCondition, transaction });
+
+            await db.FinePolicy.update(
+                {
+                    ...updateFinePolicy,
+                    policyCode: policyCode,
+                    updatedBy: account.id,
+                    schoolId: account.schoolId,
+                },
+                { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId } }
+            );
+
+            const detailFinePolicy = newFinePolicy.detailFinePolicy || [];
+
+            const detailFinePolicyData = detailFinePolicy.map((detail) => ({
+                finePolicyId: updateFinePolicy.id,
+                dayLate: detail.dayLate,
+                overdueFine: detail.overdueFine,
+                fineAmount: detail.fineAmount,
+                createdBy: account.id,
                 updatedBy: account.id,
-                schoolId: account.schoolId,
-            },
-            { where: { id: updateFinePolicy.id, active: true, schoolId: account.schoolId } }
-        );
+            }));
 
-        await ActivityService.createActivity(
-            { dataTarget: updateFinePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.UPDATED },
-            account
-        );
+            await bulkUpdate(
+                detailFinePolicyData,
+                db.DetailFinePolicy,
+                {
+                    finePolicyId: updateFinePolicy.id,
+                    schoolId: account.schoolId,
+                },
+                transaction
+            );
+
+            await ActivityService.createActivity(
+                { dataTarget: updateFinePolicy.id, tableTarget: TABLE_NAME.FINE_POLICY, action: ACTIVITY_TYPE.UPDATED },
+                account,
+                transaction
+            );
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     static async generateFinePolicyCode(schoolId) {

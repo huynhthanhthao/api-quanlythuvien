@@ -52,6 +52,10 @@ module.exports = (sequelize, DataTypes) => {
             policyDes: {
                 type: DataTypes.TEXT,
             },
+            isDefault: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

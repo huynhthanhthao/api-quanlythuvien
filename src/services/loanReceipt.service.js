@@ -508,7 +508,7 @@ class LoanReceiptService {
             );
 
             await transaction.commit();
-            return { code: errorCodes.BOOKS_ARE_LATE, overdueBooks };
+            return overdueBooks.length > 0 ? { code: errorCodes.BOOKS_ARE_LATE, overdueBooks } : null;
         } catch (error) {
             await transaction.rollback();
             throw error;

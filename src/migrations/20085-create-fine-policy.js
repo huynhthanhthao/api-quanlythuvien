@@ -24,17 +24,11 @@ module.exports = {
             policyName: {
                 type: Sequelize.STRING,
             },
-            dayLate: {
-                type: Sequelize.INTEGER,
-            },
-            fineAmount: {
-                type: Sequelize.DOUBLE,
-            },
-            overdueFine: {
-                type: Sequelize.DOUBLE,
-            },
             policyDes: {
                 type: Sequelize.TEXT,
+            },
+            isDefault: {
+                type: Sequelize.BOOLEAN,
             },
             active: {
                 type: Sequelize.BOOLEAN,
