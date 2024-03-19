@@ -95,6 +95,8 @@ class BookService {
                     yearPublication: updateBook.yearPublication,
                     rePublic: updateBook.rePublic,
                     price: updateBook.price,
+                    penaltyApplied: updateBook.penaltyApplied,
+                    loanFee: updateBook.loanFee,
                     photoURL: customerURL(updatePhotoURL),
                     schoolId: account.schoolId,
                     updatedBy: account.id,

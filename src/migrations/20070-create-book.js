@@ -93,6 +93,9 @@ module.exports = {
             penaltyApplied: {
                 type: Sequelize.BOOLEAN,
             },
+            loanFee: {
+                type: Sequelize.DOUBLE,
+            },
             createdBy: {
                 type: Sequelize.BIGINT,
                 references: {

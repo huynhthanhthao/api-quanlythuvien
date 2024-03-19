@@ -230,7 +230,7 @@ class PenaltyTicketService {
                     as: "user",
                     where: whereUserCondition,
                     required: keyword || readerCode ? true : false,
-                    attributes: ["id", "fullName", "photoURL", "phone", "readerCode"],
+                    attributes: ["id", "fullName", "photoURL", "phone", "readerCode", "email"],
                 },
                 {
                     model: db.DetailPenaltyTicket,
@@ -311,7 +311,7 @@ class PenaltyTicketService {
                     as: "user",
                     where: whereCondition,
                     required: false,
-                    attributes: ["id", "fullName", "photoURL", "phone", "readerCode"],
+                    attributes: ["id", "fullName", "photoURL", "phone", "readerCode", "email"],
                 },
                 {
                     model: db.DetailPenaltyTicket,

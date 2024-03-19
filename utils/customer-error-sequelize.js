@@ -87,5 +87,8 @@ module.exports.customErrorMessageDatabase = (error) => {
 
     if (error.original?.code == "23503")
         return { message: "Không tìm thấy tài nguyên!", code: errorCodes.RESOURCE_NOT_FOUND };
+
+    if (error.original?.code == "22P02")
+        return { message: "Dữ liệu không đúng định dạng!", code: errorCodes.DATA_INCORRECT_FORMAT };
     return error;
 };

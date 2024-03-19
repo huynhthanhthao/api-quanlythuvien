@@ -172,6 +172,9 @@ module.exports = (sequelize, DataTypes) => {
                     isNumeric: true,
                 },
             },
+            loanFee: {
+                type: DataTypes.DOUBLE,
+            },
             penaltyApplied: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

@@ -20,6 +20,7 @@ module.exports.getBookStatus = function (receiptHasBook, bookLostReport) {
                 bookStatusName: receipt?.bookStatus?.statusName || null,
                 bookStatusId: receipt?.bookStatus?.id || null,
                 photoURL: receipt?.book?.photoURL || null,
+                loanFee: receipt.loanFee || 0,
             };
         }) || []
     );
@@ -32,7 +33,7 @@ module.exports.mapResponseLoanReceiptList = function (loanReceiptList) {
             receiptCode: loanReceipt.receiptCode,
             receiveDate: fDate(loanReceipt.receiveDate),
             returnDate: fDate(loanReceipt.returnDate),
-            fee: loanReceipt.fee,
+            totalFee: loanReceipt.totalFee || 0,
             receiptDes: loanReceipt.receiptDes,
             createdAt: fDate(loanReceipt.createdAt),
             fullName: loanReceipt.user?.fullName || null,
@@ -52,7 +53,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
         receiveDate: fDate(loanReceipt.receiveDate),
         returnDate: fDate(loanReceipt.returnDate),
         returnDate: loanReceipt.returnDate,
-        fee: loanReceipt.fee,
+        totalFee: loanReceipt.totalFee || 0,
         receiptDes: loanReceipt.receiptDes,
         createdAt: fDate(loanReceipt.createdAt),
         userId: loanReceipt.user?.id || null,
@@ -64,6 +65,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
         bookList: loanReceipt?.receiptHasBook?.map((receipt) => ({
             bookId: receipt?.book?.id || null,
             type: receipt.type || null,
+            loanFee: receipt.loanFee || 0,
             bookCode: receipt?.book?.bookCode || null,
             bookName: receipt?.book?.bookName,
             bookStatusName: receipt?.bookStatus?.statusName || null,

@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             loanFee: {
                 type: DataTypes.DOUBLE,
+                defaultValue: 0,
             },
             active: {
                 type: DataTypes.BOOLEAN,

@@ -4,14 +4,14 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-// router.post("/create", async function (req, res, next) {
-//     try {
-//         const data = await SettingController.createSetting(req);
-//         return res.json(data);
-//     } catch (error) {
-//         next(error);
-//     }
-// });
+router.post("/create", async function (req, res, next) {
+    try {
+        const data = await SettingController.createSetting(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
 
 router.put("/update", checkPermission(ROLES.SETTING_UPDATE), async function (req, res, next) {
     try {

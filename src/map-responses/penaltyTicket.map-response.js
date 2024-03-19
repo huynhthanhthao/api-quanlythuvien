@@ -11,6 +11,7 @@ module.exports.mapResponsePenaltyTicketList = function (penaltyTicketList) {
             userPhotoURL: penaltyTicket?.user?.photoURL || null,
             phone: penaltyTicket?.user?.phone || null,
             readerCode: penaltyTicket?.user?.readerCode || null,
+            email: penaltyTicket?.user?.email || null,
             detailTicket: penaltyTicket?.detailPenaltyTicket?.map((ticket) => ({
                 bookId: ticket?.book?.id || null,
                 bookCondition: ticket?.book?.bookCondition || null,
@@ -54,6 +55,7 @@ module.exports.mapResponsePenaltyTicketItem = function (penaltyTicket) {
               userPhotoURL: penaltyTicket?.user?.photoURL || null,
               phone: penaltyTicket?.user?.phone || null,
               readerCode: penaltyTicket?.user?.readerCode || null,
+              email: penaltyTicket?.user?.email || null,
               detailTicket: penaltyTicket?.detailPenaltyTicket?.map((ticket) => ({
                   bookId: ticket?.book?.id || null,
                   bookCondition: ticket?.book?.bookCondition || null,

@@ -60,6 +60,7 @@ class LoanReceiptService {
             const receiptBookData = newLoanReceipt?.books.map((book) => ({
                 bookId: book.id,
                 bookStatusId: book.statusId,
+                loanFee: book.loanFee,
                 loanReceiptId: loanReceipt.id,
                 schoolId: account.schoolId,
                 createdBy: account.id,
@@ -117,7 +118,6 @@ class LoanReceiptService {
         const booksOutOfStock = [];
         const bookList = await BookService.getQuantityByBookIds(bookIds, loanReceiptId, account.schoolId);
         for (const book of bookList) {
-            console.log(book.maxQuantity, book.amountBorrowed);
             if (book.maxQuantity <= book.amountBorrowed) {
                 booksOutOfStock.push(book.id);
             }
@@ -154,7 +154,7 @@ class LoanReceiptService {
             await db.LoanReceipt.update(
                 {
                     returnDate: loanReceiptUpdate.returnDate,
-                    fee: loanReceiptUpdate.fee,
+                    totalFee: loanReceiptUpdate.totalFee,
                     receiptDes: loanReceiptUpdate.receiptDes,
                     userId: loanReceiptUpdate.userId,
                     schoolId: account.schoolId,
@@ -166,6 +166,7 @@ class LoanReceiptService {
             const receiptBookData = loanReceiptUpdate?.books.map((book) => ({
                 bookId: book.id,
                 bookStatusId: book.statusId,
+                loanFee: book.loanFee,
                 loanReceiptId: loanReceiptUpdate.id,
                 schoolId: account.schoolId,
                 createdBy: account.id,
@@ -253,7 +254,7 @@ class LoanReceiptService {
 
         const { rows, count } = await db.LoanReceipt.findAndCountAll({
             where: whereLoanReceiptCondition,
-            attributes: ["id", "userId", "receiptCode", "receiveDate", "returnDate", "createdAt"],
+            attributes: ["id", "userId", "receiptCode", "receiveDate", "returnDate", "createdAt", "totalFee"],
             include: [
                 {
                     model: db.User,
