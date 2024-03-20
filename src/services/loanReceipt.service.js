@@ -413,150 +413,308 @@ class LoanReceiptService {
         return mapResponseLoanReceiptItem(loanReceipt);
     }
 
+    // static async giveBooksBack(loanReceipt, account) {
+    //     let transaction;
+    //     try {
+    //         transaction = await db.sequelize.transaction();
+
+    //         const books = loanReceipt.books || [];
+    //         const bookIds = books?.map((book) => book.id) || [];
+
+    //         const whereCondition = { active: true, schoolId: account.schoolId };
+
+    //         const borrowBooks = await db.Book.findAll({
+    //             where: { ...whereCondition, id: { [Op.in]: bookIds } },
+    //             attributes: ["id"],
+    //             include: [
+    //                 {
+    //                     model: db.ReceiptHasBook,
+    //                     as: "receiptHasBook",
+    //                     where: { ...whereCondition },
+    //                     required: true,
+    //                     attributes: {
+    //                         exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+    //                     },
+    //                     include: [
+    //                         {
+    //                             model: db.LoanReceipt,
+    //                             as: "loanReceipt",
+    //                             where: { ...whereCondition, userId: loanReceipt.userId },
+    //                             required: true,
+    //                             attributes: ["id", "returnDate"],
+    //                         },
+    //                     ],
+    //                 },
+    //             ],
+    //         });
+
+    //         if (borrowBooks.length != bookIds.length) {
+    //             const borrowBookIds = borrowBooks.map((book) => +book.id);
+    //             throw new CatchException(
+    //                 "Sách mượn không phải của bạn đọc này!",
+    //                 errorCodes.BOOK_NOT_BELONG_TO_READER,
+    //                 {
+    //                     field: "bookIds",
+    //                     unBorrowedBookIds: bookIds.filter((bookId) => !borrowBookIds.includes(bookId)),
+    //                 }
+    //             );
+    //         }
+
+    //         let unpaidBooks = [];
+    //         let returnedBooks = [];
+
+    //         borrowBooks.forEach((item) => {
+    //             let hasUnpaidBook = item.receiptHasBook.some((book) => book.type === LOAN_STATUS.BORROWING);
+    //             if (hasUnpaidBook) {
+    //                 unpaidBooks.push(item);
+    //             } else {
+    //                 returnedBooks.push(item);
+    //             }
+    //         });
+
+    //         if (returnedBooks.length > 0)
+    //             throw new CatchException("Sách này đã trả rồi!", errorCodes.BOOK_RETURNED, {
+    //                 field: "bookIds",
+    //                 returnedBookIds: returnedBooks.map((book) => book.id),
+    //             });
+
+    //         const overdueBooks = unpaidBooks.flatMap((book) =>
+    //             book?.receiptHasBook
+    //                 .filter(
+    //                     (receiptBook) => fDate(new Date()) > fDate(getEndOfDay(receiptBook?.loanReceipt?.returnDate))
+    //                 )
+    //                 .map((receiptBook) => ({
+    //                     id: book.id,
+    //                     returnDate: receiptBook?.loanReceipt?.returnDate,
+    //                 }))
+    //         );
+
+    //         const loanReceiptId = borrowBooks[0]?.receiptHasBook[0]?.loanReceipt?.id;
+
+    //         const bookReceiptData = books.map((book) => ({
+    //             type: LOAN_STATUS.PAID,
+    //             loanReceiptId,
+    //             bookId: book.id,
+    //             bookStatusId: book.bookStatusId,
+    //             schoolId: account.schoolId,
+    //             createdBy: account.id,
+    //             updatedBy: account.id,
+    //         }));
+
+    //         await bulkUpdate(
+    //             bookReceiptData,
+    //             db.ReceiptHasBook,
+    //             { loanReceiptId, schoolId: account.schoolId },
+    //             account,
+    //             transaction
+    //         );
+
+    //         await db.ReceiptHasBook.update(
+    //             { type: LOAN_STATUS.PAID, updatedBy: account.id },
+    //             {
+    //                 where: { ...whereCondition, bookId: { [Op.in]: bookIds } },
+    //                 transaction,
+    //             }
+    //         );
+
+    //         const setting = await SettingService.getSettingBySchoolId(account);
+
+    //         if (setting?.hasFineFee && overdueBooks.length > 0) {
+    //             const penaltyTicketId = await PenaltyTicketService.createPenaltyTicket(
+    //                 loanReceipt.userId,
+    //                 overdueBooks,
+    //                 account,
+    //                 transaction
+    //             );
+
+    //             await ActivityService.createActivity(
+    //                 {
+    //                     dataTarget: JSON.stringify(bookIds),
+    //                     tableTarget: TABLE_NAME.LOAN_RECEIPT,
+    //                     action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
+    //                 },
+    //                 account,
+    //                 transaction
+    //             );
+
+    //             await transaction.commit();
+    //             return { code: errorCodes.BOOKS_ARE_LATE, penaltyTicketId, overdueBooks };
+    //         }
+
+    //         await ActivityService.createActivity(
+    //             {
+    //                 dataTarget: JSON.stringify(bookIds),
+    //                 tableTarget: TABLE_NAME.LOAN_RECEIPT,
+    //                 action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
+    //             },
+    //             account,
+    //             transaction
+    //         );
+
+    //         await transaction.commit();
+    //         return overdueBooks.length > 0 ? { code: errorCodes.BOOKS_ARE_LATE, overdueBooks } : null;
+    //     } catch (error) {
+    //         await transaction.rollback();
+    //         throw error;
+    //     }
+    // }
+
     static async giveBooksBack(loanReceipt, account) {
         let transaction;
         try {
             transaction = await db.sequelize.transaction();
 
-            const books = loanReceipt.books || [];
-            const bookIds = books?.map((book) => book.id) || [];
+            const borrowBooks = await this.findBorrowedBooks(loanReceipt, account);
 
-            const whereCondition = { active: true, schoolId: account.schoolId };
+            this.validateBorrowedBooks(borrowBooks, loanReceipt.books);
 
-            const borrowBooks = await db.Book.findAll({
-                where: { ...whereCondition, id: { [Op.in]: bookIds } },
-                attributes: ["id"],
-                include: [
-                    {
-                        model: db.ReceiptHasBook,
-                        as: "receiptHasBook",
-                        where: { ...whereCondition },
-                        required: true,
-                        attributes: {
-                            exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-                        },
-                        include: [
-                            {
-                                model: db.LoanReceipt,
-                                as: "loanReceipt",
-                                where: { ...whereCondition, userId: loanReceipt.userId },
-                                required: true,
-                                attributes: ["id", "returnDate"],
-                            },
-                        ],
-                    },
-                ],
-            });
+            const { unpaidBooks, returnedBooks } = this.separateBooksByPaymentStatus(borrowBooks);
 
-            if (borrowBooks.length != bookIds.length) {
-                const borrowBookIds = borrowBooks.map((book) => +book.id);
-                throw new CatchException(
-                    "Sách mượn không phải của bạn đọc này!",
-                    errorCodes.BOOK_NOT_BELONG_TO_READER,
-                    {
-                        field: "bookIds",
-                        unBorrowedBookIds: bookIds.filter((bookId) => !borrowBookIds.includes(bookId)),
-                    }
-                );
-            }
+            this.checkReturnedBooks(returnedBooks);
 
-            let unpaidBooks = [];
-            let returnedBooks = [];
+            const overdueBooks = this.findOverdueBooks(unpaidBooks);
 
-            borrowBooks.forEach((item) => {
-                let hasUnpaidBook = item.receiptHasBook.some((book) => book.type === LOAN_STATUS.BORROWING);
-                if (hasUnpaidBook) {
-                    unpaidBooks.push(item);
-                } else {
-                    returnedBooks.push(item);
-                }
-            });
+            await this.updateBookReceipts(loanReceipt, borrowBooks, account, transaction);
 
-            if (returnedBooks.length > 0)
-                throw new CatchException("Sách này đã trả rồi!", errorCodes.BOOK_RETURNED, {
-                    field: "bookIds",
-                    returnedBookIds: returnedBooks.map((book) => book.id),
-                });
-
-            const overdueBooks = unpaidBooks.flatMap((book) =>
-                book?.receiptHasBook
-                    .filter(
-                        (receiptBook) => fDate(new Date()) > fDate(getEndOfDay(receiptBook?.loanReceipt?.returnDate))
-                    )
-                    .map((receiptBook) => ({
-                        id: book.id,
-                        returnDate: receiptBook?.loanReceipt?.returnDate,
-                    }))
-            );
-
-            const loanReceiptId = borrowBooks[0]?.receiptHasBook[0]?.loanReceipt?.id;
-
-            const bookReceiptData = books.map((book) => ({
-                type: LOAN_STATUS.PAID,
-                loanReceiptId,
-                bookId: book.id,
-                bookStatusId: book.bookStatusId,
-                schoolId: account.schoolId,
-                createdBy: account.id,
-                updatedBy: account.id,
-            }));
-
-            await bulkUpdate(
-                bookReceiptData,
-                db.ReceiptHasBook,
-                { loanReceiptId, schoolId: account.schoolId },
+            const resultHasPenaltyTicket = await this.createActivityAndPenaltyTicket(
+                overdueBooks,
+                loanReceipt,
                 account,
                 transaction
             );
 
-            await db.ReceiptHasBook.update(
-                { type: LOAN_STATUS.PAID, updatedBy: account.id },
+            if (resultHasPenaltyTicket) {
+                await transaction.commit();
+                return resultHasPenaltyTicket;
+            }
+
+            await transaction.commit();
+
+            return this.handleOverdueBooks(overdueBooks, account);
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    }
+
+    static async findBorrowedBooks(loanReceipt, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        return await db.Book.findAll({
+            where: { ...whereCondition, id: { [Op.in]: loanReceipt.books.map((book) => book.id) } },
+            attributes: ["id"],
+            include: [
                 {
-                    where: { ...whereCondition, bookId: { [Op.in]: bookIds } },
-                    transaction,
-                }
-            );
+                    model: db.ReceiptHasBook,
+                    as: "receiptHasBook",
+                    where: { ...whereCondition },
+                    required: true,
+                    attributes: {
+                        exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+                    },
+                    include: [
+                        {
+                            model: db.LoanReceipt,
+                            as: "loanReceipt",
+                            where: { ...whereCondition, userId: loanReceipt.userId },
+                            required: true,
+                            attributes: ["id", "returnDate"],
+                        },
+                    ],
+                },
+            ],
+        });
+    }
 
+    static validateBorrowedBooks(borrowBooks, requestedBooks) {
+        if (borrowBooks.length !== requestedBooks.length) {
+            const borrowBookIds = borrowBooks.map((book) => +book.id);
+
+            throw new CatchException("Sách mượn không phải của bạn đọc này!", errorCodes.BOOK_NOT_BELONG_TO_READER, {
+                field: "bookIds",
+                unBorrowedBookIds: requestedBooks.filter((book) => !borrowBookIds.includes(book.id)),
+            });
+        }
+    }
+
+    static separateBooksByPaymentStatus(borrowBooks) {
+        const unpaidBooks = [];
+        const returnedBooks = [];
+
+        borrowBooks.forEach((item) => {
+            const hasUnpaidBook = item.receiptHasBook.some((book) => book.type === LOAN_STATUS.BORROWING);
+            hasUnpaidBook ? unpaidBooks.push(item) : returnedBooks.push(item);
+        });
+
+        return { unpaidBooks, returnedBooks };
+    }
+
+    static checkReturnedBooks(returnedBooks) {
+        if (returnedBooks.length > 0) {
+            throw new CatchException("Sách này đã trả rồi!", errorCodes.BOOK_RETURNED, {
+                field: "bookIds",
+                returnedBookIds: returnedBooks.map((book) => book.id),
+            });
+        }
+    }
+
+    static findOverdueBooks(unpaidBooks) {
+        return unpaidBooks.flatMap((book) =>
+            book.receiptHasBook
+                .filter((receiptBook) => fDate(new Date()) > fDate(getEndOfDay(receiptBook.loanReceipt.returnDate)))
+                .map((receiptBook) => ({
+                    id: book.id,
+                    returnDate: receiptBook.loanReceipt.returnDate,
+                }))
+        );
+    }
+
+    static async updateBookReceipts(loanReceipt, borrowBooks, account, transaction) {
+        const loanReceiptId = borrowBooks[0]?.receiptHasBook[0]?.loanReceipt?.id;
+        const borrowBookIds = borrowBooks.map((book) => +book.id);
+
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const receiptBookBeforeBorrow = await db.ReceiptHasBook.findAll({
+            where: { ...whereCondition, loanReceiptId, bookId: { [Op.in]: borrowBookIds } },
+        });
+
+        const updateOperations = receiptBookBeforeBorrow.map(async (receiptBook) => {
+            receiptBook.type = LOAN_STATUS.PAID;
+            receiptBook.bookStatusId = loanReceipt.books.find((book) => book.id == receiptBook.bookId).bookStatusId;
+            await receiptBook.save({ transaction });
+        });
+
+        await Promise.all(updateOperations);
+    }
+
+    static async createActivityAndPenaltyTicket(overdueBooks, loanReceipt, account, transaction) {
+        await ActivityService.createActivity(
+            {
+                dataTarget: JSON.stringify(loanReceipt.books.map((book) => book.id)),
+                tableTarget: TABLE_NAME.LOAN_RECEIPT,
+                action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
+            },
+            account,
+            transaction
+        );
+
+        if (overdueBooks.length > 0) {
             const setting = await SettingService.getSettingBySchoolId(account);
-
-            if (setting?.hasFineFee && overdueBooks.length > 0) {
+            if (setting?.hasFineFee) {
                 const penaltyTicketId = await PenaltyTicketService.createPenaltyTicket(
                     loanReceipt.userId,
                     overdueBooks,
                     account,
                     transaction
                 );
-
-                await ActivityService.createActivity(
-                    {
-                        dataTarget: JSON.stringify(bookIds),
-                        tableTarget: TABLE_NAME.LOAN_RECEIPT,
-                        action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
-                    },
-                    account,
-                    transaction
-                );
-
-                await transaction.commit();
                 return { code: errorCodes.BOOKS_ARE_LATE, penaltyTicketId, overdueBooks };
             }
-
-            await ActivityService.createActivity(
-                {
-                    dataTarget: JSON.stringify(bookIds),
-                    tableTarget: TABLE_NAME.LOAN_RECEIPT,
-                    action: ACTIVITY_TYPE.GIVE_BOOK_BACK,
-                },
-                account,
-                transaction
-            );
-
-            await transaction.commit();
-            return overdueBooks.length > 0 ? { code: errorCodes.BOOKS_ARE_LATE, overdueBooks } : null;
-        } catch (error) {
-            await transaction.rollback();
-            throw error;
         }
+        return;
+    }
+
+    static handleOverdueBooks(overdueBooks, account) {
+        return overdueBooks.length > 0 ? { code: errorCodes.BOOKS_ARE_LATE, overdueBooks } : null;
     }
 
     static async generateReceiptCode(schoolId) {
