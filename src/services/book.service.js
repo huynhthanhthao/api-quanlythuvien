@@ -17,6 +17,7 @@ class BookService {
             transaction = await db.sequelize.transaction();
 
             const bookCode = newBook.bookCode || (await this.generateBookCode(account.schoolId));
+            console.log(newBook);
 
             const book = await db.Book.create(
                 {
@@ -36,20 +37,6 @@ class BookService {
                 fieldIds.map((fieldId) => ({
                     fieldId,
                     bookId: book.id,
-                    schoolId: account.schoolId,
-                    createdBy: account.id,
-                    updatedBy: account.id,
-                })),
-                { transaction }
-            );
-
-            const detailQuantity = newBook.detailQuantity || [];
-
-            await db.BookHasStatus.bulkCreate(
-                detailQuantity.map((detail) => ({
-                    bookId: book.id,
-                    statusId: detail.statusId,
-                    quantity: detail.quantity,
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
@@ -87,6 +74,7 @@ class BookService {
                     publisherId: updateBook.publisherId || null,
                     categoryId: updateBook.categoryId || null,
                     languageId: updateBook.languageId || null,
+                    statusId: updateBook.statusId || null,
                     bookName: updateBook.bookName,
                     bookDes: updateBook.bookDes,
                     otherName: updateBook.otherName,
@@ -117,25 +105,6 @@ class BookService {
             await bulkUpdate(
                 fieldList,
                 db.FieldHasBook,
-                { bookId: updateBook.id, schoolId: account.schoolId },
-                account,
-                transaction
-            );
-
-            const detailQuantity = updateBook.detailQuantity || [];
-
-            const quantityData = detailQuantity.map((detail) => ({
-                statusId: detail.statusId,
-                quantity: detail.quantity,
-                bookId: updateBook.id,
-                schoolId: account.schoolId,
-                createdBy: account.id,
-                updatedBy: account.id,
-            }));
-
-            await bulkUpdate(
-                quantityData,
-                db.BookHasStatus,
                 { bookId: updateBook.id, schoolId: account.schoolId },
                 account,
                 transaction
@@ -175,7 +144,8 @@ class BookService {
 
         const whereCondition = {
             [Op.and]: [
-                query.rePublics && { rePublic: { [Op.in]: rePublics } },
+                query.rePublics?.length > 0 && { rePublic: { [Op.in]: rePublics } },
+                statusIds.length > 0 && { statusId: { [Op.in]: statusIds } },
                 keyword && {
                     [Op.or]: searchableFields.map((field) =>
                         db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(field)), {
@@ -202,12 +172,6 @@ class BookService {
 
         const whereFieldCondition = {
             ...(fieldIds.length > 0 && { fieldId: { [Op.in]: fieldIds } }),
-            active: true,
-            schoolId: account.schoolId,
-        };
-
-        const whereStatusCondition = {
-            ...(statusIds.length > 0 && { statusId: { [Op.in]: statusIds } }),
             active: true,
             schoolId: account.schoolId,
         };
@@ -289,20 +253,11 @@ class BookService {
                     ],
                 },
                 {
-                    model: db.BookHasStatus,
-                    as: "bookHasStatus",
-                    attributes: ["id", "quantity"],
-                    required: statusIds.length > 0 ? true : false,
-                    where: whereStatusCondition,
-                    include: [
-                        {
-                            model: db.BookStatus,
-                            as: "status",
-                            where: { active: true, schoolId: account.schoolId },
-                            required: false,
-                            attributes: ["id", "statusName"],
-                        },
-                    ],
+                    model: db.BookStatus,
+                    required: false,
+                    as: "status",
+                    where: { active: true, schoolId: account.schoolId },
+                    attributes: ["id", "statusName"],
                 },
             ],
             distinct: true,
@@ -384,20 +339,11 @@ class BookService {
                     ],
                 },
                 {
-                    model: db.BookHasStatus,
-                    as: "bookHasStatus",
-                    attributes: ["id", "quantity"],
+                    model: db.BookStatus,
                     required: false,
-                    where: whereCondition,
-                    include: [
-                        {
-                            model: db.BookStatus,
-                            as: "status",
-                            where: { active: true, schoolId: account.schoolId },
-                            required: false,
-                            attributes: ["id", "statusName"],
-                        },
-                    ],
+                    as: "status",
+                    where: { active: true, schoolId: account.schoolId },
+                    attributes: ["id", "statusName"],
                 },
             ],
         });
@@ -445,14 +391,6 @@ class BookService {
                 { where: { bookId: { [Op.in]: validBookIds }, active: true, schoolId: account.schoolId }, transaction }
             );
 
-            await db.BookHasStatus.update(
-                {
-                    active: false,
-                    updatedBy: account.id,
-                },
-                { where: { bookId: { [Op.in]: validBookIds }, active: true, schoolId: account.schoolId }, transaction }
-            );
-
             await ActivityService.createActivity(
                 {
                     dataTarget: JSON.stringify(validBookIds),
@@ -492,52 +430,6 @@ class BookService {
         }
 
         return newBookCode;
-    }
-
-    static async getQuantityByBookIds(bookIds, loanReceiptId, schoolId) {
-        const whereCondition = { active: true, schoolId };
-        const bookList = await db.Book.findAll({
-            where: { id: { [Op.in]: bookIds }, ...whereCondition },
-            attributes: ["id", "bookName"],
-            order: [["id", "ASC"]],
-            include: [
-                {
-                    model: db.ReceiptHasBook,
-                    as: "receiptHasBook",
-                    required: false,
-                    where: {
-                        active: true,
-                        type: LOAN_STATUS.BORROWING,
-                        ...(loanReceiptId && { loanReceiptId: { [Op.notIn]: [loanReceiptId] } }),
-                    },
-                    attributes: ["id"],
-                },
-                {
-                    model: db.BookHasStatus,
-                    as: "bookHasStatus",
-                    attributes: ["id", "quantity"],
-                    required: false,
-                    where: whereCondition,
-                    include: [
-                        {
-                            model: db.BookStatus,
-                            as: "status",
-                            where: whereCondition,
-                            required: false,
-                            attributes: ["id", "statusName"],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        return bookList.map((book) => ({
-            id: book.id,
-            amountBorrowed: book.receiptHasBook.length,
-            maxQuantity: book?.bookHasStatus.reduce((acc, cur) => {
-                return acc + cur.quantity;
-            }, 0),
-        }));
     }
 }
 

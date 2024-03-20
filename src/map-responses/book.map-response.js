@@ -22,12 +22,7 @@ module.exports.mapResponseBookList = function (bookList) {
             positionName: book.position?.positionName || null,
             lanName: book.language?.lanName || null,
             fieldList: book.fieldHasBook?.map((item) => item?.field?.fieldName) || [],
-            detailQuantity:
-                book.bookHasStatus?.map((item) => ({
-                    statusName: item?.status?.statusName || null,
-                    statusId: item?.status?.id || null,
-                    quantity: item?.quantity || 0,
-                })) || [],
+            status: book?.status?.statusName || null,
         };
     });
 };
@@ -59,12 +54,8 @@ module.exports.mapResponseBookItem = function (book) {
               lanName: book.language?.lanName || null,
               lanId: book.language?.id || null,
               fieldList: book.fieldHasBook?.map((item) => item?.field?.id) || [],
-              detailQuantity:
-                  book.bookHasStatus?.map((item) => ({
-                      statusName: item?.status?.statusName || null,
-                      statusId: item?.status?.id || null,
-                      quantity: item?.quantity || null,
-                  })) || [],
+              status: book?.status?.statusName || null,
+              statusId: book?.status?.id || null,
           }
         : null;
 };

@@ -1,7 +1,5 @@
-const HttpStatus = require("http-status-codes");
 const { CatchException } = require("./api-error");
 const { errorCodes } = require("../enums/error-code");
-const { Op } = require("sequelize");
 
 module.exports.checkForeignKey = async function (value = 0, model, options) {
     const data = await model.findOne({

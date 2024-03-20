@@ -41,7 +41,6 @@ const BOOK_CONDITION = {
 const LOAN_STATUS = {
     BORROWING: 1,
     PAID: 2,
-    LOST: 3,
 };
 
 const PENALTY_TICKET_STATUS = {

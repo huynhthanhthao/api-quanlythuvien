@@ -54,6 +54,15 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
+            statusId: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "BookStatuses",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
+            },
             penaltyApplied: {
                 type: Sequelize.BOOLEAN,
             },

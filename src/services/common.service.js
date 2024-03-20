@@ -14,7 +14,6 @@ class CommonService {
             "GroupRole",
             // "Account",
             // "Book",
-            // "BookHasStatus",
             // "BookRequest",
             // "BookStatus",
             // "Category",

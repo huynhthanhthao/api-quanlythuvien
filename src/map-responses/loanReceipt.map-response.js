@@ -17,8 +17,7 @@ module.exports.getBookStatus = function (receiptHasBook, bookLostReport) {
                 type: lostBookIds.includes(+receipt?.book?.id) ? LOAN_STATUS.LOST : receipt.type,
                 bookCode: receipt?.book?.bookCode || null,
                 bookName: receipt?.book?.bookName,
-                bookStatusName: receipt?.bookStatus?.statusName || null,
-                bookStatusId: receipt?.bookStatus?.id || null,
+                bookStatusName: receipt?.book?.status?.statusName || null,
                 photoURL: receipt?.book?.photoURL || null,
                 loanFee: receipt.loanFee || 0,
             };
@@ -68,8 +67,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
             loanFee: receipt.loanFee || 0,
             bookCode: receipt?.book?.bookCode || null,
             bookName: receipt?.book?.bookName,
-            bookStatusName: receipt?.bookStatus?.statusName || null,
-            bookStatusId: receipt?.bookStatus?.id || null,
+            bookStatusName: receipt?.book?.status?.statusName || null,
             photoURL: receipt?.book?.photoURL || null,
         })),
     };

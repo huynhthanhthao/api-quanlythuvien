@@ -19,31 +19,9 @@ class BookController {
     static async createBook(req) {
         const photoURL = req.file?.path;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-        const detailQuantity = JSON.parse(req.body.detailQuantity || "[]") || [];
-
-        // if (detailQuantity.length == 0) {
-        //     throw new CatchException("Số lượng không được để trống.", errorCodes.MISSING_DATA, {
-        //         field: "detailQuantity",
-        //     });
-        // }
-
-        const statusIds = detailQuantity.map((book) => book.statusId);
-
-        if (checkIsDuplicates(statusIds)) {
-            throw new CatchException("Trạng thái bị trùng lặp!", errorCodes.INVALID_DATA, {
-                field: "detailQuantity",
-            });
-        }
-
-        // for (const detail of detailQuantity) {
-        //     if (detail.quantity <= 0)
-        //         throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
-        //             field: "quantity",
-        //         });
-        // }
 
         return transformer(
-            await BookService.createBook({ ...req.body, fieldIds, photoURL, detailQuantity }, req.account),
+            await BookService.createBook({ ...req.body, fieldIds, photoURL }, req.account),
             "Đã thêm dữ liệu sách mới."
         );
     }
@@ -52,25 +30,9 @@ class BookController {
         const { id } = req.params;
         const newPhotoURL = req.file?.path;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-        const detailQuantity = JSON.parse(req.body.detailQuantity || "[]") || [];
-
-        const statusIds = detailQuantity.map((book) => book.statusId);
-
-        if (checkIsDuplicates(statusIds)) {
-            throw new CatchException("Trạng thái bị trùng lặp!", errorCodes.INVALID_DATA, {
-                field: "detailQuantity",
-            });
-        }
-
-        // for (const detail of detailQuantity) {
-        //     if (detail.quantity <= 0)
-        //         throw new CatchException("Số lượng phải lớn hơn 0.", errorCodes.INVALID_DATA, {
-        //             field: "quantity",
-        //         });
-        // }
 
         return transformer(
-            await BookService.updateBookById({ ...req.body, newPhotoURL, fieldIds, detailQuantity, id }, req.account),
+            await BookService.updateBookById({ ...req.body, newPhotoURL, fieldIds, id }, req.account),
             "Cập nhật thành công."
         );
     }

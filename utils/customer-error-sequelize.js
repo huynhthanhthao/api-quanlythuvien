@@ -90,5 +90,11 @@ module.exports.customErrorMessageDatabase = (error) => {
 
     if (error.original?.code == "22P02")
         return { message: "Dữ liệu không đúng định dạng!", code: errorCodes.DATA_INCORRECT_FORMAT };
-    return error;
+
+    return error.message
+        ? error
+        : {
+              code: "UNKNOWN_ERROR",
+              message: error.message || "Có lỗi xảy ra!",
+          };
 };

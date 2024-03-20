@@ -37,9 +37,9 @@ module.exports = (sequelize, DataTypes) => {
                 as: "fieldHasBook",
             });
 
-            Book.hasMany(models.BookHasStatus, {
-                foreignKey: "bookId",
-                as: "bookHasStatus",
+            Book.belongsTo(models.BookStatus, {
+                foreignKey: "statusId",
+                as: "status",
             });
 
             Book.hasMany(models.ReceiptHasBook, {
@@ -72,6 +72,19 @@ module.exports = (sequelize, DataTypes) => {
                     isNumeric: true,
                     async checkForeignKey(value) {
                         await checkForeignKey(value, sequelize.models.Publisher, {
+                            schoolId: this.schoolId,
+                        });
+                    },
+                },
+            },
+            statusId: {
+                type: DataTypes.BIGINT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                    isNumeric: true,
+                    async checkForeignKey(value) {
+                        await checkForeignKey(value, sequelize.models.BookStatus, {
                             schoolId: this.schoolId,
                         });
                     },

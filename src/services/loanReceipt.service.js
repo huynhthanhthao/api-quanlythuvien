@@ -37,7 +37,7 @@ class LoanReceiptService {
         );
 
         // check quantity in stock
-        await this.checkBooksInStock(newLoanReceipt.books, "", account);
+        await this.checkBooksInStock(newLoanReceipt.books, account);
 
         let transaction;
 
@@ -59,7 +59,6 @@ class LoanReceiptService {
 
             const receiptBookData = newLoanReceipt?.books.map((book) => ({
                 bookId: book.id,
-                bookStatusId: book.statusId,
                 loanFee: book.loanFee,
                 loanReceiptId: loanReceipt.id,
                 schoolId: account.schoolId,
@@ -113,14 +112,17 @@ class LoanReceiptService {
             });
     }
 
-    static async checkBooksInStock(books, loanReceiptId, account) {
+    static async checkBooksInStock(books, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
         const bookIds = books.map((book) => book.id);
         const booksOutOfStock = [];
-        const bookList = await BookService.getQuantityByBookIds(bookIds, loanReceiptId, account.schoolId);
-        for (const book of bookList) {
-            if (book.maxQuantity <= book.amountBorrowed) {
-                booksOutOfStock.push(book.id);
-            }
+        for (const bookId of bookIds) {
+            const bookBorrowed = await db.ReceiptHasBook.findOne({
+                where: { ...whereCondition, bookId: bookId, type: LOAN_STATUS.BORROWING },
+                attributes: ["id"],
+            });
+
+            if (bookBorrowed) booksOutOfStock.push(bookId);
         }
 
         if (booksOutOfStock.length > 0)
@@ -144,7 +146,7 @@ class LoanReceiptService {
         );
 
         // check quantity in stock
-        await this.checkBooksInStock(loanReceiptUpdate.books, loanReceiptUpdate.id, account);
+        await this.checkBooksInStock(loanReceiptUpdate.books, account);
 
         let transaction;
 
@@ -165,7 +167,6 @@ class LoanReceiptService {
             );
             const receiptBookData = loanReceiptUpdate?.books.map((book) => ({
                 bookId: book.id,
-                bookStatusId: book.statusId,
                 loanFee: book.loanFee,
                 loanReceiptId: loanReceiptUpdate.id,
                 schoolId: account.schoolId,
@@ -298,15 +299,24 @@ class LoanReceiptService {
                             attributes: {
                                 exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
                             },
-                        },
-                        {
-                            model: db.BookStatus,
-                            as: "bookStatus",
-                            where: whereCommonCondition,
-                            required: false,
-                            attributes: {
-                                exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-                            },
+                            include: [
+                                {
+                                    model: db.BookStatus,
+                                    as: "status",
+                                    where: whereCommonCondition,
+                                    required: false,
+                                    attributes: {
+                                        exclude: [
+                                            "createdAt",
+                                            "updatedAt",
+                                            "createdBy",
+                                            "updatedBy",
+                                            "active",
+                                            "schoolId",
+                                        ],
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
@@ -374,20 +384,31 @@ class LoanReceiptService {
                             attributes: {
                                 exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
                             },
-                        },
-                        {
-                            model: db.BookStatus,
-                            as: "bookStatus",
-                            where: whereCondition,
-                            required: false,
-                            attributes: {
-                                exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-                            },
+                            include: [
+                                {
+                                    model: db.BookStatus,
+                                    as: "status",
+                                    where: whereCondition,
+                                    required: false,
+                                    attributes: {
+                                        exclude: [
+                                            "createdAt",
+                                            "updatedAt",
+                                            "createdBy",
+                                            "updatedBy",
+                                            "active",
+                                            "schoolId",
+                                        ],
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
             ],
         });
+
+        if (!loanReceipt) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
         return mapResponseLoanReceiptItem(loanReceipt);
     }

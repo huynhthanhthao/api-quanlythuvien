@@ -42,15 +42,6 @@ module.exports = {
             loanFee: {
                 type: Sequelize.DOUBLE,
             },
-            bookStatusId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "BookStatuses",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
-            },
             active: {
                 type: Sequelize.BOOLEAN,
             },
