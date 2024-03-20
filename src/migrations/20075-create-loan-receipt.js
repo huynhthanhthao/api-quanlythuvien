@@ -38,9 +38,6 @@ module.exports = {
                 type: "TIMESTAMP",
                 defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
             },
-            totalFee: {
-                type: Sequelize.DOUBLE,
-            },
             receiptDes: {
                 type: Sequelize.TEXT,
             },

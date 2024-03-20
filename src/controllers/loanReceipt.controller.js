@@ -77,11 +77,13 @@ class LoanReceiptController {
     }
 
     static async giveBooksBack(req) {
-        const { bookIds = [] } = req.body;
+        const { books = [] } = req.body;
+
+        const bookIds = books.map((book) => book.id);
 
         if (checkIsDuplicates(bookIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
-                field: "bookIds",
+                field: "books",
             });
         }
 

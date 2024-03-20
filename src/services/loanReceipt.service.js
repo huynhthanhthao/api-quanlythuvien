@@ -417,7 +417,10 @@ class LoanReceiptService {
         let transaction;
         try {
             transaction = await db.sequelize.transaction();
-            const bookIds = loanReceipt.bookIds || [];
+
+            const books = loanReceipt.books || [];
+            const bookIds = books?.map((book) => book.id) || [];
+
             const whereCondition = { active: true, schoolId: account.schoolId };
 
             const borrowBooks = await db.Book.findAll({
@@ -484,6 +487,26 @@ class LoanReceiptService {
                         id: book.id,
                         returnDate: receiptBook?.loanReceipt?.returnDate,
                     }))
+            );
+
+            const loanReceiptId = borrowBooks[0]?.receiptHasBook[0]?.loanReceipt?.id;
+
+            const bookReceiptData = books.map((book) => ({
+                type: LOAN_STATUS.PAID,
+                loanReceiptId,
+                bookId: book.id,
+                bookStatusId: book.bookStatusId,
+                schoolId: account.schoolId,
+                createdBy: account.id,
+                updatedBy: account.id,
+            }));
+
+            await bulkUpdate(
+                bookReceiptData,
+                db.ReceiptHasBook,
+                { loanReceiptId, schoolId: account.schoolId },
+                account,
+                transaction
             );
 
             await db.ReceiptHasBook.update(

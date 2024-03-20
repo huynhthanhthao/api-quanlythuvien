@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "bookId",
                 as: "book",
             });
+
+            ReceiptHasBook.belongsTo(models.BookStatus, {
+                foreignKey: "bookStatusId",
+                as: "bookStatus",
+            });
         }
     }
     ReceiptHasBook.init(
@@ -50,6 +55,17 @@ module.exports = (sequelize, DataTypes) => {
                         });
                     },
                     notEmpty: true,
+                },
+            },
+            bookStatusId: {
+                type: DataTypes.BIGINT,
+                validate: {
+                    notEmpty: true,
+                    async checkEmptyForeignKey(value) {
+                        await checkEmptyForeignKey(value, sequelize.models.BookStatus, {
+                            schoolId: this.schoolId,
+                        });
+                    },
                 },
             },
             type: {
