@@ -14,9 +14,7 @@ const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common"
 const { TABLE_NAME } = require("../../enums/languages");
 
 class PenaltyTicketService {
-    static async createPenaltyTicket(userId, bookList, account, transaction) {
-        const penaltyTicketData = [];
-
+    static async createPenaltyTicket(userId, bookList, setting, account, transaction) {
         const penaltyTicket = await db.PenaltyTicket.create(
             {
                 userId,
@@ -27,89 +25,130 @@ class PenaltyTicketService {
             },
             { transaction }
         );
-
+        let bookIds = bookList.map((book) => book.id);
         const whereCondition = { active: true, schoolId: account.schoolId };
+        const penaltyTicketData = [];
 
-        const policyWithSpecialBooks = await db.FinePolicy.findAll({
-            where: { ...whereCondition },
-            include: [
-                {
-                    model: db.FinePolicyHasBook,
-                    as: "finePolicyHasBook",
-                    where: { ...whereCondition, bookId: { [Op.in]: bookList.map((book) => book.id) } },
-                    required: true,
-                    attributes: ["bookId"],
-                },
-            ],
-            attributes: ["id"],
-        });
-
-        policyWithSpecialBooks.forEach((finePolicy, index) => {
-            const bookTarget = bookList.find((book) => book.id == finePolicy?.finePolicyHasBook[0]?.bookId);
-
-            const realityDayLate = -calculateDaysDiff(fDate(bookTarget.returnDate));
-
-            penaltyTicketData.push({
-                realityDayLate,
-                schoolId: account.schoolId,
-                ticketId: penaltyTicket.id,
-                bookId: finePolicy?.finePolicyHasBook[0]?.bookId,
-                finePolicyId: finePolicy.id,
-                createdBy: account.id,
-                updatedBy: account.id,
-            });
-        });
-
-        const normalBooks = bookList
-            .map((book) => {
-                if (
-                    !policyWithSpecialBooks.some((finePolicy) => {
-                        return finePolicy?.finePolicyHasBook[0]?.bookId == book.id;
-                    })
-                ) {
-                    const realityDayLate = -calculateDaysDiff(fDate(book.returnDate));
-
-                    return { ...book, realityDayLate };
-                }
-
-                return null;
-            })
-            .filter(Boolean)
-            .sort((a, b) => a.realityDayLate - b.realityDayLate);
-
-        for (const book of normalBooks) {
-            let finePolicies = [];
-
-            finePolicies = await db.FinePolicy.findAll({
-                where: { ...whereCondition, dayLate: { [Op.gte]: book.realityDayLate } },
+        if (setting.noSpecialPenalties) {
+            const bookNotApplyPenalties = await db.Book.findAll({
+                where: { ...whereCondition, id: { [Op.in]: bookIds }, penaltyApplied: false },
                 attributes: ["id"],
-                order: [["dayLate", "ASC"]],
-                limit: 1,
             });
 
-            if (finePolicies.length == 0) {
-                finePolicies = await db.FinePolicy.findAll({
-                    where: { ...whereCondition, dayLate: { [Op.lte]: book.realityDayLate } },
-                    attributes: ["id"],
-                    order: [["dayLate", "DESC"]],
-                    limit: 1,
-                });
+            const bookIdNotApplyPenalties = bookNotApplyPenalties.map((book) => +book.id);
 
-                throw new CatchException("Không tìm thấy phí phạt tương ứng.", errorCodes.RESOURCE_NOT_FOUND, {
-                    field: "finePolicyId",
-                    book,
+            for (const bookId of bookIdNotApplyPenalties) {
+                const { returnDate } = bookList.find((book) => book.id == bookId);
+                const dayLate = -calculateDaysDiff(returnDate);
+
+                penaltyTicketData.push({
+                    ticketId: penaltyTicket.id,
+                    bookId,
+                    realityDayLate: dayLate,
+                    penaltyFee: 0,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    schoolId: account.schoolId,
                 });
             }
 
-            penaltyTicketData.push({
-                schoolId: account.schoolId,
-                ticketId: penaltyTicket.id,
-                bookId: book.id,
-                realityDayLate: book.realityDayLate,
-                finePolicyId: finePolicies[0].id,
-                createdBy: account.id,
-                updatedBy: account.id,
-            });
+            bookIds = bookIds.filter((bookId) => !bookIdNotApplyPenalties.includes(+bookId));
+        }
+        // Phạt sách đặt biệt
+        const bookSpecialWithFinePolicies = (await this.getBookSpecialWithFinePolicies(bookIds, account)) || [];
+
+        for (const bookSpecial of bookSpecialWithFinePolicies) {
+            const detailFinePolicy = bookSpecial?.finePolicyHasBook?.finePolicy?.detailFinePolicy;
+            const finePolicy = bookSpecial?.finePolicyHasBook?.finePolicy;
+
+            // Sắp xếp daylate tăng dần
+            detailFinePolicy.sort((a, b) => a.dayLate - b.dayLate);
+            const { returnDate } = bookList.find((book) => book.id == bookSpecial.id);
+
+            const dayLate = -calculateDaysDiff(returnDate);
+            const suitableFinePolicy = detailFinePolicy.find((finePolicy) => dayLate <= finePolicy.dayLate);
+
+            if (suitableFinePolicy) {
+                penaltyTicketData.push({
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    realityDayLate: dayLate,
+                    bookId: bookSpecial.id,
+                    penaltyFee: suitableFinePolicy.fineAmount,
+                    ticketId: penaltyTicket.id,
+                });
+            }
+
+            if (!suitableFinePolicy) {
+                const maxDetailFinePolicy = detailFinePolicy[detailFinePolicy.length - 1];
+
+                penaltyTicketData.push({
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    realityDayLate: dayLate,
+                    bookId: bookSpecial.id,
+                    penaltyFee:
+                        maxDetailFinePolicy.fineAmount +
+                        finePolicy.overdueFine * (dayLate - maxDetailFinePolicy.dayLate),
+                    ticketId: penaltyTicket.id,
+                });
+            }
+        }
+
+        const bookIdSpecialWithFinePolicies = bookSpecialWithFinePolicies.map((book) => +book.id);
+        bookIds = bookIds.filter((bookId) => !bookIdSpecialWithFinePolicies.includes(+bookId));
+
+        const finePolicyDefault = await db.FinePolicy.findOne({
+            where: { ...whereCondition, isDefault: true },
+            attributes: ["id", "overdueFine"],
+            include: [
+                {
+                    model: db.DetailFinePolicy,
+                    as: "detailFinePolicy",
+                    attributes: ["id", "dayLate", "fineAmount"],
+                    where: whereCondition,
+                    required: true,
+                },
+            ],
+        });
+
+        for (const bookId of bookIds) {
+            const { returnDate } = bookList.find((book) => book.id == bookId);
+            const detailFinePolicy = finePolicyDefault?.detailFinePolicy;
+            detailFinePolicy.sort((a, b) => a.dayLate - b.dayLate);
+
+            const dayLate = -calculateDaysDiff(returnDate);
+            const suitableFinePolicy = detailFinePolicy.find((finePolicy) => dayLate <= finePolicy.dayLate);
+
+            if (suitableFinePolicy) {
+                penaltyTicketData.push({
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    realityDayLate: dayLate,
+                    bookId: bookId,
+                    penaltyFee: suitableFinePolicy.fineAmount,
+                    ticketId: penaltyTicket.id,
+                });
+            }
+
+            if (!suitableFinePolicy) {
+                const maxDetailFinePolicy = detailFinePolicy[detailFinePolicy.length - 1];
+
+                penaltyTicketData.push({
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    realityDayLate: dayLate,
+                    bookId: bookId,
+                    penaltyFee:
+                        maxDetailFinePolicy.fineAmount +
+                        finePolicyDefault.overdueFine * (dayLate - maxDetailFinePolicy.dayLate),
+                    ticketId: penaltyTicket.id,
+                });
+            }
         }
 
         await db.DetailPenaltyTicket.bulkCreate(penaltyTicketData, { transaction });
@@ -121,6 +160,42 @@ class PenaltyTicketService {
         );
 
         return penaltyTicket.id;
+    }
+
+    static async getBookSpecialWithFinePolicies(bookIds, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        return await db.Book.findAll({
+            where: { ...whereCondition, id: { [Op.in]: bookIds } },
+            include: [
+                {
+                    model: db.FinePolicyHasBook,
+                    as: "finePolicyHasBook",
+                    attributes: ["id"],
+                    where: whereCondition,
+                    required: true,
+                    include: [
+                        {
+                            model: db.FinePolicy,
+                            as: "finePolicy",
+                            attributes: ["id", "overdueFine"],
+                            where: whereCondition,
+                            required: true,
+                            include: [
+                                {
+                                    model: db.DetailFinePolicy,
+                                    as: "detailFinePolicy",
+                                    attributes: ["id", "dayLate", "fineAmount"],
+                                    where: whereCondition,
+                                    required: true,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            attributes: ["id"],
+        });
     }
 
     static async payPenaltyTicket(ticket, account) {

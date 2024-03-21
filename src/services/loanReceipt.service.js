@@ -156,7 +156,6 @@ class LoanReceiptService {
             await db.LoanReceipt.update(
                 {
                     returnDate: loanReceiptUpdate.returnDate,
-                    totalFee: loanReceiptUpdate.totalFee,
                     receiptDes: loanReceiptUpdate.receiptDes,
                     userId: loanReceiptUpdate.userId,
                     schoolId: account.schoolId,
@@ -255,7 +254,7 @@ class LoanReceiptService {
 
         const { rows, count } = await db.LoanReceipt.findAndCountAll({
             where: whereLoanReceiptCondition,
-            attributes: ["id", "userId", "receiptCode", "receiveDate", "returnDate", "createdAt", "totalFee"],
+            attributes: ["id", "userId", "receiptCode", "receiveDate", "returnDate", "createdAt"],
             include: [
                 {
                     model: db.User,
@@ -583,14 +582,14 @@ class LoanReceiptService {
                 transaction
             );
 
-            if (resultHasPenaltyTicket) {
-                await transaction.commit();
-                return resultHasPenaltyTicket;
-            }
+            // if (resultHasPenaltyTicket) {
+            //     await transaction.commit();
+            //     return resultHasPenaltyTicket;
+            // }
 
-            await transaction.commit();
+            // await transaction.commit();
 
-            return this.handleOverdueBooks(overdueBooks, account);
+            // return this.handleOverdueBooks(overdueBooks, account);
         } catch (error) {
             await transaction.rollback();
             throw error;
@@ -700,10 +699,12 @@ class LoanReceiptService {
 
         if (overdueBooks.length > 0) {
             const setting = await SettingService.getSettingBySchoolId(account);
+
             if (setting?.hasFineFee) {
                 const penaltyTicketId = await PenaltyTicketService.createPenaltyTicket(
                     loanReceipt.userId,
                     overdueBooks,
+                    setting,
                     account,
                     transaction
                 );

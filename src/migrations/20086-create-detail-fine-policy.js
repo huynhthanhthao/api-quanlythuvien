@@ -33,9 +33,6 @@ module.exports = {
             fineAmount: {
                 type: Sequelize.DOUBLE,
             },
-            overdueFine: {
-                type: Sequelize.DOUBLE,
-            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

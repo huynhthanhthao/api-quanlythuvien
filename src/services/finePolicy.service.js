@@ -48,7 +48,6 @@ class FinePolicyService {
             const detailFinePolicyData = detailFinePolicy.map((detail) => ({
                 finePolicyId: finePolicy.id,
                 dayLate: detail.dayLate,
-                overdueFine: detail.overdueFine,
                 fineAmount: detail.fineAmount,
                 schoolId: account.schoolId,
                 createdBy: account.id,
@@ -108,7 +107,6 @@ class FinePolicyService {
             const detailFinePolicyData = detailFinePolicy.map((detail) => ({
                 finePolicyId: updateFinePolicy.id,
                 dayLate: detail.dayLate,
-                overdueFine: detail.overdueFine,
                 fineAmount: detail.fineAmount,
                 schoolId: account.schoolId,
                 createdBy: account.id,
@@ -289,7 +287,7 @@ class FinePolicyService {
             include: [
                 {
                     model: db.DetailFinePolicy,
-                    as: "detailFinePolicies",
+                    as: "detailFinePolicy",
                     where: { active: true, schoolId: account.schoolId },
                     required: false,
                     attributes: {
@@ -408,7 +406,7 @@ class FinePolicyService {
             include: [
                 {
                     model: db.DetailFinePolicy,
-                    as: "detailFinePolicies",
+                    as: "detailFinePolicy",
                     where: { active: true, schoolId: account.schoolId },
                     required: false,
                     attributes: {

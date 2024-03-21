@@ -37,13 +37,7 @@ module.exports = (sequelize, DataTypes) => {
                     isNumeric: true,
                 },
             },
-            overdueFine: {
-                type: DataTypes.DOUBLE,
-                validate: {
-                    isNumeric: true,
-                },
-                defaultValue: 0,
-            },
+
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

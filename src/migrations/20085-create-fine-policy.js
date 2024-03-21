@@ -27,6 +27,9 @@ module.exports = {
             policyDes: {
                 type: Sequelize.TEXT,
             },
+            overdueFine: {
+                type: Sequelize.DOUBLE,
+            },
             isDefault: {
                 type: Sequelize.BOOLEAN,
             },

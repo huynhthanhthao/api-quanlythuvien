@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 
             FinePolicy.hasMany(models.DetailFinePolicy, {
                 foreignKey: "finePolicyId",
-                as: "detailFinePolicies",
+                as: "detailFinePolicy",
             });
         }
     }
@@ -60,6 +60,13 @@ module.exports = (sequelize, DataTypes) => {
             isDefault: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
+            },
+            overdueFine: {
+                type: DataTypes.DOUBLE,
+                validate: {
+                    isNumeric: true,
+                },
+                defaultValue: 0,
             },
             active: {
                 type: DataTypes.BOOLEAN,
