@@ -19,11 +19,6 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "bookId",
                 as: "book",
             });
-
-            DetailPenaltyTicket.belongsTo(models.FinePolicy, {
-                foreignKey: "finePolicyId",
-                as: "finePolicy",
-            });
         }
     }
     DetailPenaltyTicket.init(
@@ -33,6 +28,9 @@ module.exports = (sequelize, DataTypes) => {
             },
             realityDayLate: {
                 type: DataTypes.INTEGER,
+            },
+            penaltyFee: {
+                type: DataTypes.DOUBLE,
             },
             ticketId: {
                 type: DataTypes.BIGINT,

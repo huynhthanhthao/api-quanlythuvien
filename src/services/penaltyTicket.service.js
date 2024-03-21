@@ -100,6 +100,8 @@ class PenaltyTicketService {
         const bookIdSpecialWithFinePolicies = bookSpecialWithFinePolicies.map((book) => +book.id);
         bookIds = bookIds.filter((bookId) => !bookIdSpecialWithFinePolicies.includes(+bookId));
 
+        // Phạt sách bình thường
+
         const finePolicyDefault = await db.FinePolicy.findOne({
             where: { ...whereCondition, isDefault: true },
             attributes: ["id", "overdueFine"],
@@ -150,7 +152,6 @@ class PenaltyTicketService {
                 });
             }
         }
-
         await db.DetailPenaltyTicket.bulkCreate(penaltyTicketData, { transaction });
 
         await ActivityService.createActivity(
@@ -312,7 +313,7 @@ class PenaltyTicketService {
                     as: "detailPenaltyTicket",
                     where: whereCondition,
                     required: false,
-                    attributes: ["id", "realityDayLate"],
+                    attributes: ["id", "realityDayLate", "penaltyFee"],
                     include: [
                         {
                             model: db.Book,
@@ -333,15 +334,6 @@ class PenaltyTicketService {
                                     "languageId",
                                     "statusId",
                                 ],
-                            },
-                        },
-                        {
-                            model: db.FinePolicy,
-                            as: "finePolicy",
-                            where: whereCondition,
-                            required: false,
-                            attributes: {
-                                exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
                             },
                         },
                     ],
@@ -414,15 +406,6 @@ class PenaltyTicketService {
                                     "languageId",
                                     "statusId",
                                 ],
-                            },
-                        },
-                        {
-                            model: db.FinePolicy,
-                            as: "finePolicy",
-                            where: whereCondition,
-                            required: false,
-                            attributes: {
-                                exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
                             },
                         },
                     ],

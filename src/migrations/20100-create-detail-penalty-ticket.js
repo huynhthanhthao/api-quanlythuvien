@@ -21,6 +21,9 @@ module.exports = {
             realityDayLate: {
                 type: Sequelize.INTEGER,
             },
+            penaltyFee: {
+                type: Sequelize.DOUBLE,
+            },
             ticketId: {
                 type: Sequelize.BIGINT,
                 references: {

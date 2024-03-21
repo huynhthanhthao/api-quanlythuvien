@@ -23,22 +23,10 @@ module.exports.mapResponsePenaltyTicketList = function (penaltyTicketList) {
                 pages: ticket?.book?.pages || null,
                 yearPublication: ticket?.book?.yearPublication || null,
                 rePublic: ticket?.book?.rePublic || null,
-                price: ticket?.book?.price || null,
+                price: ticket?.book?.price || 0,
                 photoURL: ticket?.book?.photoURL || null,
-                quantity: ticket?.book?.quantity || null,
-                finePolicyId: ticket?.finePolicy?.id || null,
-                policyCode: ticket?.finePolicy?.policyCode || null,
-                fineAmount: ticket?.finePolicy?.fineAmount || 0,
-                dayLate: ticket?.finePolicy?.dayLate || null,
-                realityDayLate: ticket?.realityDayLate || null,
-                overdueFine: ticket?.finePolicy?.overdueFine || 0,
-                policyDes: ticket?.finePolicy?.policyDes || null,
-                policyName: ticket?.finePolicy?.policyDes || null,
-                actualFee:
-                    ticket?.realityDayLate <= ticket?.finePolicy?.dayLate
-                        ? ticket?.finePolicy?.fineAmount
-                        : ticket?.finePolicy?.fineAmount +
-                          (ticket?.realityDayLate - ticket?.finePolicy?.dayLate) * ticket?.finePolicy?.overdueFine,
+                realityDayLate: ticket?.realityDayLate || 0,
+                penaltyFee: ticket?.penaltyFee || 0,
             })),
         };
     });
@@ -67,22 +55,10 @@ module.exports.mapResponsePenaltyTicketItem = function (penaltyTicket) {
                   pages: ticket?.book?.pages || null,
                   yearPublication: ticket?.book?.yearPublication || null,
                   rePublic: ticket?.book?.rePublic || null,
-                  price: ticket?.book?.price || null,
+                  price: ticket?.book?.price || 0,
                   photoURL: ticket?.book?.photoURL || null,
-                  quantity: ticket?.book?.quantity || null,
-                  finePolicyId: ticket?.finePolicy?.id || null,
-                  policyCode: ticket?.finePolicy?.policyCode || null,
-                  fineAmount: ticket?.finePolicy?.fineAmount || 0,
-                  dayLate: ticket?.finePolicy?.dayLate || null,
-                  realityDayLate: ticket?.realityDayLate || null,
-                  overdueFine: ticket?.finePolicy?.overdueFine || 0,
-                  policyDes: ticket?.finePolicy?.policyDes || null,
-                  policyName: ticket?.finePolicy?.policyName || null,
-                  actualFee:
-                      ticket?.realityDayLate <= ticket?.finePolicy?.dayLate
-                          ? ticket?.finePolicy?.fineAmount
-                          : ticket?.finePolicy?.fineAmount +
-                            (ticket?.realityDayLate - ticket?.finePolicy?.dayLate) * ticket?.finePolicy?.overdueFine,
+                  realityDayLate: ticket?.realityDayLate || 0,
+                  penaltyFee: ticket?.penaltyFee || 0,
               })),
           }
         : null;
