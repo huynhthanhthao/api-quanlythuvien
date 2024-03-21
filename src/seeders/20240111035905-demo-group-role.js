@@ -5,7 +5,7 @@ module.exports = {
         await queryInterface.bulkInsert("GroupRoles", [
             {
                 id: "1",
-                groupName: "Quản lý người dùng",
+                groupName: "Quản lý bạn đọc",
                 active: true,
                 createdBy: "1",
                 updatedBy: "1",
