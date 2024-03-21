@@ -7,7 +7,7 @@ const upload = require("../middlewares/multer");
 
 router.post(
     "/create",
-    checkPermission(ROLES.BOOK_REQUEST_CREATE),
+    checkPermission([ROLES.BOOK_REQUEST_CREATE]),
     upload.single("photoFile"),
     async function (req, res, next) {
         try {
@@ -21,7 +21,7 @@ router.post(
 
 router.put(
     "/:id/update",
-    checkPermission(ROLES.BOOK_REQUEST_UPDATE),
+    checkPermission([ROLES.BOOK_REQUEST_UPDATE]),
     upload.single("photoFile"),
     async function (req, res, next) {
         try {
@@ -33,7 +33,7 @@ router.put(
     }
 );
 
-router.put("/delete", checkPermission(ROLES.BOOK_REQUEST_DELETE), async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.BOOK_REQUEST_DELETE]), async function (req, res, next) {
     try {
         const data = await BookRequestController.deleteBookRequestByIds(req);
         return res.json(data);
@@ -42,7 +42,7 @@ router.put("/delete", checkPermission(ROLES.BOOK_REQUEST_DELETE), async function
     }
 });
 
-router.get("/:keyword", checkPermission(ROLES.BOOK_REQUEST_VIEW), async function (req, res, next) {
+router.get("/:keyword", checkPermission([ROLES.BOOK_REQUEST_VIEW]), async function (req, res, next) {
     try {
         const data = await BookRequestController.getBookRequestByIdOrCode(req);
         return res.json(data);
@@ -51,7 +51,7 @@ router.get("/:keyword", checkPermission(ROLES.BOOK_REQUEST_VIEW), async function
     }
 });
 
-router.get("/", checkPermission(ROLES.BOOK_REQUEST_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.BOOK_REQUEST_VIEW]), async function (req, res, next) {
     try {
         const data = await BookRequestController.getBookRequests(req);
         return res.json(data);

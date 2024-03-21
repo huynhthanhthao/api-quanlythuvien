@@ -5,18 +5,23 @@ const router = express.Router();
 const upload = require("../middlewares/multer");
 const { ROLES } = require("../../enums/permission");
 
-router.post("/create", checkPermission(ROLES.USER_CREATE), upload.single("photoFile"), async function (req, res, next) {
-    try {
-        const data = await UserController.createUser(req);
-        return res.json(data);
-    } catch (error) {
-        next(error);
+router.post(
+    "/create",
+    checkPermission([ROLES.USER_CREATE, ROLES.ACCOUNT_CREATE]),
+    upload.single("photoFile"),
+    async function (req, res, next) {
+        try {
+            const data = await UserController.createUser(req);
+            return res.json(data);
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 router.put(
     "/:id/update",
-    checkPermission(ROLES.USER_UPDATE),
+    checkPermission([ROLES.USER_UPDATE, ROLES.ACCOUNT_UPDATE]),
     upload.single("photoFile"),
     async function (req, res, next) {
         try {
@@ -28,7 +33,7 @@ router.put(
     }
 );
 
-router.put("/delete", checkPermission(ROLES.USER_DELETE), async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.USER_DELETE, ROLES.ACCOUNT_DELETE]), async function (req, res, next) {
     try {
         const data = await UserController.deleteUserByIds(req);
         return res.json(data);
@@ -37,7 +42,7 @@ router.put("/delete", checkPermission(ROLES.USER_DELETE), async function (req, r
     }
 });
 
-router.get("/:keyword", checkPermission(ROLES.USER_VIEW), async function (req, res, next) {
+router.get("/:keyword", checkPermission([ROLES.USER_VIEW, ROLES.ACCOUNT_VIEW]), async function (req, res, next) {
     try {
         const data = await UserController.getUserByIdOrCode(req);
         return res.json(data);
@@ -46,7 +51,7 @@ router.get("/:keyword", checkPermission(ROLES.USER_VIEW), async function (req, r
     }
 });
 
-router.get("/", checkPermission(ROLES.USER_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.USER_VIEW]), async function (req, res, next) {
     try {
         const data = await UserController.getUsers(req);
         return res.json(data);

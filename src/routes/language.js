@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.get("/:id", checkPermission(ROLES.LANGUAGE_VIEW), async function (req, res, next) {
+router.get("/:id", checkPermission([ROLES.LANGUAGE_VIEW]), async function (req, res, next) {
     try {
         const data = await LanguageController.getLanguageById(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.get("/:id", checkPermission(ROLES.LANGUAGE_VIEW), async function (req, re
     }
 });
 
-router.get("/", checkPermission(ROLES.LANGUAGE_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.LANGUAGE_VIEW]), async function (req, res, next) {
     try {
         const data = await LanguageController.getLanguages(req);
         return res.json(data);

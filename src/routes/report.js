@@ -4,7 +4,7 @@ const { ROLES } = require("../../enums/permission");
 const checkPermission = require("../middlewares/checkPermission");
 const router = express.Router();
 
-router.get("/loan-payment", checkPermission(ROLES.REPORT_LOAN_GIVE_BOOK), async function (req, res, next) {
+router.get("/loan-payment", async function (req, res, next) {
     try {
         const data = await ReportController.borrowReturnReport(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.get("/loan-payment", checkPermission(ROLES.REPORT_LOAN_GIVE_BOOK), async 
     }
 });
 
-router.get("/reader", checkPermission(ROLES.REPORT_READER), async function (req, res, next) {
+router.get("/reader", async function (req, res, next) {
     try {
         const data = await ReportController.readerReport(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.get("/reader", checkPermission(ROLES.REPORT_READER), async function (req,
     }
 });
 
-router.get("/book", checkPermission(ROLES.REPORT_BOOK), async function (req, res, next) {
+router.get("/book", async function (req, res, next) {
     try {
         const data = await ReportController.bookReport(req);
         return res.json(data);

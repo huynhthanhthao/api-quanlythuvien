@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/create", checkPermission(ROLES.LOAN_RECEIPT_CREATE), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.LOAN_RECEIPT_CREATE]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.createLoanReceipt(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.post("/create", checkPermission(ROLES.LOAN_RECEIPT_CREATE), async functio
     }
 });
 
-router.put("/give-books-back", checkPermission(ROLES.LOAN_RECEIPT_UPDATE), async function (req, res, next) {
+router.put("/give-books-back", checkPermission([ROLES.LOAN_RECEIPT_UPDATE]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.giveBooksBack(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/give-books-back", checkPermission(ROLES.LOAN_RECEIPT_UPDATE), async
     }
 });
 
-router.put("/delete", checkPermission(ROLES.LOAN_RECEIPT_DELETE), async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.LOAN_RECEIPT_DELETE]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.deleteLoanReceiptByIds(req);
         return res.json(data);
@@ -31,7 +31,7 @@ router.put("/delete", checkPermission(ROLES.LOAN_RECEIPT_DELETE), async function
     }
 });
 
-router.put("/:id/update", checkPermission(ROLES.LOAN_RECEIPT_UPDATE), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.LOAN_RECEIPT_UPDATE]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.updateLoanReceiptById(req);
         return res.json(data);
@@ -40,7 +40,7 @@ router.put("/:id/update", checkPermission(ROLES.LOAN_RECEIPT_UPDATE), async func
     }
 });
 
-router.get("/:keyword", checkPermission(ROLES.LOAN_RECEIPT_VIEW), async function (req, res, next) {
+router.get("/:keyword", checkPermission([ROLES.LOAN_RECEIPT_VIEW]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.getLoanReceiptByIdOrCode(req);
         return res.json(data);
@@ -49,7 +49,7 @@ router.get("/:keyword", checkPermission(ROLES.LOAN_RECEIPT_VIEW), async function
     }
 });
 
-router.get("/", checkPermission(ROLES.LOAN_RECEIPT_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.LOAN_RECEIPT_VIEW]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.getLoanReceipts(req);
         return res.json(data);

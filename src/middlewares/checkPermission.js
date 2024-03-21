@@ -2,8 +2,9 @@ const { CatchException } = require("../../utils/api-error");
 
 const db = require("../models");
 const { errorCodes } = require("../../enums/error-code");
+const { Op } = require("sequelize");
 
-function checkPermission(roleCode) {
+function checkPermission(roleCodes) {
     return async function (req, res, next) {
         try {
             const { id: accountId, schoolId, permissionId } = req.account;
@@ -11,7 +12,7 @@ function checkPermission(roleCode) {
 
             const [roleInPermission, roleInAccount] = await Promise.all([
                 db.Role.findOne({
-                    where: { active: true, roleCode: roleCode?.trim() },
+                    where: { active: true, roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
                     attributes: ["id"],
                     include: [
                         {
@@ -24,7 +25,7 @@ function checkPermission(roleCode) {
                     ],
                 }),
                 db.Role.findOne({
-                    where: { active: true, roleCode: roleCode?.trim() },
+                    where: { active: true, roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
                     attributes: ["id"],
                     include: [
                         {

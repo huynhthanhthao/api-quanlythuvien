@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.get("/:id", checkPermission(ROLES.BOOK_STATUS_VIEW), async function (req, res, next) {
+router.get("/:id", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (req, res, next) {
     try {
         const data = await BookStatusController.getBookStatusById(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.get("/:id", checkPermission(ROLES.BOOK_STATUS_VIEW), async function (req,
     }
 });
 
-router.get("/", checkPermission(ROLES.BOOK_STATUS_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (req, res, next) {
     try {
         const data = await BookStatusController.getBookStatuses(req);
         return res.json(data);

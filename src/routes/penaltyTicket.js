@@ -13,7 +13,7 @@ router.post("/create", async function (req, res, next) {
     // }
 });
 
-router.put("/delete", checkPermission(ROLES.PENALTY_TICKET_DELETE), async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.PENALTY_TICKET_DELETE]), async function (req, res, next) {
     try {
         const data = await PenaltyTicketController.deletePenaltyTicketByIds(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/delete", checkPermission(ROLES.PENALTY_TICKET_DELETE), async functi
     }
 });
 
-router.put("/:id/pay", checkPermission(ROLES.PENALTY_TICKET_PAY), async function (req, res, next) {
+router.put("/:id/pay", checkPermission([ROLES.PENALTY_TICKET_PAY]), async function (req, res, next) {
     try {
         const data = await PenaltyTicketController.payPenaltyTicket(req);
         return res.json(data);
@@ -31,7 +31,7 @@ router.put("/:id/pay", checkPermission(ROLES.PENALTY_TICKET_PAY), async function
     }
 });
 
-router.get("/:keyword", checkPermission(ROLES.PENALTY_TICKET_VIEW), async function (req, res, next) {
+router.get("/:keyword", checkPermission([ROLES.PENALTY_TICKET_VIEW]), async function (req, res, next) {
     try {
         const data = await PenaltyTicketController.getPenaltyTicketByIdOrCode(req);
         return res.json(data);
@@ -40,7 +40,7 @@ router.get("/:keyword", checkPermission(ROLES.PENALTY_TICKET_VIEW), async functi
     }
 });
 
-router.get("/", checkPermission(ROLES.PENALTY_TICKET_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.PENALTY_TICKET_VIEW]), async function (req, res, next) {
     try {
         const data = await PenaltyTicketController.getPenaltyTickets(req);
         return res.json(data);

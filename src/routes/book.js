@@ -5,18 +5,23 @@ const router = express.Router();
 const upload = require("../middlewares/multer");
 const { ROLES } = require("../../enums/permission");
 
-router.post("/create", checkPermission(ROLES.BOOK_CREATE), upload.single("photoFile"), async function (req, res, next) {
-    try {
-        const data = await BookController.createBook(req);
-        return res.json(data);
-    } catch (error) {
-        next(error);
+router.post(
+    "/create",
+    checkPermission([ROLES.BOOK_CREATE]),
+    upload.single("photoFile"),
+    async function (req, res, next) {
+        try {
+            const data = await BookController.createBook(req);
+            return res.json(data);
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 router.put(
     "/:id/update",
-    checkPermission(ROLES.BOOK_UPDATE),
+    checkPermission([ROLES.BOOK_UPDATE]),
     upload.single("photoFile"),
     async function (req, res, next) {
         try {
@@ -28,7 +33,7 @@ router.put(
     }
 );
 
-router.put("/delete", checkPermission(ROLES.BOOK_DELETE), async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.BOOK_DELETE]), async function (req, res, next) {
     try {
         const data = await BookController.deleteBookByIds(req);
         return res.json(data);
@@ -37,7 +42,7 @@ router.put("/delete", checkPermission(ROLES.BOOK_DELETE), async function (req, r
     }
 });
 
-router.get("/:keyword", checkPermission(ROLES.BOOK_VIEW), async function (req, res, next) {
+router.get("/:keyword", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
     try {
         const data = await BookController.getBookByIdOrCode(req);
         return res.json(data);
@@ -46,7 +51,7 @@ router.get("/:keyword", checkPermission(ROLES.BOOK_VIEW), async function (req, r
     }
 });
 
-router.get("/", checkPermission(ROLES.BOOK_VIEW), async function (req, res, next) {
+router.get("/", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
     try {
         const data = await BookController.getBooks(req);
         return res.json(data);

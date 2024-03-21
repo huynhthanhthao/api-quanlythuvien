@@ -103,15 +103,6 @@ module.exports = {
                 updatedAt: "2024-03-14T07:58:32.768Z",
             },
             {
-                id: "13",
-                groupName: "Quản lý niên khóa",
-                active: true,
-                createdBy: "1",
-                updatedBy: "1",
-                createdAt: "2024-03-14T07:58:38.447Z",
-                updatedAt: "2024-03-14T07:58:38.447Z",
-            },
-            {
                 id: "14",
                 groupName: "Quản lý lớp học",
                 active: true,
@@ -146,15 +137,6 @@ module.exports = {
                 updatedBy: "1",
                 createdAt: "2024-03-14T07:57:17.109Z",
                 updatedAt: "2024-03-14T07:57:17.109Z",
-            },
-            {
-                id: "17",
-                groupName: "Quản lý báo cáo",
-                active: true,
-                createdBy: "1",
-                updatedBy: "1",
-                createdAt: "2024-03-14T07:58:59.306Z",
-                updatedAt: "2024-03-14T07:58:59.306Z",
             },
             {
                 id: "19",
