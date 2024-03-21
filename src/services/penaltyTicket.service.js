@@ -15,6 +15,15 @@ const { TABLE_NAME } = require("../../enums/languages");
 
 class PenaltyTicketService {
     static async createPenaltyTicket(userId, bookList, setting, account, transaction) {
+        let bookIds = bookList.map((book) => book.id);
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const penaltyTicketData = [];
+
+        const countFinePolicy = await db.FinePolicy.count({ where: whereCondition });
+
+        if (countFinePolicy == 0)
+            throw new CatchException("Không tìm thấy phí phạt nào!", errorCodes.RESOURCE_NOT_FOUND);
+
         const penaltyTicket = await db.PenaltyTicket.create(
             {
                 userId,
@@ -25,9 +34,6 @@ class PenaltyTicketService {
             },
             { transaction }
         );
-        let bookIds = bookList.map((book) => book.id);
-        const whereCondition = { active: true, schoolId: account.schoolId };
-        const penaltyTicketData = [];
 
         if (setting.noSpecialPenalties) {
             const bookNotApplyPenalties = await db.Book.findAll({
