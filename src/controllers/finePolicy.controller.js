@@ -83,6 +83,15 @@ class FinePolicyController {
 
         return transformer(await FinePolicyService.deleteFinePolicyByIds(ids, req.account), "Cập nhật thành công.");
     }
+
+    static async deleteFinePolicyWithBookByIds(req) {
+        const { ids } = req.body;
+
+        return transformer(
+            await FinePolicyService.deleteFinePolicyWithBookByIds(ids, req.account),
+            "Cập nhật thành công."
+        );
+    }
 }
 
 module.exports = FinePolicyController;

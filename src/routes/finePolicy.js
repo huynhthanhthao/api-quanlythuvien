@@ -49,7 +49,16 @@ router.put("/delete", checkPermission([ROLES.FINE_POLICY_DELETE]), async functio
     }
 });
 
-router.get("/with-book", checkPermission([[ROLES.FINE_POLICY_VIEW]]), async function (req, res, next) {
+router.put("/delete-with-book", checkPermission([ROLES.FINE_POLICY_DELETE]), async function (req, res, next) {
+    try {
+        const data = await FinePolicyController.deleteFinePolicyWithBookByIds(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/with-book", checkPermission([ROLES.FINE_POLICY_VIEW]), async function (req, res, next) {
     try {
         const data = await FinePolicyController.getFinePolicyWithBook(req);
         return res.json(data);

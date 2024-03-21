@@ -9,6 +9,8 @@ class AccountController {
     static async createAccount(req) {
         const roleIds = req.body?.roleIds || [];
         const password = req.body?.password || "";
+        const permissionId = req.body?.permissionId;
+        const { schoolId } = req.account;
 
         if (!password || password.length < 6) {
             throw new CatchException("Mật khẩu phải trên 6 kí tự!", errorCodes.INVALID_DATA, {
@@ -16,7 +18,27 @@ class AccountController {
             });
         }
 
-        if (checkIsDuplicates(roleIds)) {
+        let roleIdsInPermission = [];
+
+        if (permissionId) {
+            const rolesInPermission = await db.Permission.findOne({
+                where: { active: true, schoolId, id: permissionId },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.PermissionHasRole,
+                        as: "permissionHasRole",
+                        where: { active: true, schoolId },
+                        required: false,
+                        attributes: ["id", "roleId"],
+                    },
+                ],
+            });
+
+            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId);
+        }
+
+        if (checkIsDuplicates([...roleIds, ...roleIdsInPermission])) {
             throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
                 field: "roleIds",
             });
@@ -27,10 +49,31 @@ class AccountController {
 
     static async updateAccountById(req) {
         const { id } = req.params;
-
+        const { schoolId } = req.account;
+        const permissionId = req.body?.permissionId;
         const roleIds = req.body?.roleIds || [];
 
-        if (checkIsDuplicates(roleIds)) {
+        let roleIdsInPermission = [];
+
+        if (permissionId) {
+            const rolesInPermission = await db.Permission.findOne({
+                where: { active: true, schoolId, id: permissionId },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.PermissionHasRole,
+                        as: "permissionHasRole",
+                        where: { active: true, schoolId },
+                        required: false,
+                        attributes: ["id", "roleId"],
+                    },
+                ],
+            });
+
+            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId);
+        }
+
+        if (checkIsDuplicates([...roleIds, ...roleIdsInPermission])) {
             throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
                 field: "roleIds",
             });
