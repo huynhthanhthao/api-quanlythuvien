@@ -31,7 +31,7 @@ router.get("/book", async function (req, res, next) {
     }
 });
 
-router.get("/loan-receipt", checkPermission(ROLES.REPORT_LOAN_GIVE_BOOK), async function (req, res, next) {
+router.get("/loan-receipt", async function (req, res, next) {
     try {
         const data = await ReportController.loanReceiptReport(req);
         return res.json(data);
