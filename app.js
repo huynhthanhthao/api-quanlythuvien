@@ -46,6 +46,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/", indexRouter);
 
 app.use((err, req, res, next) => {
+    console.log(err);
     if (err instanceof ValidationError) {
         const validationErrors = {};
         const errorCustom = customErrorMessage(err);

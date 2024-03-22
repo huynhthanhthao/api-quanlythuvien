@@ -10,6 +10,7 @@ module.exports.getBookStatus = function (receiptHasBook, bookLostReport) {
         });
     }
 
+
     return (
         receiptHasBook.map((receipt) => {
             return {
@@ -50,7 +51,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
         id: loanReceipt.id,
         receiveDate: fDate(loanReceipt.receiveDate),
         returnDate: fDate(loanReceipt.returnDate),
-        returnDate: loanReceipt.returnDate,
+        receiptCode: loanReceipt.receiptCode,
         receiptDes: loanReceipt.receiptDes,
         createdAt: fDate(loanReceipt.createdAt),
         userId: loanReceipt.user?.id || null,

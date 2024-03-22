@@ -367,10 +367,14 @@ class PenaltyTicketService {
             schoolId: account.schoolId,
         };
 
+
         if (isNaN(keyword)) {
-            whereTicketCondition.bookCode = keyword?.toUpperCase();
+            whereTicketCondition.receiptCode = { [Op.iLike]: keyword }
         } else {
-            whereTicketCondition.id = Number(keyword);
+            whereTicketCondition[Op.or] = [
+                { id: { [Op.eq]: keyword } },
+                { receiptCode: { [Op.iLike]: keyword }}
+            ];
         }
 
         const penaltyTicket = await db.PenaltyTicket.findOne({

@@ -251,9 +251,12 @@ class UserService {
         };
 
         if (isNaN(keyword)) {
-            whereCondition.readerCode = keyword?.toUpperCase();
+            whereCondition.readerCode = { [Op.iLike]: keyword }
         } else {
-            whereCondition.id = Number(keyword);
+            whereCondition[Op.or] = [
+                { id: { [Op.eq]: keyword } },
+                { readerCode: { [Op.iLike]: keyword }}
+            ];
         }
 
         const whereCommonCondition = {

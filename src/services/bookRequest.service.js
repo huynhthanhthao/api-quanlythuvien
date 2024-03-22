@@ -200,9 +200,12 @@ class BookRequestService {
         };
 
         if (isNaN(keyword)) {
-            whereBookRequestCondition.bookCode = keyword?.toUpperCase();
+            whereBookRequestCondition.bookCode = { [Op.iLike]: keyword }
         } else {
-            whereBookRequestCondition.id = Number(keyword);
+            whereBookRequestCondition[Op.or] = [
+                { id: { [Op.eq]: keyword } },
+                { bookCode: { [Op.iLike]: keyword }}
+            ];
         }
 
         const book = await db.BookRequest.findOne({

@@ -433,9 +433,12 @@ class FinePolicyService {
         };
 
         if (isNaN(keyword)) {
-            whereFinePolicyCondition.policyCode = keyword?.toUpperCase();
+            whereFinePolicyCondition.policyCode = { [Op.iLike]: keyword }
         } else {
-            whereFinePolicyCondition.id = Number(keyword);
+            whereFinePolicyCondition[Op.or] = [
+                { id: { [Op.eq]: keyword } },
+                { policyCode: { [Op.iLike]: keyword }}
+            ];
         }
 
         const finePolicy = await db.FinePolicy.findOne({

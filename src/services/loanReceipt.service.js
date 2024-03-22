@@ -346,9 +346,12 @@ class LoanReceiptService {
         };
 
         if (isNaN(keyword)) {
-            whereLoanReceiptCondition.receiptCode = keyword?.toUpperCase();
+            whereLoanReceiptCondition.receiptCode = { [Op.iLike]: keyword }
         } else {
-            whereLoanReceiptCondition.id = Number(keyword);
+            whereLoanReceiptCondition[Op.or] = [
+                { id: { [Op.eq]: keyword } },
+                { receiptCode: { [Op.iLike]: keyword }}
+            ];
         }
 
         const loanReceipt = await db.LoanReceipt.findOne({
