@@ -18,6 +18,7 @@ const errorCodes = {
     BORROW_LIMIT: "BORROW_LIMIT",
     BOOKS_ARE_LATE: "BOOKS_ARE_LATE",
     DATA_IS_BINDING: "DATA_IS_BINDING",
+    BOOK_OUT_OF_STOCK: "BOOK_OUT_OF_STOCK",
 };
 
 module.exports = { errorCodes };

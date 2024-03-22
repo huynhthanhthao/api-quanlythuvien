@@ -126,7 +126,7 @@ class LoanReceiptService {
         }
 
         if (booksOutOfStock.length > 0)
-            throw new CatchException("Sách đã hết trong kho.", errorCodes.INVALID_DATA, {
+            throw new CatchException("Sách đã hết trong kho.", errorCodes.BOOK_OUT_OF_STOCK, {
                 field: "books",
                 books: booksOutOfStock,
             });
@@ -346,12 +346,9 @@ class LoanReceiptService {
         };
 
         if (isNaN(keyword)) {
-            whereLoanReceiptCondition.receiptCode = { [Op.iLike]: keyword }
+            whereLoanReceiptCondition.receiptCode = { [Op.iLike]: keyword };
         } else {
-            whereLoanReceiptCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { receiptCode: { [Op.iLike]: keyword }}
-            ];
+            whereLoanReceiptCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { receiptCode: { [Op.iLike]: keyword } }];
         }
 
         const loanReceipt = await db.LoanReceipt.findOne({
@@ -486,9 +483,11 @@ class LoanReceiptService {
         if (borrowBooks.length !== requestedBooks.length) {
             const borrowBookIds = borrowBooks.map((book) => +book.id);
 
+            const bookNotBorrow = requestedBooks.filter((book) => !borrowBookIds.includes(+book.id));
+
             throw new CatchException("Sách mượn không phải của bạn đọc này!", errorCodes.BOOK_NOT_BELONG_TO_READER, {
                 field: "bookIds",
-                unBorrowedBookIds: requestedBooks.filter((book) => !borrowBookIds.includes(book.id)),
+                unBorrowedBookIds: bookNotBorrow.map((book) => book.id),
             });
         }
     }

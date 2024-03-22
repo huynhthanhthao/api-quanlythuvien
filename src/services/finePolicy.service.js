@@ -210,12 +210,13 @@ class FinePolicyService {
                     id: {
                         [Op.in]: policyIds,
                     },
+                    isDefault: true,
                 },
                 attributes: ["id", "isDefault"],
             });
 
             if (finePolicy?.isDefault)
-                throw new CatchException("Không thể xóa vì đang là mặc định!", errorCodes.INVALID_DATA, {
+                throw new CatchException("Không thể xóa chính sách phạt mặc định!", errorCodes.INVALID_DATA, {
                     id: finePolicy.id,
                 });
 
@@ -433,12 +434,9 @@ class FinePolicyService {
         };
 
         if (isNaN(keyword)) {
-            whereFinePolicyCondition.policyCode = { [Op.iLike]: keyword }
+            whereFinePolicyCondition.policyCode = { [Op.iLike]: keyword };
         } else {
-            whereFinePolicyCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { policyCode: { [Op.iLike]: keyword }}
-            ];
+            whereFinePolicyCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { policyCode: { [Op.iLike]: keyword } }];
         }
 
         const finePolicy = await db.FinePolicy.findOne({

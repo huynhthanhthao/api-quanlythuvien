@@ -158,6 +158,7 @@ class PenaltyTicketService {
                 });
             }
         }
+
         await db.DetailPenaltyTicket.bulkCreate(penaltyTicketData, { transaction });
 
         await ActivityService.createActivity(
@@ -367,14 +368,10 @@ class PenaltyTicketService {
             schoolId: account.schoolId,
         };
 
-
         if (isNaN(keyword)) {
-            whereTicketCondition.receiptCode = { [Op.iLike]: keyword }
+            whereTicketCondition.ticketCode = { [Op.iLike]: keyword };
         } else {
-            whereTicketCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { receiptCode: { [Op.iLike]: keyword }}
-            ];
+            whereTicketCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { ticketCode: { [Op.iLike]: keyword } }];
         }
 
         const penaltyTicket = await db.PenaltyTicket.findOne({
@@ -395,7 +392,7 @@ class PenaltyTicketService {
                     as: "detailPenaltyTicket",
                     where: whereCondition,
                     required: false,
-                    attributes: ["id", "realityDayLate"],
+                    attributes: ["id", "realityDayLate", "penaltyFee"],
                     include: [
                         {
                             model: db.Book,
