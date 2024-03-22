@@ -1,6 +1,5 @@
 const { transformer } = require("../../utils/server");
 const FinePolicyService = require("../services/finePolicy.service");
-const db = require("../models");
 const { checkIsDuplicates } = require("../../utils/customer-validate");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
@@ -39,6 +38,13 @@ class FinePolicyController {
     }
 
     static async createFinePolicy(req) {
+        const detailFinePolicy = req.body?.detailFinePolicy || [];
+
+        if (detailFinePolicy.length == 0)
+            throw new CatchException("Phải có ít nhất 1 chính sách phạt!", errorCodes.INVALID_DATA, {
+                field: "detailFinePolicy",
+            });
+
         return transformer(
             await FinePolicyService.createFinePolicy(req.body, req.account),
             "Đã thêm dữ liệu phí phạt mới."
@@ -71,6 +77,12 @@ class FinePolicyController {
 
     static async updateFinePolicyById(req) {
         const { id } = req.params;
+        const detailFinePolicy = req.body?.detailFinePolicy || [];
+
+        if (detailFinePolicy.length == 0)
+            throw new CatchException("Phải có ít nhất 1 chính sách phạt!", errorCodes.INVALID_DATA, {
+                field: "detailFinePolicy",
+            });
 
         return transformer(
             await FinePolicyService.updateFinePolicyById({ ...req.body, id }, req.account),
