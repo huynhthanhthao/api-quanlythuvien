@@ -21,7 +21,14 @@ class SettingService {
         const whereCondition = { schoolId: account.schoolId, active: true };
 
         await db.Setting.update(
-            { hasFineFee: updateSetting.hasFineFee, updatedBy: account.id },
+            {
+                hasFineFee: updateSetting.hasFineFee,
+                noSpecialPenalties: updateSetting.noSpecialPenalties,
+                hasLoanFee: updateSetting.hasLoanFee,
+                typeLoanFee: updateSetting.typeLoanFee,
+                valueLoanFee: updateSetting.valueLoanFee,
+                updatedBy: account.id,
+            },
             { where: { ...whereCondition } }
         );
 

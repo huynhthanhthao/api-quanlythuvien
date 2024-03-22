@@ -62,7 +62,6 @@ class PenaltyTicketService {
         }
         // Phạt sách đặt biệt
         const bookSpecialWithFinePolicies = (await this.getBookSpecialWithFinePolicies(bookIds, account)) || [];
-
         for (const bookSpecial of bookSpecialWithFinePolicies) {
             const detailFinePolicy = bookSpecial?.finePolicyHasBook?.finePolicy?.detailFinePolicy;
             const finePolicy = bookSpecial?.finePolicyHasBook?.finePolicy;
@@ -73,7 +72,6 @@ class PenaltyTicketService {
 
             const dayLate = -calculateDaysDiff(returnDate);
             const suitableFinePolicy = detailFinePolicy.find((finePolicy) => dayLate <= finePolicy.dayLate);
-
             if (suitableFinePolicy) {
                 penaltyTicketData.push({
                     schoolId: account.schoolId,
@@ -121,6 +119,8 @@ class PenaltyTicketService {
                 },
             ],
         });
+
+        console.log(99999, finePolicyDefault);
 
         for (const bookId of bookIds) {
             const { returnDate } = bookList.find((book) => book.id == bookId);

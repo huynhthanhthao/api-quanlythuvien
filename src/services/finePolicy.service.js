@@ -239,6 +239,20 @@ class FinePolicyService {
                 }
             );
 
+            await db.DetailFinePolicy.update(
+                { active: false, updatedBy: account.id },
+                {
+                    where: {
+                        active: true,
+                        schoolId: account.schoolId,
+                        finePolicyId: {
+                            [Op.in]: policyIds,
+                        },
+                    },
+                    transaction,
+                }
+            );
+
             await ActivityService.createActivity(
                 {
                     dataTarget: JSON.stringify(policyIds),

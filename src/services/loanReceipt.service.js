@@ -525,12 +525,20 @@ class LoanReceiptService {
     }
 
     static async updateBookReceipts(loanReceipt, borrowBooks, account, transaction) {
-        const loanReceiptId = borrowBooks[0]?.receiptHasBook[0]?.loanReceipt?.id;
         const borrowBookIds = borrowBooks.map((book) => +book.id);
 
         const whereCondition = { active: true, schoolId: account.schoolId };
         const receiptBookBeforeBorrow = await db.ReceiptHasBook.findAll({
-            where: { ...whereCondition, loanReceiptId, bookId: { [Op.in]: borrowBookIds } },
+            where: { ...whereCondition, bookId: { [Op.in]: borrowBookIds }, type: LOAN_STATUS.BORROWING },
+            include: [
+                {
+                    model: db.LoanReceipt,
+                    as: "loanReceipt",
+                    where: { active: true, schoolId: account.schoolId, userId: loanReceipt.userId },
+                    required: false,
+                    attributes: ["id"],
+                },
+            ],
         });
 
         const updateOperations = receiptBookBeforeBorrow.map(async (receiptBook) => {
