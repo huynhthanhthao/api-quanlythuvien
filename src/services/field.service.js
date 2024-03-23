@@ -64,6 +64,12 @@ class FieldService {
 
         return field;
     }
+
+    static async createField(newField, account) {}
+
+    static async updateFieldById(updateField, account) {}
+
+    static async deleteFieldByIds(ids, account) {}
 }
 
 module.exports = FieldService;
