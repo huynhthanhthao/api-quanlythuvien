@@ -10,7 +10,7 @@ class PermissionController {
         const roleIds = req.body?.roleIds || [];
 
         if (checkIsDuplicates(roleIds)) {
-            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "roleIds",
             });
         }
@@ -27,7 +27,7 @@ class PermissionController {
         const roleIds = req.body?.roleIds || [];
 
         if (checkIsDuplicates(roleIds)) {
-            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "roleIds",
             });
         }

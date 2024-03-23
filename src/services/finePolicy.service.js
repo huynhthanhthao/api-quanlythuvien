@@ -83,7 +83,7 @@ class FinePolicyService {
                 });
 
                 if (finePolicy?.isDefault)
-                    throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.INVALID_DATA, {
+                    throw new CatchException("Không thể cập nhật vì đang là mặc định!", errorCodes.DATA_IS_BINDING, {
                         field: "isDefault",
                     });
             }
@@ -216,8 +216,8 @@ class FinePolicyService {
             });
 
             if (finePolicy?.isDefault)
-                throw new CatchException("Không thể xóa chính sách phạt mặc định!", errorCodes.INVALID_DATA, {
-                    id: finePolicy.id,
+                throw new CatchException("Không thể xóa chính sách phạt mặc định!", errorCodes.DATA_IS_BINDING, {
+                    ids: [finePolicy.id],
                 });
 
             await db.FinePolicy.update(

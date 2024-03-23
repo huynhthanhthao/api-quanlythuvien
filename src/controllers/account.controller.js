@@ -35,11 +35,11 @@ class AccountController {
                 ],
             });
 
-            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId);
+            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId) || [];
         }
 
         if (checkIsDuplicates([...roleIds, ...roleIdsInPermission])) {
-            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "roleIds",
             });
         }
@@ -70,11 +70,11 @@ class AccountController {
                 ],
             });
 
-            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId);
+            roleIdsInPermission = rolesInPermission?.permissionHasRole?.map((item) => +item.roleId) || [];
         }
 
         if (checkIsDuplicates([...roleIds, ...roleIdsInPermission])) {
-            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Dữ liệu bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "roleIds",
             });
         }

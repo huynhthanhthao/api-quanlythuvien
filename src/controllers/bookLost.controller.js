@@ -16,7 +16,7 @@ class BookLostController {
             });
 
         if (checkIsDuplicates(bookIds)) {
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "bookIds",
             });
         }
@@ -34,7 +34,7 @@ class BookLostController {
             });
 
         if (checkIsDuplicates(bookIds)) {
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "bookIds",
             });
         }
