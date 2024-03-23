@@ -63,6 +63,12 @@ class LanguageService {
 
         return language;
     }
+
+    static async createLanguage(newLanguage, account) {}
+
+    static async updateLanguageById(updateLanguage, account) {}
+
+    static async deleteLanguageByIds(ids, account) {}
 }
 
 module.exports = LanguageService;
