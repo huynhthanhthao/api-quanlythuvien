@@ -14,7 +14,7 @@ class LoanReceiptController {
         const bookIds = books.map((book) => book.id);
 
         if (checkIsDuplicates(bookIds)) {
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "books",
             });
         }
@@ -42,7 +42,7 @@ class LoanReceiptController {
         const bookIds = books.map((book) => book.id);
 
         if (checkIsDuplicates(bookIds)) {
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "books",
             });
         }
@@ -82,7 +82,7 @@ class LoanReceiptController {
         const bookIds = books.map((book) => book.id);
 
         if (checkIsDuplicates(bookIds)) {
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.INVALID_DATA, {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
                 field: "books",
             });
         }

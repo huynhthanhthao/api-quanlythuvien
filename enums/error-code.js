@@ -19,6 +19,7 @@ const errorCodes = {
     BOOKS_ARE_LATE: "BOOKS_ARE_LATE",
     DATA_IS_BINDING: "DATA_IS_BINDING",
     BOOK_OUT_OF_STOCK: "BOOK_OUT_OF_STOCK",
+    LIST_IS_DUPLICATED: "LIST_IS_DUPLICATED",
 };
 
 module.exports = { errorCodes };
