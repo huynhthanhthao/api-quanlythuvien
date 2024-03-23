@@ -63,6 +63,12 @@ class ClassService {
 
         return classRoom;
     }
+
+    static async createClass(newClass, account) {}
+
+    static async updateClassById(updateClass, account) {}
+
+    static async deleteClassByIds(ids, account) {}
 }
 
 module.exports = ClassService;
