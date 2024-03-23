@@ -63,6 +63,12 @@ class PublisherService {
 
         return publisher;
     }
+
+    static async createPublisher(newPublisher, account) {}
+
+    static async updatePublisherById(updatePublisher, account) {}
+
+    static async deletePublisherByIds(ids, account) {}
 }
 
 module.exports = PublisherService;
