@@ -64,6 +64,12 @@ class BookStatusService {
 
         return bookStatus;
     }
+
+    static async createBookStatus(newBookStatus, account) {}
+
+    static async updateBookStatusById(updateBookStatus, account) {}
+
+    static async deleteBookStatusByIds(ids, account) {}
 }
 
 module.exports = BookStatusService;
