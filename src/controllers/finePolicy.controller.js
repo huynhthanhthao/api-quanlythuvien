@@ -21,9 +21,10 @@ class FinePolicyController {
 
     static async getFinePolicyByIdOrCode(req) {
         const { keyword } = req.params;
+        const type = req.query?.type || 0;
 
         return transformer(
-            await FinePolicyService.getFinePolicyByIdOrCode(keyword, req.account),
+            await FinePolicyService.getFinePolicyByIdOrCode({ keyword, type }, req.account),
             "Lấy chi tiết thành công."
         );
     }

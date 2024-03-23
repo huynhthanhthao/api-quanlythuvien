@@ -1,7 +1,7 @@
 const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { customerURL, convertToIntArray } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
 const { TABLE_NAME } = require("../../enums/languages");
@@ -244,19 +244,19 @@ class UserService {
         };
     }
 
-    static async getUserByIdOrCode(keyword, account) {
+    static async getUserByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
-            whereCondition.readerCode = { [Op.iLike]: keyword }
+        if (type == QUERY_ONE_TYPE.CODE) {
+            whereCondition.readerCode = { [Op.iLike]: keyword };
         } else {
-            whereCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { readerCode: { [Op.iLike]: keyword }}
-            ];
+            whereCondition.id = keyword;
         }
 
         const whereCommonCondition = {

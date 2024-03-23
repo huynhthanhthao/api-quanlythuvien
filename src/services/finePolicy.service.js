@@ -4,7 +4,7 @@ const db = require("../models");
 const { CatchException } = require("../../utils/api-error");
 const { getPagination, bulkUpdate } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
-const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { convertToIntArray } = require("../../utils/server");
 const { mapResponseFinePolicyList, mapResponseFinePolicyItem } = require("../map-responses/finePolicy.map-response");
 const { errorCodes } = require("../../enums/error-code");
@@ -441,16 +441,19 @@ class FinePolicyService {
         };
     }
 
-    static async getFinePolicyByIdOrCode(keyword, account) {
+    static async getFinePolicyByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereFinePolicyCondition = {
             active: true,
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
+        if (type == QUERY_ONE_TYPE.CODE) {
             whereFinePolicyCondition.policyCode = { [Op.iLike]: keyword };
         } else {
-            whereFinePolicyCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { policyCode: { [Op.iLike]: keyword } }];
+            whereFinePolicyCondition.id = keyword;
         }
 
         const finePolicy = await db.FinePolicy.findOne({
@@ -470,6 +473,8 @@ class FinePolicyService {
                 },
             ],
         });
+
+        if (!finePolicy) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
         return finePolicy;
     }

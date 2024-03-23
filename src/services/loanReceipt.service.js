@@ -8,7 +8,7 @@ const BookService = require("./book.service");
 const ActivityService = require("./activityLog.service");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
-const { LOAN_STATUS, DEFAULT_LIMIT, ACTIVITY_TYPE } = require("../../enums/common");
+const { LOAN_STATUS, DEFAULT_LIMIT, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const {
     calculateDaysDiff,
     convertToIntArray,
@@ -334,7 +334,10 @@ class LoanReceiptService {
         };
     }
 
-    static async getLoanReceiptByIdOrCode(keyword, account) {
+    static async getLoanReceiptByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereLoanReceiptCondition = {
             active: true,
             schoolId: account.schoolId,
@@ -345,10 +348,10 @@ class LoanReceiptService {
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
+        if (type == QUERY_ONE_TYPE.CODE) {
             whereLoanReceiptCondition.receiptCode = { [Op.iLike]: keyword };
         } else {
-            whereLoanReceiptCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { receiptCode: { [Op.iLike]: keyword } }];
+            whereLoanReceiptCondition.id = keyword;
         }
 
         const loanReceipt = await db.LoanReceipt.findOne({

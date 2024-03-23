@@ -5,7 +5,7 @@ const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
 const { customerURL, convertToIntArray } = require("../../utils/server");
-const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { mapResponseBookRequestList, mapResponseBookRequestItem } = require("../map-responses/bookRequest.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
@@ -188,7 +188,10 @@ class BookRequestService {
         };
     }
 
-    static async getBookRequestByIdOrCode(keyword, account) {
+    static async getBookRequestByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereBookRequestCondition = {
             active: true,
             schoolId: account.schoolId,
@@ -199,13 +202,10 @@ class BookRequestService {
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
-            whereBookRequestCondition.bookCode = { [Op.iLike]: keyword }
+        if (type == QUERY_ONE_TYPE.CODE) {
+            whereBookRequestCondition.bookCode = { [Op.iLike]: keyword };
         } else {
-            whereBookRequestCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { bookCode: { [Op.iLike]: keyword }}
-            ];
+            whereBookRequestCondition.id = keyword;
         }
 
         const book = await db.BookRequest.findOne({

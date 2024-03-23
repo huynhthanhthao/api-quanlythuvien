@@ -12,8 +12,12 @@ class UserController {
 
     static async getUserByIdOrCode(req) {
         const { keyword } = req.params;
+        const type = req.query?.type || 0;
 
-        return transformer(await UserService.getUserByIdOrCode(keyword, req.account), "Lấy chi tiết thành công.");
+        return transformer(
+            await UserService.getUserByIdOrCode({ keyword, type }, req.account),
+            "Lấy chi tiết thành công."
+        );
     }
 
     static async createUser(req) {

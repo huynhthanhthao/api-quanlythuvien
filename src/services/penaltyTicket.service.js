@@ -10,7 +10,7 @@ const {
     mapResponsePenaltyTicketItem,
     mapResponsePenaltyTicketList,
 } = require("../map-responses/penaltyTicket.map-response");
-const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { TABLE_NAME } = require("../../enums/languages");
 
 class PenaltyTicketService {
@@ -357,7 +357,10 @@ class PenaltyTicketService {
         };
     }
 
-    static async getPenaltyTicketByIdOrCode(keyword, account) {
+    static async getPenaltyTicketByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereTicketCondition = {
             active: true,
             schoolId: account.schoolId,
@@ -368,10 +371,10 @@ class PenaltyTicketService {
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
+        if (type == QUERY_ONE_TYPE.CODE) {
             whereTicketCondition.ticketCode = { [Op.iLike]: keyword };
         } else {
-            whereTicketCondition[Op.or] = [{ id: { [Op.eq]: keyword } }, { ticketCode: { [Op.iLike]: keyword } }];
+            whereTicketCondition.id = keyword;
         }
 
         const penaltyTicket = await db.PenaltyTicket.findOne({

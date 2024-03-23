@@ -4,7 +4,7 @@ const unidecode = require("unidecode");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { CatchException } = require("../../utils/api-error");
 const ActivityService = require("./activityLog.service");
-const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, ACTIVITY_TYPE } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { mapResponseBookList, mapResponseBookItem } = require("../map-responses/book.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
@@ -271,7 +271,10 @@ class BookService {
         };
     }
 
-    static async getBookByIdOrCode(keyword, account) {
+    static async getBookByIdOrCode(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.ID;
+
         const whereBookCondition = {
             active: true,
             schoolId: account.schoolId,
@@ -282,13 +285,10 @@ class BookService {
             schoolId: account.schoolId,
         };
 
-        if (isNaN(keyword)) {
-            whereBookCondition.bookCode = { [Op.iLike]: keyword }
+        if (type == QUERY_ONE_TYPE.CODE) {
+            whereBookCondition.bookCode = { [Op.iLike]: keyword };
         } else {
-            whereBookCondition[Op.or] = [
-                { id: { [Op.eq]: keyword } },
-                { bookCode: { [Op.iLike]: keyword }}
-            ];
+            whereBookCondition.id = keyword;
         }
 
         const book = await db.Book.findOne({

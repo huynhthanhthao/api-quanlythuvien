@@ -68,6 +68,11 @@ const USER_TYPE = {
     READER: 2,
 };
 
+const QUERY_ONE_TYPE = {
+    ID: 1,
+    CODE: 2,
+};
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -86,4 +91,5 @@ module.exports = {
     DEFAULT_REGULAR_BORROW_COUNT,
     ACTIVITY_TYPE,
     USER_TYPE,
+    QUERY_ONE_TYPE,
 };

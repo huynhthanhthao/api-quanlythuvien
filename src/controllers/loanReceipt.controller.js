@@ -69,9 +69,10 @@ class LoanReceiptController {
 
     static async getLoanReceiptByIdOrCode(req) {
         const { keyword } = req.params;
+        const type = req.query?.type || 0;
 
         return transformer(
-            await LoanReceiptService.getLoanReceiptByIdOrCode(keyword, req.account),
+            await LoanReceiptService.getLoanReceiptByIdOrCode({ keyword, type }, req.account),
             "Lấy chi tiết thành công."
         );
     }

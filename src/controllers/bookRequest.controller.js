@@ -15,9 +15,10 @@ class BookRequestController {
 
     static async getBookRequestByIdOrCode(req) {
         const { keyword } = req.params;
+        const type = req.query?.type || 0;
 
         return transformer(
-            await BookRequestService.getBookRequestByIdOrCode(keyword, req.account),
+            await BookRequestService.getBookRequestByIdOrCode({ keyword, type }, req.account),
             "Lấy chi tiết thành công."
         );
     }

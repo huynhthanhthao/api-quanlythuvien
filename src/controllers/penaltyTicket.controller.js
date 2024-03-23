@@ -21,8 +21,10 @@ class PenaltyTicketController {
 
     static async getPenaltyTicketByIdOrCode(req) {
         const { keyword } = req.params;
+        const type = req.query?.type || 0;
+
         return transformer(
-            await PenaltyTicketService.getPenaltyTicketByIdOrCode(keyword, req.account),
+            await PenaltyTicketService.getPenaltyTicketByIdOrCode({ keyword, type }, req.account),
             "Lấy chi tiết phiếu phạt thành công."
         );
     }
