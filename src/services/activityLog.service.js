@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const { UNLIMITED, DEFAULT_LIMIT } = require("../../enums/common");
 const { getPagination } = require("../../utils/customer-sequelize");
 const db = require("../models");
+const { convertDate, getStartOfDay } = require("../../utils/server");
 
 class ActivityService {
     static async createActivity(newActivity, account, transaction) {
@@ -20,13 +21,18 @@ class ActivityService {
         let limit = +query.limit || DEFAULT_LIMIT;
         const page = +query.page || 1;
         const offset = (page - 1) * limit;
+        const { from } = query;
 
         if (query.unlimited && query.unlimited == UNLIMITED) {
             limit = null;
         }
 
         const whereCondition = {
-            [Op.and]: [{ active: true }, { schoolId: account.schoolId }].filter(Boolean),
+            [Op.and]: [
+                { active: true },
+                { schoolId: account.schoolId },
+                from && { createdAt: { [Op.gte]: getStartOfDay(convertDate(from)) } },
+            ].filter(Boolean),
         };
 
         const { rows, count } = await db.ActivityLog.findAndCountAll({
@@ -45,7 +51,7 @@ class ActivityService {
                 {
                     model: db.Account,
                     as: "account",
-                    where: whereCondition,
+                    where: { active: true, schoolId: account.schoolId },
                     required: false,
                     attributes: [],
                 },
