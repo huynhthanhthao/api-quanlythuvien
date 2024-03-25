@@ -47,7 +47,9 @@ const roleRouter = require("./role");
 
 const groupRoleRouter = require("./groupRole");
 
-const PermissionRouter = require("./permission");
+const permissionRouter = require("./permission");
+
+const publicRouter = require("./public");
 
 const checkToken = require("../middlewares/verifyToken");
 
@@ -97,6 +99,8 @@ router.use("/role", checkToken, roleRouter);
 
 router.use("/group-role", checkToken, groupRoleRouter);
 
-router.use("/permission", checkToken, PermissionRouter);
+router.use("/permission", checkToken, permissionRouter);
+
+router.use("/public", publicRouter);
 
 module.exports = router;
