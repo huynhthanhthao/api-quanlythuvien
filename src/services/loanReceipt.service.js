@@ -92,7 +92,7 @@ class LoanReceiptService {
                 {
                     model: db.LoanReceipt,
                     as: "loanReceipt",
-                    where: { active: true, schoolId: account.id, userId: userId },
+                    where: { active: true, schoolId: account.schoolId, userId: userId },
                     required: true,
                 },
             ],

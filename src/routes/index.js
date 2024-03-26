@@ -49,6 +49,8 @@ const groupRoleRouter = require("./groupRole");
 
 const permissionRouter = require("./permission");
 
+const bookingBookRouter = require("./bookingForm");
+
 const publicRouter = require("./public");
 
 const checkToken = require("../middlewares/verifyToken");
@@ -100,6 +102,8 @@ router.use("/role", checkToken, roleRouter);
 router.use("/group-role", checkToken, groupRoleRouter);
 
 router.use("/permission", checkToken, permissionRouter);
+
+router.use("/booking-book", bookingBookRouter);
 
 router.use("/public", publicRouter);
 
