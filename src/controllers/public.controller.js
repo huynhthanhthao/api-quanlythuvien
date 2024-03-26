@@ -7,7 +7,7 @@ const { isDate } = require("../../utils/customer-validate");
 
 class PublicController {
     static async getBooks(req) {
-        const schoolId = req.query.schoolId || 0;
+        const schoolId = req.params?.schoolId || 0;
         return transformer(await BookService.getBooks(req.query, { schoolId }), "Lấy danh sách thành công.");
     }
 
@@ -43,13 +43,22 @@ class PublicController {
     }
 
     static async getBookByIdOrCode(req) {
-        const { keyword } = req.params;
+        const { keyword, schoolId = 0 } = req.params;
         const type = req.query?.type || 0;
-        const schoolId = req.query.schoolId || 0;
 
         return transformer(
             await BookService.getBookByIdOrCode({ keyword, type }, { schoolId }),
             "Lấy chi tiết thành công."
+        );
+    }
+
+    static async confirmBookingForm(req) {
+        const { schoolId = 0 } = req.params;
+        const { token } = req.query;
+
+        return transformer(
+            await PublishService.confirmBookingForm({ ...req.body, token }, { schoolId }),
+            "Xác nhận thành công."
         );
     }
 }

@@ -4,6 +4,7 @@ const { CatchException } = require("../../utils/api-error");
 const db = require("../models");
 const { LOAN_STATUS } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
+const TransporterService = require("./transporter.service");
 
 class PublishService {
     static async createBookingForm(newForm, account) {
@@ -17,11 +18,12 @@ class PublishService {
                 this.checkBookBorrowed(newForm.bookIds, account),
                 this.checkBookOrdered(newForm.bookIds, account),
             ]);
+            const token = this.generateTokenForEmail();
 
             const bookingForm = await db.BookingBorrowForm.create(
                 {
                     userId,
-                    token: this.generateTokenForEmail(),
+                    token,
                     receiveDate: newForm.receiveDate,
                     bookingDes: newForm.bookingDes,
                     schoolId: account.schoolId,
@@ -38,8 +40,8 @@ class PublishService {
             }));
 
             await db.BookingHasBook.bulkCreate(bookBorrowData, { transaction });
-
             // gửi email
+            await TransporterService.sendEmail("huynhthanhthaoctu@gmail.com", token);
 
             await transaction.commit();
         } catch (error) {
@@ -124,6 +126,8 @@ class PublishService {
                 bookIds: bookBorrowed.map((book) => book.id),
             });
     }
+
+    static async confirmBookingForm(data, account) {}
 }
 
 module.exports = PublishService;

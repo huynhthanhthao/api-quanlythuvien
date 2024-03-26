@@ -11,7 +11,7 @@ router.post("/:schoolId/booking/create", async function (req, res, next) {
     }
 });
 
-router.post("/:schoolId/booking/confirm", async function (req, res, next) {
+router.get("/:schoolId/booking/confirm", async function (req, res, next) {
     try {
         const data = await PublicController.confirmBookingForm(req);
         return res.json(data);
@@ -20,7 +20,7 @@ router.post("/:schoolId/booking/confirm", async function (req, res, next) {
     }
 });
 
-router.get("/book/:keyword", async function (req, res, next) {
+router.get("/:schoolId/book/:keyword", async function (req, res, next) {
     try {
         const data = await PublicController.getBookByIdOrCode(req);
         return res.json(data);
@@ -29,7 +29,7 @@ router.get("/book/:keyword", async function (req, res, next) {
     }
 });
 
-router.get("/book", async function (req, res, next) {
+router.get("/:schoolId/book", async function (req, res, next) {
     try {
         const data = await PublicController.getBooks(req);
         return res.json(data);

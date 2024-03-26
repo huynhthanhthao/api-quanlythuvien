@@ -1,6 +1,4 @@
 const nodemailer = require("nodemailer");
-const { v4: uuidv4 } = require("uuid");
-const db = require("../models");
 
 class TransporterService {
     static async sendEmail(recipientEmail, token) {
@@ -21,18 +19,18 @@ class TransporterService {
         return nodemailer.createTransport({
             service: "Gmail",
             auth: {
-                user: "your_email@gmail.com",
-                pass: "your_password",
+                user: process.env.MAIL_USERNAME,
+                pass: process.env.MAIL_PASSWORD,
             },
         });
     }
 
     static createMailOptions(recipientEmail, token) {
         return {
-            from: "your_email@gmail.com",
+            from: process.env.MAIL_USERNAME,
             to: recipientEmail,
             subject: "Booking Form Submission",
-            html: `<p>Please use the following token to confirm your booking: <strong>${token}</strong></p>`, // Nội dung email dưới dạng HTML
+            html: `<p>Please use the following token to confirm your booking: <strong>${token}</strong></p>`,
         };
     }
 }
