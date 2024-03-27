@@ -56,7 +56,13 @@ class PublishService {
 
             const subject = "Xác nhận đặt trước mượn sách";
 
-            await TransporterService.sendEmail(books, user.email, token, subject, bookingBookHtml({ token, school }));
+            await TransporterService.sendEmail(
+                books,
+                user.email,
+                token,
+                subject,
+                bookingBookHtml({ token, school, books, bookingForm })
+            );
 
             await transaction.commit();
         } catch (error) {
