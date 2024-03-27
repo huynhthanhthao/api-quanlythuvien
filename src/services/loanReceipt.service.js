@@ -39,6 +39,11 @@ class LoanReceiptService {
         // check quantity in stock
         await this.checkBooksInStock(newLoanReceipt.books, account);
 
+        // check out the pre-ordered books
+        const bookingBook = await this.findBookingBooks(newLoanReceipt, account);
+
+        this.validateBookingBooks(bookingBook);
+
         let transaction;
 
         try {
@@ -482,6 +487,33 @@ class LoanReceiptService {
         });
     }
 
+    static async findBookingBooks(loanReceipt, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const bookIds = loanReceipt.books.map((book) => book.id);
+        return await db.Book.findAll({
+            where: { ...whereCondition, id: { [Op.in]: bookIds } },
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.BookingHasBook,
+                    as: "bookingHasBook",
+                    where: whereCondition,
+                    required: true,
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.BookingBorrowForm,
+                            as: "bookingForm",
+                            where: { ...whereCondition, isConfirmed: true },
+                            required: true,
+                            attributes: ["id"],
+                        },
+                    ],
+                },
+            ],
+        });
+    }
+
     static validateBorrowedBooks(borrowBooks, requestedBooks) {
         if (borrowBooks.length !== requestedBooks.length) {
             const borrowBookIds = borrowBooks.map((book) => +book.id);
@@ -491,6 +523,17 @@ class LoanReceiptService {
             throw new CatchException("Sách mượn không phải của bạn đọc này!", errorCodes.BOOK_NOT_BELONG_TO_READER, {
                 field: "bookIds",
                 unBorrowedBookIds: bookNotBorrow.map((book) => book.id),
+            });
+        }
+    }
+
+    static validateBookingBooks(bookingBooks) {
+        if (bookingBooks.length > 0) {
+            const bookingBookIds = bookingBooks.map((book) => +book.id);
+
+            throw new CatchException("Sách này đã được đặt trước đó!", errorCodes.RESOURCE_NOT_AVAILABLE, {
+                field: "bookIds",
+                bookingBookIds,
             });
         }
     }
