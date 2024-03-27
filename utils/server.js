@@ -47,6 +47,13 @@ module.exports.convertDate = function (value) {
     return dateObject.isValid() ? dateObject.format("YYYY-MM-DD HH:mm:ss") : "Invalid date";
 };
 
+module.exports.convertDateVi = function (value) {
+    if (!value) return null;
+
+    const dateObject = moment(value, "DD/MM/YYYY");
+    return dateObject.isValid() ? dateObject.format("DD/MM/YYYY") : "Invalid date";
+};
+
 module.exports.convertToIntArray = function (str) {
     if (!str || str.length === 0) return null;
 

@@ -1,4 +1,4 @@
-const { convertDate } = require("../../utils/server");
+const { convertDateVi } = require("../../utils/server");
 
 const bookingBookHtml = (data) => {
     return `
@@ -96,7 +96,7 @@ const bookingBookHtml = (data) => {
         XÁC NHẬN ĐẶT TRƯỚC MƯỢN SÁCH
       </div>
       <div class="message">
-        Ngày nhận ấn phẩm: <strong>${convertDate(data.bookingForm?.receiveDate)}</strong>.
+        Ngày nhận ấn phẩm: <strong>${convertDateVi(data.bookingForm?.receiveDate)}</strong>.
         </div>
       <div class="book-list-title">
         Danh sách ấn phẩm:
