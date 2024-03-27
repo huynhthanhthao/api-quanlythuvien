@@ -22,6 +22,7 @@ class PublishService {
                 this.checkBookBorrowed(newForm.bookIds, account),
                 this.checkBookOrdered(newForm.bookIds, account),
             ]);
+
             const token = this.generateTokenForEmail();
 
             const bookingForm = await db.BookingBorrowForm.create(
@@ -137,7 +138,7 @@ class PublishService {
         if (bookOrdered.length > 0)
             throw new CatchException("Sách đặt không sẳn sàng!", errorCodes.BOOK_IS_BORROWED, {
                 field: "bookIds",
-                bookIds: bookBorrowed.map((book) => book.id),
+                bookIds: bookOrdered.map((book) => book.id),
             });
     }
 

@@ -3,7 +3,7 @@ const BookService = require("../services/book.service");
 const PublishService = require("../services/public.service");
 const { transformer, convertDate, fDate, getDateNowTypeInt } = require("../../utils/server");
 const { errorCodes } = require("../../enums/error-code");
-const { isDate } = require("../../utils/customer-validate");
+const { isDate, checkIsDuplicates } = require("../../utils/customer-validate");
 
 class PublicController {
     static async getBooks(req) {
@@ -17,6 +17,12 @@ class PublicController {
         let { receiveDate } = req.body;
         const receiveDateTime = new Date(convertDate(receiveDate)).getTime() / 1000;
         const nowDateTime = getDateNowTypeInt();
+
+        if (checkIsDuplicates(bookIds)) {
+            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
+                field: "bookIds",
+            });
+        }
 
         if (!readerCode)
             throw new CatchException("Mã bạn đọc không được để trống!", errorCodes.MISSING_DATA, {
@@ -53,8 +59,6 @@ class PublicController {
     }
 
     static async confirmBookingForm(req) {
-        const { schoolDomain = "", token } = req.body;
-
         return transformer(await PublishService.confirmBookingForm({ ...req.body, token }), "Xác nhận thành công.");
     }
 }
