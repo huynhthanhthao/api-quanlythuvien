@@ -11,7 +11,7 @@ router.post("/:schoolId/booking/create", async function (req, res, next) {
     }
 });
 
-router.get("/:schoolId/booking/confirm", async function (req, res, next) {
+router.post("/booking/confirm", async function (req, res, next) {
     try {
         const data = await PublicController.confirmBookingForm(req);
         return res.json(data);

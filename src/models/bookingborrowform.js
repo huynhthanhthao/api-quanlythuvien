@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            BookingBorrowForm.hasMany(models.BookingHasBook, {
+                foreignKey: "formId",
+                as: "bookingHasBook",
+            });
         }
     }
     BookingBorrowForm.init(

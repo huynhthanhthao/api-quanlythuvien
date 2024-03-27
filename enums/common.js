@@ -71,6 +71,7 @@ const USER_TYPE = {
 const QUERY_ONE_TYPE = {
     ID: 1,
     CODE: 2,
+    DOMAIN: 3,
 };
 
 module.exports = {

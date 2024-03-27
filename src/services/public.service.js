@@ -2,17 +2,21 @@ const { Op } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 const { CatchException } = require("../../utils/api-error");
 const db = require("../models");
-const { LOAN_STATUS } = require("../../enums/common");
+const { LOAN_STATUS, QUERY_ONE_TYPE } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const TransporterService = require("./transporter.service");
+const { bookingBookHtml } = require("../mails/bookingBook");
+const { calculateDaysDiff, getStartOfDay, convertDate, getEndOfDay, fDate } = require("../../utils/server");
+const SchoolService = require("./school.service");
 
 class PublishService {
     static async createBookingForm(newForm, account) {
         let transaction;
         try {
+            const whereCondition = { active: true, schoolId: account.schoolId };
             transaction = await db.sequelize.transaction();
             // Lấy id bằng mã code
-            const userId = await this.getIdByReaderCode(newForm.readerCode, account);
+            const user = await this.getUserReaderCode(newForm.readerCode, account);
 
             await Promise.all([
                 this.checkBookBorrowed(newForm.bookIds, account),
@@ -22,7 +26,7 @@ class PublishService {
 
             const bookingForm = await db.BookingBorrowForm.create(
                 {
-                    userId,
+                    userId: user.id,
                     token,
                     receiveDate: newForm.receiveDate,
                     bookingDes: newForm.bookingDes,
@@ -40,8 +44,18 @@ class PublishService {
             }));
 
             await db.BookingHasBook.bulkCreate(bookBorrowData, { transaction });
+
             // gửi email
-            await TransporterService.sendEmail("huynhthanhthaoctu@gmail.com", token);
+            const books = await db.Book.findAll({
+                where: whereCondition,
+                attributes: ["id", "bookCode", "bookName", "photoURL", "author"],
+            });
+
+            const school = await SchoolService.getSchoolByIdOrDomain({ keyword: account.schoolId });
+
+            const subject = "Xác nhận đặt trước mượn sách";
+
+            await TransporterService.sendEmail(books, user.email, token, subject, bookingBookHtml({ token, school }));
 
             await transaction.commit();
         } catch (error) {
@@ -56,11 +70,11 @@ class PublishService {
         return token;
     }
 
-    static async getIdByReaderCode(readerCode, account) {
+    static async getUserReaderCode(readerCode, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
         const user = await db.User.findOne({
             where: { ...whereCondition, readerCode: { [Op.iLike]: readerCode } },
-            attributes: ["id"],
+            attributes: ["id", "email", "fullName", "phone"],
         });
 
         if (!user)
@@ -68,7 +82,7 @@ class PublishService {
                 field: "readerCode",
             });
 
-        return user.id;
+        return user;
     }
 
     static async checkBookBorrowed(bookIds, account) {
@@ -127,7 +141,89 @@ class PublishService {
             });
     }
 
-    static async confirmBookingForm(data, account) {}
+    static async confirmBookingForm(data) {
+        const school = await SchoolService.getSchoolByIdOrDomain({
+            keyword: data.schoolDomain,
+            type: QUERY_ONE_TYPE.DOMAIN,
+        });
+
+        const whereCondition = { active: true, schoolId: school.id };
+
+        const bookingForm = await db.BookingBorrowForm.findOne({
+            where: { ...whereCondition, token: data.token },
+            include: [
+                {
+                    model: db.BookingHasBook,
+                    as: "bookingHasBook",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id", "bookId"],
+                },
+            ],
+        });
+
+        if (bookingForm.isConfirmed) return;
+
+        if (!bookingForm) throw new CatchException("Không tìm thiếu phiếu đặt trước!", errorCodes.RESOURCE_NOT_FOUND);
+
+        const dayLate = -calculateDaysDiff(bookingForm.receiveDate);
+
+        if (dayLate > 1) throw new CatchException("Phiếu đặt trước đã hết hạn!", errorCodes.RESOURCE_HAS_EXPIRED);
+
+        const bookBookingIds = bookingForm.bookingHasBook?.map((booking) => booking.bookId);
+
+        await this.checkBookIdsReady(bookBookingIds, school.id);
+
+        await db.BookingBorrowForm.update(
+            { isConfirmed: true },
+            {
+                where: { ...whereCondition, isConfirmed: false, token: data.token },
+            }
+        );
+    }
+
+    static async checkBookIdsReady(bookIds, schoolId) {
+        const whereCondition = { active: true, schoolId };
+
+        const [bookFormExisted, bookBorrowed] = await Promise.all([
+            db.BookingBorrowForm.findOne({
+                where: {
+                    ...whereCondition,
+                    isConfirmed: true,
+                    receiveDate: { [Op.lte]: getEndOfDay(new Date()) },
+                },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.BookingHasBook,
+                        as: "bookingHasBook",
+                        where: { ...whereCondition, bookId: { [Op.in]: bookIds } },
+                        required: true,
+                        attributes: ["id"],
+                    },
+                ],
+            }),
+            db.Book.findOne({
+                where: {
+                    ...whereCondition,
+                    id: { [Op.in]: bookIds },
+                },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.ReceiptHasBook,
+                        as: "receiptHasBook",
+                        where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
+                        required: true,
+                        attributes: ["id"],
+                    },
+                ],
+            }),
+        ]);
+
+        if (bookBorrowed || bookFormExisted)
+            throw new CatchException("Sách đặt trước không khả dụng!", errorCodes.RESOURCE_NOT_AVAILABLE);
+    }
 }
 
 module.exports = PublishService;

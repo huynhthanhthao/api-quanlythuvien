@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
             schoolCode: {
                 type: DataTypes.STRING,
             },
+            schoolDomain: {
+                type: DataTypes.STRING,
+            },
             address: {
                 type: DataTypes.TEXT,
             },

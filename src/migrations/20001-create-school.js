@@ -9,6 +9,9 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.BIGINT,
             },
+            schoolDomain: {
+                type: Sequelize.STRING,
+            },
             shoolName: {
                 type: Sequelize.STRING,
             },

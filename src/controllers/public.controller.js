@@ -53,13 +53,9 @@ class PublicController {
     }
 
     static async confirmBookingForm(req) {
-        const { schoolId = 0 } = req.params;
-        const { token } = req.query;
+        const { schoolDomain = "", token } = req.body;
 
-        return transformer(
-            await PublishService.confirmBookingForm({ ...req.body, token }, { schoolId }),
-            "Xác nhận thành công."
-        );
+        return transformer(await PublishService.confirmBookingForm({ ...req.body, token }), "Xác nhận thành công.");
     }
 }
 

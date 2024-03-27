@@ -1,16 +1,14 @@
 const nodemailer = require("nodemailer");
 
 class TransporterService {
-    static async sendEmail(recipientEmail, token) {
+    static async sendEmail(data, recipientEmail, token, subject, htmlContent) {
         try {
             const transporter = this.createTransporter();
-
-            const mailOptions = this.createMailOptions(recipientEmail, token);
+            console.log(recipientEmail, token, subject, htmlContent);
+            const mailOptions = this.createMailOptions(recipientEmail, token, subject, htmlContent);
 
             await transporter.sendMail(mailOptions);
-            console.log("Email sent successfully!");
         } catch (error) {
-            console.log("Error occurred while sending email:", error.message);
             throw error;
         }
     }
@@ -25,12 +23,12 @@ class TransporterService {
         });
     }
 
-    static createMailOptions(recipientEmail, token) {
+    static createMailOptions(recipientEmail, token, emailSubject, emailHtml) {
         return {
             from: process.env.MAIL_USERNAME,
             to: recipientEmail,
-            subject: "Booking Form Submission",
-            html: `<p>Please use the following token to confirm your booking: <strong>${token}</strong></p>`,
+            subject: emailSubject,
+            html: emailHtml,
         };
     }
 }

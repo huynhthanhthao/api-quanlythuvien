@@ -9,8 +9,6 @@ class BookingFormService {
     static async getBookingFormById(id, account) {}
 
     static async deleteBookingFormByIds(ids, account) {}
-
-    static async confirmBookingForm(data, account) {}
 }
 
 module.exports = BookingFormService;
