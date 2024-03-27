@@ -2,13 +2,18 @@ const Sequelize = require("sequelize");
 
 class DatabaseConnection {
     static async connect() {
-        const databaseName = process.env.DB_NAME;
-        const username = process.env.DB_USERNAME;
-        const password = process.env.DB_PASSWORD;
+        const databaseName = process.env.POSTGRES_DATABASE;
+        const username = process.env.POSTGRES_USER;
+        const password = process.env.POSTGRES_PASSWORD;
         const options = {
-            host: process.env.DB_HOST,
+            host: process.env.POSTGRES_HOST,
             dialect: "postgres",
             logging: false,
+            dialectOptions: {
+                ssl: {
+                    require: true,
+                },
+            },
         };
 
         const sequelize = new Sequelize(databaseName, username, password, options);
