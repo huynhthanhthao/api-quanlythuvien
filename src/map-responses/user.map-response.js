@@ -1,4 +1,4 @@
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.mapResponseUserList = function (userList) {
     return userList.map((user) => {
@@ -7,7 +7,7 @@ module.exports.mapResponseUserList = function (userList) {
             groupId: user.groupId,
             fullName: user.fullName,
             readerCode: user.readerCode,
-            photoURL: user.photoURL,
+            photoURL: customerURL(user.photoURL),
             phone: user.phone,
             birthday: fDate(user.birthday),
             gender: user.gender,
@@ -31,7 +31,7 @@ module.exports.mapResponseUserItem = function (user) {
         groupId: user.groupId,
         fullName: user.fullName,
         readerCode: user.readerCode,
-        photoURL: user.photoURL,
+        photoURL: customerURL(user.photoURL),
         phone: user.phone,
         birthday: fDate(user.birthday),
         gender: user.gender,

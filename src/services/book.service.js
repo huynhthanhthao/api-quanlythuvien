@@ -17,13 +17,12 @@ class BookService {
             transaction = await db.sequelize.transaction();
 
             const bookCode = newBook.bookCode || (await this.generateBookCode(account.schoolId));
-            console.log(newBook);
 
             const book = await db.Book.create(
                 {
                     ...newBook,
                     bookCode: bookCode,
-                    photoURL: customerURL(newBook.photoURL),
+                    photoURL: newBook.photoURL,
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
@@ -32,10 +31,24 @@ class BookService {
             );
 
             const fieldIds = newBook.fieldIds || [];
+            const attachFiles = newBook.attachFiles || [];
 
             await db.FieldHasBook.bulkCreate(
                 fieldIds.map((fieldId) => ({
                     fieldId,
+                    bookId: book.id,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                })),
+                { transaction }
+            );
+
+            await db.Attachment.bulkCreate(
+                attachFiles.map((file) => ({
+                    fileName: file.originalname,
+                    fileType: file.mimetype,
+                    fileURL: file.path,
                     bookId: book.id,
                     schoolId: account.schoolId,
                     createdBy: account.id,
@@ -85,7 +98,7 @@ class BookService {
                     price: updateBook.price,
                     penaltyApplied: updateBook.penaltyApplied,
                     loanFee: updateBook.loanFee,
-                    photoURL: customerURL(updatePhotoURL),
+                    photoURL: updatePhotoURL,
                     schoolId: account.schoolId,
                     updatedBy: account.id,
                 },
@@ -93,6 +106,7 @@ class BookService {
             );
 
             const fieldIds = updateBook.fieldIds || [];
+            const attachFiles = updateBook.attachFiles || [];
 
             const fieldList = fieldIds.map((fieldId) => ({
                 fieldId,
@@ -102,13 +116,22 @@ class BookService {
                 updatedBy: account.id,
             }));
 
-            await bulkUpdate(
-                fieldList,
-                db.FieldHasBook,
-                { bookId: updateBook.id, schoolId: account.schoolId },
-                account,
-                transaction
-            );
+            const attachFileData = attachFiles.map((file) => ({
+                fileName: file.originalname,
+                fileType: file.mimetype,
+                fileURL: file.path,
+                bookId: updateBook.id,
+                schoolId: account.schoolId,
+                createdBy: account.id,
+                updatedBy: account.id,
+            }));
+
+            const bulkUpdateCondition = { bookId: updateBook.id, schoolId: account.schoolId };
+
+            await Promise.all([
+                bulkUpdate(attachFileData, db.Attachment, bulkUpdateCondition, account, transaction),
+                bulkUpdate(fieldList, db.FieldHasBook, bulkUpdateCondition, account, transaction),
+            ]);
 
             await ActivityService.createActivity(
                 { dataTarget: updateBook.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.UPDATED },
@@ -259,6 +282,13 @@ class BookService {
                     where: { active: true, schoolId: account.schoolId },
                     attributes: ["id", "statusName"],
                 },
+                {
+                    model: db.Attachment,
+                    required: false,
+                    as: "attachFiles",
+                    where: { active: true, schoolId: account.schoolId },
+                    attributes: ["id", "fileURL", "fileName"],
+                },
             ],
             distinct: true,
         });
@@ -347,6 +377,13 @@ class BookService {
                     as: "status",
                     where: { active: true, schoolId: account.schoolId },
                     attributes: ["id", "statusName"],
+                },
+                {
+                    model: db.Attachment,
+                    required: false,
+                    as: "attachFiles",
+                    where: { active: true, schoolId: account.schoolId },
+                    attributes: ["id", "fileURL", "fileName"],
                 },
             ],
         });

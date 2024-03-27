@@ -3,7 +3,7 @@ const BookRequestController = require("../controllers/bookRequest.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
-const upload = require("../middlewares/multer");
+const upload = require("../middlewares/multer-single-book");
 
 router.post(
     "/create",

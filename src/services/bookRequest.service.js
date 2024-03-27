@@ -4,7 +4,7 @@ const unidecode = require("unidecode");
 const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
-const { customerURL, convertToIntArray } = require("../../utils/server");
+const { convertToIntArray } = require("../../utils/server");
 const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
 const { mapResponseBookRequestList, mapResponseBookRequestItem } = require("../map-responses/bookRequest.map-response");
 const { errorCodes } = require("../../enums/error-code");
@@ -21,7 +21,7 @@ class BookRequestService {
                 {
                     ...newBookRequest,
                     bookCode: readerCode,
-                    photoURL: customerURL(newBookRequest.photoURL),
+                    photoURL: newBookRequest.photoURL,
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
@@ -63,7 +63,7 @@ class BookRequestService {
                     yearPublication: updateBookRequest.yearPublication,
                     rePublic: updateBookRequest.rePublic,
                     requestDate: updateBookRequest.requestDate,
-                    photoURL: customerURL(updatePhotoURL),
+                    photoURL: updatePhotoURL,
                     schoolId: account.schoolId,
                     updatedBy: account.id,
                 },

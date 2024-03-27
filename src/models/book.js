@@ -56,6 +56,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "bookId",
                 as: "bookingHasBook",
             });
+
+            Book.hasMany(models.Attachment, {
+                foreignKey: "bookId",
+                as: "attachFiles",
+            });
         }
     }
     Book.init(

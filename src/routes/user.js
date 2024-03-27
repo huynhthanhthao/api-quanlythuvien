@@ -2,7 +2,7 @@ const express = require("express");
 const UserController = require("../controllers/user.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const router = express.Router();
-const upload = require("../middlewares/multer");
+const upload = require("../middlewares/multer-single-user");
 const { ROLES } = require("../../enums/permission");
 
 router.post(

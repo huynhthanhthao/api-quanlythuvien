@@ -2,13 +2,16 @@ const express = require("express");
 const BookController = require("../controllers/book.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const router = express.Router();
-const upload = require("../middlewares/multer");
+const upload = require("../middlewares/multer-multi-book");
 const { ROLES } = require("../../enums/permission");
 
 router.post(
     "/create",
     checkPermission([ROLES.BOOK_CREATE]),
-    upload.single("photoFile"),
+    upload.fields([
+        { name: "photoFile", maxCount: 1 },
+        { name: "attachFiles", maxCount: 10 },
+    ]),
     async function (req, res, next) {
         try {
             const data = await BookController.createBook(req);
@@ -22,7 +25,10 @@ router.post(
 router.put(
     "/:id/update",
     checkPermission([ROLES.BOOK_UPDATE]),
-    upload.single("photoFile"),
+    upload.fields([
+        { name: "photoFile", maxCount: 1 },
+        { name: "attachFiles", maxCount: 10 },
+    ]),
     async function (req, res, next) {
         try {
             const data = await BookController.updateBookById(req);

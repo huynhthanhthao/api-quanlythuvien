@@ -2,7 +2,7 @@ const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
 const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
-const { customerURL, convertToIntArray } = require("../../utils/server");
+const { convertToIntArray } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
 const { TABLE_NAME } = require("../../enums/languages");
 const { errorCodes } = require("../../enums/error-code");
@@ -21,7 +21,7 @@ class UserService {
             const user = await db.User.create(
                 {
                     ...newUser,
-                    photoURL: customerURL(newUser.photoURL),
+                    photoURL: newUser.photoURL,
                     readerCode,
                     schoolId: account.schoolId,
                     createdBy: account.id,
@@ -80,7 +80,7 @@ class UserService {
                     cardId: updateUser.cardId,
                     cardDate: updateUser.cardDate,
                     cardAddress: updateUser.cardAddress,
-                    photoURL: customerURL(updatePhotoURL),
+                    photoURL: updatePhotoURL,
                     schoolId: account.schoolId,
                     updatedBy: account.id,
                 },

@@ -1,4 +1,4 @@
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.mapResponseBookRequestList = function (bookList) {
     return bookList.map((book) => {
@@ -10,7 +10,7 @@ module.exports.mapResponseBookRequestList = function (bookList) {
             otherName: book.otherName,
             bookDes: book.bookDes,
             author: book.author,
-            photoURL: book.photoURL,
+            photoURL: customerURL(book.photoURL),
             rePublic: book.rePublic,
             yearPublication: book.yearPublication,
             createdAt: fDate(book.createdAt),
@@ -31,7 +31,7 @@ module.exports.mapResponseBookRequestItem = function (book) {
               otherName: book.otherName,
               bookDes: book.bookDes,
               author: book.author,
-              photoURL: book.photoURL,
+              photoURL: customerURL(book.photoURL),
               rePublic: book.rePublic,
               yearPublication: book.yearPublication,
               createdAt: fDate(book.createdAt),

@@ -1,4 +1,4 @@
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.mapResponseBookList = function (bookList) {
     return bookList.map((book) => {
@@ -14,7 +14,7 @@ module.exports.mapResponseBookList = function (bookList) {
             rePublic: book.rePublic,
             price: book.price,
             loanFee: book.loanFee,
-            photoURL: book.photoURL,
+            photoURL: customerURL(book.photoURL),
             penaltyApplied: book.penaltyApplied,
             createdAt: fDate(book.createdAt),
             categoryName: book.category?.categoryName || null,
@@ -23,6 +23,10 @@ module.exports.mapResponseBookList = function (bookList) {
             lanName: book.language?.lanName || null,
             fieldList: book.fieldHasBook?.map((item) => item?.field?.fieldName) || [],
             status: book?.status?.statusName || null,
+            attachFiles: book?.attachFiles?.map((file) => ({
+                fileName: file.fileName,
+                fileURL: customerURL(file.fileURL),
+            })),
         };
     });
 };
@@ -41,7 +45,7 @@ module.exports.mapResponseBookItem = function (book) {
               yearPublication: book.yearPublication,
               rePublic: book.rePublic,
               price: book.price,
-              photoURL: book.photoURL,
+              photoURL: customerURL(book.photoURL),
               bookCondition: book.bookCondition,
               penaltyApplied: book.penaltyApplied,
               createdAt: fDate(book.createdAt),
@@ -56,6 +60,10 @@ module.exports.mapResponseBookItem = function (book) {
               fieldList: book.fieldHasBook?.map((item) => item?.field?.id) || [],
               status: book?.status?.statusName || null,
               statusId: book?.status?.id || null,
+              attachFiles: book?.attachFiles?.map((file) => ({
+                  fileName: file.fileName,
+                  fileURL: customerURL(file.fileURL),
+              })),
           }
         : null;
 };
