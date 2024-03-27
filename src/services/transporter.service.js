@@ -1,11 +1,10 @@
 const nodemailer = require("nodemailer");
 
 class TransporterService {
-    static async sendEmail(data, recipientEmail, token, subject, htmlContent) {
+    static async sendEmail(recipientEmail, subject, htmlContent) {
         try {
             const transporter = this.createTransporter();
-            console.log(recipientEmail, token, subject, htmlContent);
-            const mailOptions = this.createMailOptions(recipientEmail, token, subject, htmlContent);
+            const mailOptions = this.createMailOptions(recipientEmail, subject, htmlContent);
 
             await transporter.sendMail(mailOptions);
         } catch (error) {
@@ -23,7 +22,7 @@ class TransporterService {
         });
     }
 
-    static createMailOptions(recipientEmail, token, emailSubject, emailHtml) {
+    static createMailOptions(recipientEmail, emailSubject, emailHtml) {
         return {
             from: process.env.MAIL_USERNAME,
             to: recipientEmail,

@@ -9,10 +9,13 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.BIGINT,
             },
+            logo: {
+                type: Sequelize.TEXT,
+            },
             schoolDomain: {
                 type: Sequelize.STRING,
             },
-            shoolName: {
+            schoolName: {
                 type: Sequelize.STRING,
             },
             schoolCode: {

@@ -4,7 +4,7 @@ module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.bulkInsert("Schools", [
             {
-                shoolName: "Đại học Cần Thơ",
+                schoolName: "Đại học Cần Thơ",
                 schoolCode: "TH0001",
                 address: "Đường 3/2, P.Hưng Lợi, Q.Ninh Kiều, Cần Thơ",
                 phone: "0988322233",
@@ -16,7 +16,7 @@ module.exports = {
                 updatedAt: new Date(),
             },
             {
-                shoolName: "Đại học FPT Cần Thơ",
+                schoolName: "Đại học FPT Cần Thơ",
                 schoolCode: "TH0002",
                 address: "Nguyễn Văn Cừ, P.Ninh Kiều, Q.Ninh Kiều, Cần Thơ",
                 phone: "0939666777",

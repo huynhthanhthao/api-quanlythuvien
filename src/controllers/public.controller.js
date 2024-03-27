@@ -59,7 +59,7 @@ class PublicController {
     }
 
     static async confirmBookingForm(req) {
-        return transformer(await PublishService.confirmBookingForm({ ...req.body, token }), "Xác nhận thành công.");
+        return transformer(await PublishService.confirmBookingForm({ ...req.body }), "Xác nhận thành công.");
     }
 }
 

@@ -14,11 +14,14 @@ module.exports = (sequelize, DataTypes) => {
     }
     School.init(
         {
-            shoolName: {
+            schoolName: {
                 type: DataTypes.STRING,
             },
             schoolCode: {
                 type: DataTypes.STRING,
+            },
+            logo: {
+                type: DataTypes.TEXT,
             },
             schoolDomain: {
                 type: DataTypes.STRING,

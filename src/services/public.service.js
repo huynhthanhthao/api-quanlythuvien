@@ -48,7 +48,7 @@ class PublishService {
 
             // gửi email
             const books = await db.Book.findAll({
-                where: whereCondition,
+                where: { ...whereCondition, id: { [Op.in]: bookIds } },
                 attributes: ["id", "bookCode", "bookName", "photoURL", "author"],
             });
 
@@ -57,9 +57,7 @@ class PublishService {
             const subject = "Xác nhận đặt trước mượn sách";
 
             await TransporterService.sendEmail(
-                books,
                 user.email,
-                token,
                 subject,
                 bookingBookHtml({ token, school, books, bookingForm })
             );
