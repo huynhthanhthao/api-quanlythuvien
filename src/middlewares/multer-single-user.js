@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const HttpStatus = require("http-status-codes");
 const { CatchException } = require("../../utils/api-error");
@@ -9,7 +10,8 @@ const storage = multer.diskStorage({
         cb(null, "public/documents/users");
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
+        const uniqueSuffix = uuidv4();
+        cb(null, Date.now() + "-" + uniqueSuffix + "-" + file.originalname);
     },
 });
 
