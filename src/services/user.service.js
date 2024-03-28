@@ -42,6 +42,13 @@ class UserService {
                     { transaction }
                 );
 
+            if (USER_TYPE.READER) {
+                if (!newUser.effectiveTime)
+                    throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA);
+
+                await this.createEffectReader(newUser.effectiveTime, user.id, account);
+            }
+
             await ActivityService.createActivity(
                 {
                     dataTarget: user.id,
@@ -58,6 +65,8 @@ class UserService {
             throw error;
         }
     }
+
+    static async createEffectReader(effectiveTime, userId, account) {}
 
     static async updateUserById(updateUser, account) {
         let transaction;
