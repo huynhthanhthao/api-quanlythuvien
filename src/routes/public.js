@@ -1,8 +1,9 @@
 const express = require("express");
 const PublicController = require("../controllers/public.controller");
 const router = express.Router();
+const upload = require("../middlewares/multer-multi-user-register");
 
-router.post("/:schoolId/booking/create", async function (req, res, next) {
+router.post("/booking/create", async function (req, res, next) {
     try {
         const data = await PublicController.createBookingForm(req);
         return res.json(data);
@@ -19,6 +20,23 @@ router.post("/booking/confirm", async function (req, res, next) {
         next(error);
     }
 });
+
+router.post(
+    "/card/register",
+    upload.fields([
+        { name: "photo3x4", maxCount: 1 },
+        { name: "cardFrontPhoto", maxCount: 1 },
+        { name: "cardBackPhoto", maxCount: 1 },
+    ]),
+    async function (req, res, next) {
+        try {
+            const data = await PublicController.createCardOpeningRegistration(req);
+            return res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 router.get("/:schoolId/category", async function (req, res, next) {
     try {

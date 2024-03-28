@@ -48,8 +48,20 @@ module.exports = {
             cardBackPhoto: {
                 type: Sequelize.TEXT,
             },
+            isConfirmed: {
+                type: Sequelize.BOOLEAN,
+            },
             active: {
                 type: Sequelize.BOOLEAN,
+            },
+            updatedBy: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "Accounts",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
             },
             createdAt: {
                 allowNull: false,

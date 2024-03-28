@@ -8,6 +8,7 @@ const CategoryService = require("../services/category.service");
 const PublisherService = require("../services/publisher.service");
 const LanguageService = require("../services/language.service");
 const FieldService = require("../services/field.service");
+const CardOpeningRegistrationService = require("../services/cardOpeningRegistration.service");
 
 class PublicController {
     static async getBooks(req) {
@@ -16,8 +17,7 @@ class PublicController {
     }
 
     static async createBookingForm(req) {
-        const { schoolId = 0 } = req.params;
-        const { bookIds = [], readerCode } = req.body;
+        const { bookIds = [], readerCode, schoolId = 0 } = req.body;
         let { receiveDate } = req.body;
         const receiveDateTime = new Date(convertDate(receiveDate)).getTime() / 1000;
         const nowDateTime = getDateNowTypeInt();
@@ -88,6 +88,21 @@ class PublicController {
         const { schoolId = 0 } = req.params;
 
         return transformer(await FieldService.getFields(req.query, { schoolId }), "Lấy danh sách thành công.");
+    }
+
+    static async createCardOpeningRegistration(req) {
+        const { schoolId = 0 } = req.body;
+        const photo3x4 = req.files?.photo3x4?.[0]?.path;
+        const cardFrontPhoto = req.files?.cardFrontPhoto?.[0]?.path;
+        const cardBackPhoto = req.files?.cardBackPhoto?.[0]?.path;
+
+        return transformer(
+            await CardOpeningRegistrationService.createCardOpeningRegistration(
+                { ...req.body, photo3x4, cardFrontPhoto, cardBackPhoto },
+                { schoolId }
+            ),
+            "Đã thêm dữ liệu đăng ký mở thẻ mới."
+        );
     }
 }
 
