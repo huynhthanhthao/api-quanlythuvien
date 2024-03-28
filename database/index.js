@@ -9,11 +9,7 @@ class DatabaseConnection {
             host: process.env.POSTGRES_HOST,
             dialect: "postgres",
             logging: false,
-            // dialectOptions: {
-            //     ssl: {
-            //         require: true,
-            //     },
-            // },
+            port: process.env.POSTGRES_PORT,
         };
 
         const sequelize = new Sequelize(databaseName, username, password, options);
