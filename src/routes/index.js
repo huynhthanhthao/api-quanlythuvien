@@ -105,7 +105,7 @@ router.use("/group-role", checkToken, groupRoleRouter);
 
 router.use("/permission", checkToken, permissionRouter);
 
-router.use("/booking-book", bookingBookRouter);
+router.use("/booking-book", checkToken, bookingBookRouter);
 
 router.use("/public", publicRouter);
 

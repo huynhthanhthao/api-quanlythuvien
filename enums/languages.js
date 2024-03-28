@@ -12,6 +12,7 @@ const TABLE_NAME = {
     ACCOUNT: "ACCOUNT",
     USER: "USER",
     CARD_OPENING_FEE: "CARD_OPENING_FEE",
+    BOOKING_BOOK_FORM: "BOOKING_BOOK_FORM",
 };
 
 module.exports = { TABLE_NAME };

@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "formId",
                 as: "bookingHasBook",
             });
+
+            BookingBorrowForm.belongsTo(models.User, {
+                foreignKey: "userId",
+                as: "user",
+            });
         }
     }
     BookingBorrowForm.init(

@@ -4,7 +4,7 @@ const BookingFormService = require("../services/bookingForm.service");
 class BookingFormController {
     static async getBookingForms(req) {
         return transformer(
-            await BookingFormService.getBookingForms(req.body, req.account),
+            await BookingFormService.getBookingForms(req.query, req.account),
             "Lấy danh sách thành công."
         );
     }
