@@ -27,6 +27,9 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
+            formCode: {
+                type: Sequelize.STRING,
+            },
             receiveDate: {
                 type: Sequelize.DATE,
             },

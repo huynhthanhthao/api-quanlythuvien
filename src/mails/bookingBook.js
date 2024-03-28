@@ -43,10 +43,16 @@ const bookingBookHtml = (data) => {
         margin-bottom: 20px;
         font-size: 16px
       }
+      .reader-info {
+        margin-bottom: 20px;
+        font-size: 16px;
+        text-align: left; /* Căn trái thông tin bạn đọc */
+      }
       .book-list-title {
         text-align: left;
         font-size: 16px;
         margin-top: 20px;
+        font-weight: bold;
       }
       .book-list {
         margin-bottom: 20px;
@@ -57,7 +63,6 @@ const bookingBookHtml = (data) => {
         padding: 10px 0;
       }
       .book-title {
-        font-weight: bold;
         margin-bottom: 5px;
       }
       .btn-confirm {
@@ -91,13 +96,18 @@ const bookingBookHtml = (data) => {
             </td>
         </tr>
     </tbody>
-</table>
+    </table>
       <div class="title">
         XÁC NHẬN ĐẶT TRƯỚC MƯỢN SÁCH
       </div>
       <div class="message">
-        Ngày nhận ấn phẩm: <strong>${convertDateVi(data.bookingForm?.receiveDate)}</strong>.
-        </div>
+    Mã đặt trước: <strong>${data.bookingForm?.formCode}</strong><br>
+        Ngày nhận ấn phẩm: <strong>${convertDateVi(data.bookingForm?.receiveDate)}</strong>
+      </div>
+      <div class="reader-info">
+        <div>Mã bạn đọc: <strong>${data.user?.readerCode}</strong></div>
+        <div>Tên bạn đọc: <strong>${data.user?.fullName}</strong></div>
+      </div>
       <div class="book-list-title">
         Danh sách ấn phẩm:
       </div>
@@ -106,8 +116,8 @@ const bookingBookHtml = (data) => {
         ${data.books?.map(
             (book) => ` 
             <div class="book-item">
-                <div class="book-title">${book.bookName}</div>
-                <div>Tác Giả: ${book.author}</div>
+                <div class="book-title" style="font-size:16px">${book.bookName}</div>
+                <div style="font-size:16px">Tác Giả: ${book.author}</div>
              </div>`
         )}
       </div>

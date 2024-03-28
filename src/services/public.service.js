@@ -29,6 +29,7 @@ class PublishService {
                 {
                     userId: user.id,
                     token,
+                    formCode: await this.generateFormCode(account.schoolId),
                     receiveDate: newForm.receiveDate,
                     bookingDes: newForm.bookingDes,
                     schoolId: account.schoolId,
@@ -56,10 +57,10 @@ class PublishService {
 
             const subject = "Xác nhận đặt trước mượn sách";
 
-            await TransporterService.sendEmail(
+            TransporterService.sendEmail(
                 user.email,
                 subject,
-                bookingBookHtml({ token, school, books, bookingForm })
+                bookingBookHtml({ token, school, books, bookingForm, user })
             );
 
             await transaction.commit();
@@ -67,6 +68,23 @@ class PublishService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    static async generateFormCode(schoolId) {
+        const { dataValues: highestBook } = (await db.BookingBorrowForm.findOne({
+            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("formCode")), "maxFormCode"]],
+            where: { schoolId },
+        })) || { dataValues: null };
+
+        let newFormCode = "PDT00001";
+
+        if (highestBook && highestBook?.maxFormCode) {
+            const currentNumber = parseInt(highestBook.maxFormCode.slice(2), 10);
+            const nextNumber = currentNumber + 1;
+            newFormCode = `PDT${nextNumber.toString().padStart(5, "0")}`;
+        }
+
+        return newFormCode;
     }
 
     static generateTokenForEmail() {
@@ -77,9 +95,10 @@ class PublishService {
 
     static async getUserReaderCode(readerCode, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
+
         const user = await db.User.findOne({
             where: { ...whereCondition, readerCode: { [Op.iLike]: readerCode } },
-            attributes: ["id", "email", "fullName", "phone"],
+            attributes: ["id", "email", "fullName", "phone", "readerCode"],
         });
 
         if (!user)

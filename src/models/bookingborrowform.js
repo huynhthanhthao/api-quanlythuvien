@@ -1,6 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
-const { checkForeignKey } = require("../../utils/customer-validate");
+const { checkForeignKey, isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class BookingBorrowForm extends Model {
@@ -31,6 +31,23 @@ module.exports = (sequelize, DataTypes) => {
                     async checkForeignKey(value) {
                         await checkForeignKey(value, sequelize.models.User, {
                             schoolId: this.schoolId,
+                        });
+                    },
+                },
+            },
+            formCode: {
+                type: DataTypes.STRING,
+                validate: {
+                    len: {
+                        args: [0, 50],
+                    },
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "formCode",
+                            value,
+                            model: sequelize.models.BookingBorrowForm,
+                            extraConditions: { schoolId: this.schoolId },
                         });
                     },
                 },
