@@ -20,9 +20,22 @@ module.exports = (sequelize, DataTypes) => {
             },
             fee: {
                 type: DataTypes.DOUBLE,
+                allowNull: false,
+                validate: {
+                    isNumeric: true,
+                    notEmpty: false,
+                },
             },
             effect: {
                 type: DataTypes.INTEGER,
+                allowNull: false,
+                validate: {
+                    isNumeric: true,
+                    notEmpty: false,
+                },
+            },
+            feeDes: {
+                type: DataTypes.TEXT,
             },
             active: {
                 type: DataTypes.BOOLEAN,

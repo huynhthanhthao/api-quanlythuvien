@@ -33,8 +33,9 @@ class CardOpeningFeeController {
     }
 
     static async getCardOpeningFeeById(req) {
+        const { id } = req.params;
         return transformer(
-            await CardOpeningFeeService.getCardOpeningFeeById(req.query, req.account),
+            await CardOpeningFeeService.getCardOpeningFeeById(id, req.account),
             "Lấy chi tiết thành công."
         );
     }

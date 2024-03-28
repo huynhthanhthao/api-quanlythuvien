@@ -24,6 +24,9 @@ module.exports = {
             effect: {
                 type: Sequelize.INTEGER,
             },
+            feeDes: {
+                type: Sequelize.TEXT,
+            },
             active: {
                 type: Sequelize.BOOLEAN,
             },
