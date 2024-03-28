@@ -4,6 +4,10 @@ const PublishService = require("../services/public.service");
 const { transformer, convertDate, fDate, getDateNowTypeInt } = require("../../utils/server");
 const { errorCodes } = require("../../enums/error-code");
 const { isDate, checkIsDuplicates } = require("../../utils/customer-validate");
+const CategoryService = require("../services/category.service");
+const PublisherService = require("../services/publisher.service");
+const LanguageService = require("../services/language.service");
+const FieldService = require("../services/field.service");
 
 class PublicController {
     static async getBooks(req) {
@@ -60,6 +64,30 @@ class PublicController {
 
     static async confirmBookingForm(req) {
         return transformer(await PublishService.confirmBookingForm({ ...req.body }), "Xác nhận thành công.");
+    }
+
+    static async getCategories(req) {
+        const { schoolId = 0 } = req.params;
+
+        return transformer(await CategoryService.getCategories(req.query, { schoolId }), "Lấy danh sách thành công.");
+    }
+
+    static async getPublishers(req) {
+        const { schoolId = 0 } = req.params;
+
+        return transformer(await PublisherService.getPublishers(req.query, { schoolId }), "Lấy danh sách thành công.");
+    }
+
+    static async getLanguages(req) {
+        const { schoolId = 0 } = req.params;
+
+        return transformer(await LanguageService.getLanguages(req.query, { schoolId }), "Lấy danh sách thành công.");
+    }
+
+    static async getFields(req) {
+        const { schoolId = 0 } = req.params;
+
+        return transformer(await FieldService.getFields(req.query, { schoolId }), "Lấy danh sách thành công.");
     }
 }
 
