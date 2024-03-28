@@ -1,5 +1,5 @@
 /node_modules
-/public/documents/
+# /public/documents/
 # .env
 package-lock.json
 ecosystem.config.js
