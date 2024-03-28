@@ -8,6 +8,7 @@ const TransporterService = require("./transporter.service");
 const { bookingBookHtml } = require("../mails/bookingBook");
 const { calculateDaysDiff, getStartOfDay, convertDate, getEndOfDay, fDate } = require("../../utils/server");
 const SchoolService = require("./school.service");
+const UserService = require("./user.service");
 
 class PublishService {
     static async createBookingForm(newForm, account) {
@@ -17,6 +18,8 @@ class PublishService {
             transaction = await db.sequelize.transaction();
             // Lấy id bằng mã code
             const user = await this.getUserReaderCode(newForm.readerCode, account);
+
+            await UserService.checkUserValidity(user.id, { schoolId: account.schoolId }, "readerCode");
 
             await Promise.all([
                 this.checkBookBorrowed(newForm.bookIds, account),

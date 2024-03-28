@@ -20,6 +20,7 @@ const {
 const { mapResponseLoanReceiptList, mapResponseLoanReceiptItem } = require("../map-responses/loanReceipt.map-response");
 const PenaltyTicketService = require("./penaltyTicket.service");
 const SettingService = require("./setting.service");
+const UserService = require("./user.service");
 
 class LoanReceiptService {
     static async createLoanReceipt(newLoanReceipt, account) {
@@ -43,6 +44,9 @@ class LoanReceiptService {
         const bookingBook = await this.findBookingBooks(newLoanReceipt, account);
 
         this.validateBookingBooks(bookingBook);
+
+        // check reader validity
+        await UserService.checkUserValidity(newLoanReceipt.userId, account, "userId");
 
         let transaction;
 

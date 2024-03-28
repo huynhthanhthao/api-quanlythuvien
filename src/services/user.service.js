@@ -2,7 +2,7 @@ const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
 const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
-const { convertToIntArray } = require("../../utils/server");
+const { convertToIntArray, getStartOfDay } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
 const { TABLE_NAME } = require("../../enums/languages");
 const { errorCodes } = require("../../enums/error-code");
@@ -433,6 +433,34 @@ class UserService {
             throw new CatchException("Người dùng không phải là bạn đọc!", errorCodes.INVALID_DATA, {});
 
         await this.createEffectReader(+userExtend.effectiveTime, userExtend.id, account);
+    }
+
+    static async checkUserValidity(id, account, field) {
+        const whereCondition = {
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const user = await db.User.findOne({
+            where: { ...whereCondition, id },
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.UserHasEffect,
+                    as: "userHasEffect",
+                    required: false,
+                    where: whereCondition,
+                    attributes: ["id", "startDay", "endDay"],
+                    order: [["createdAt", "DESC"]],
+                    limit: 1,
+                },
+            ],
+        });
+
+        const endDay = user.userHasEffect?.[0]?.endDay;
+
+        if (endDay && getStartOfDay(endDay) / 1000 < getStartOfDay(new Date()) / 1000)
+            throw new CatchException("Bạn đọc này đã hết hạn!", errorCodes.RESOURCE_HAS_EXPIRED, { field: field });
     }
 }
 
