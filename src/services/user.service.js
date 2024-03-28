@@ -44,9 +44,11 @@ class UserService {
 
             if (USER_TYPE.READER) {
                 if (!newUser.effectiveTime)
-                    throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA);
+                    throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA, {
+                        field: "effectiveTime",
+                    });
 
-                await this.createEffectReader(newUser.effectiveTime, user.id, account);
+                await this.createEffectReader(+newUser.effectiveTime, user.id, account, transaction);
             }
 
             await ActivityService.createActivity(
@@ -66,7 +68,23 @@ class UserService {
         }
     }
 
-    static async createEffectReader(effectiveTime, userId, account) {}
+    static async createEffectReader(effectiveTime, userId, account, transaction) {
+        const startDay = new Date();
+        const endDay = new Date();
+        endDay.setMonth(startDay.getMonth() + effectiveTime);
+
+        await db.UserHasEffect.create(
+            {
+                startDay,
+                endDay,
+                userId,
+                createdBy: account.id,
+                updatedBy: account.id,
+                schoolId: account.schoolId,
+            },
+            { transaction }
+        );
+    }
 
     static async updateUserById(updateUser, account) {
         let transaction;
@@ -209,6 +227,15 @@ class UserService {
             },
             include: [
                 {
+                    model: db.UserHasEffect,
+                    as: "userHasEffect",
+                    required: false,
+                    where: whereCommonCondition,
+                    attributes: ["id", "startDay", "endDay"],
+                    order: [["createdAt", "DESC"]],
+                    limit: 1,
+                },
+                {
                     model: db.ReaderGroup,
                     as: "readerGroup",
                     required: false,
@@ -285,6 +312,15 @@ class UserService {
                     where: whereCommonCondition,
                     required: false,
                     attributes: ["id", "groupName"],
+                },
+                {
+                    model: db.UserHasEffect,
+                    as: "userHasEffect",
+                    required: false,
+                    where: whereCommonCondition,
+                    attributes: ["id", "startDay", "endDay"],
+                    order: [["createdAt", "DESC"]],
+                    limit: 1,
                 },
                 {
                     model: db.ClassHasUser,
@@ -380,6 +416,23 @@ class UserService {
         }
 
         return newUserCode;
+    }
+
+    static async extendUser(userExtend, account) {
+        if (!userExtend.effectiveTime)
+            throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA, {
+                field: "effectiveTime",
+            });
+
+        const user = await db.User.findOne({
+            where: { id: userExtend.id, active: true, schoolId: account.schoolId },
+            attributes: ["id", "type"],
+        });
+
+        if (user.type != USER_TYPE.READER)
+            throw new CatchException("Người dùng không phải là bạn đọc!", errorCodes.INVALID_DATA, {});
+
+        await this.createEffectReader(+userExtend.effectiveTime, userExtend.id, account);
     }
 }
 

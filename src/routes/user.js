@@ -33,6 +33,15 @@ router.put(
     }
 );
 
+router.put("/:id/extend", async function (req, res, next) {
+    try {
+        const data = await UserController.extendUser(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.put("/delete", checkPermission([ROLES.USER_DELETE, ROLES.ACCOUNT_DELETE]), async function (req, res, next) {
     try {
         const data = await UserController.deleteUserByIds(req);

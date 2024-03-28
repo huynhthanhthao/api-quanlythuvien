@@ -39,7 +39,7 @@ class BookController {
 
     static async updateBookById(req) {
         const { id } = req.params;
-        const newPhotoURL = req.file?.path;
+        const newPhotoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
 

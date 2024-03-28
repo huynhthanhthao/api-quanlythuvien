@@ -75,6 +75,11 @@ class UserController {
 
         return transformer(await UserService.deleteUserByIds(ids, req.account), "Cập nhật thành công.");
     }
+
+    static async extendUser(req) {
+        const { id } = req.params;
+        return transformer(await UserService.extendUser({ id, ...req.body }, req.account), "Cập nhật thành công.");
+    }
 }
 
 module.exports = UserController;

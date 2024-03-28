@@ -31,6 +31,7 @@ const corsOptions = {
     credentials: false, //access-control-allow-credentials:true
     optionSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: false }));
