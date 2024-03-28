@@ -11,6 +11,7 @@ const TABLE_NAME = {
     SETTING: "SETTING",
     ACCOUNT: "ACCOUNT",
     USER: "USER",
+    CARD_OPENING_FEE: "CARD_OPENING_FEE",
 };
 
 module.exports = { TABLE_NAME };

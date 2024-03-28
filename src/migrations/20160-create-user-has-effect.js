@@ -36,6 +36,24 @@ module.exports = {
             active: {
                 type: Sequelize.BOOLEAN,
             },
+            createdBy: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "Accounts",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
+            },
+            updatedBy: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "Accounts",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
+            },
             createdAt: {
                 allowNull: false,
                 type: "TIMESTAMP",

@@ -21,7 +21,7 @@ class BookController {
     }
 
     static async createBook(req) {
-        const photoURL = req.files?.photoFile[0]?.path;
+        const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
 

@@ -53,6 +53,8 @@ const bookingBookRouter = require("./bookingForm");
 
 const publicRouter = require("./public");
 
+const cardOpeningFeeRouter = require("./cardOpeningFee");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -106,5 +108,7 @@ router.use("/permission", checkToken, permissionRouter);
 router.use("/booking-book", bookingBookRouter);
 
 router.use("/public", publicRouter);
+
+router.use("/card-opening-fee", checkToken, cardOpeningFeeRouter);
 
 module.exports = router;
