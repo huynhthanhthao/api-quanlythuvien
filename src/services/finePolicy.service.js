@@ -173,7 +173,7 @@ class FinePolicyService {
             account
         );
 
-        await db.FinePolicyHasBook.bulkCreate(dataInput);
+        await db.FinePolicyHasBook.bulkCreate(dataInput, { validate: true });
     }
 
     static async updatePolicyWithBook(finePolicyHasBook, account) {
@@ -373,12 +373,12 @@ class FinePolicyService {
             limit = null;
         }
 
-        const searchableBookFields = ["bookName"];
-
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
         };
+
+        const searchableBookFields = ["bookName"];
 
         const whereBookGroupCondition = {
             [Op.and]: [
@@ -389,6 +389,9 @@ class FinePolicyService {
                                 [Op.iLike]: `%${unidecode(keyword)}%`,
                             })
                         ),
+                        db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col("book.bookCode")), {
+                            [Op.iLike]: `%${unidecode(keyword)}%`,
+                        }),
                     ],
                 },
                 { active: true },
@@ -421,8 +424,8 @@ class FinePolicyService {
                     model: db.Book,
                     as: "book",
                     attributes: ["id", "bookCode"],
-                    required: bookCode ? true : false,
-                    where: { ...whereCondition, ...(bookCode && { bookCode: { [Op.iLike]: bookCode } }) },
+                    required: !!keyword,
+                    where: whereCondition,
                     include: [
                         {
                             model: db.BookGroup,
@@ -437,7 +440,7 @@ class FinePolicyService {
                     model: db.FinePolicy,
                     as: "finePolicy",
                     where: whereFinePolicyCondition,
-                    required: finePolicyIds.length > 0 ? true : false,
+                    required: keyword || finePolicyIds.length > 0 ? true : false,
                     attributes: ["id", "policyCode", "policyName"],
                 },
             ],

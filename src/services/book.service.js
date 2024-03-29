@@ -383,7 +383,6 @@ class BookService {
                         },
                     ],
                 },
-
                 {
                     model: db.Attachment,
                     required: false,
