@@ -31,7 +31,7 @@ router.put(
     ]),
     async function (req, res, next) {
         try {
-            const data = await BookController.updateBookById(req);
+            const data = await BookController.updateBookGroupById(req);
             return res.json(data);
         } catch (error) {
             next(error);
@@ -41,7 +41,16 @@ router.put(
 
 router.put("/delete", checkPermission([ROLES.BOOK_DELETE]), async function (req, res, next) {
     try {
-        const data = await BookController.deleteBookByIds(req);
+        const data = await BookController.deleteBookGroupByIds(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/:code/code", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
+    try {
+        const data = await BookController.getBookByCode(req);
         return res.json(data);
     } catch (error) {
         next(error);
@@ -59,7 +68,7 @@ router.get("/:id", checkPermission([ROLES.BOOK_VIEW]), async function (req, res,
 
 router.get("/", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
     try {
-        const data = await BookController.getBooks(req);
+        const data = await BookController.getBookGroups(req);
         return res.json(data);
     } catch (error) {
         next(error);

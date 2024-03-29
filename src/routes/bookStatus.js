@@ -33,7 +33,7 @@ router.put("/:id", checkPermission([ROLES.BOOK_STATUS_UPDATE]), async function (
 
 router.get("/:id", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (req, res, next) {
     try {
-        const data = await BookStatusController.getBookStatusById(req);
+        const data = await BookStatusController.getBookGroupstatusById(req);
         return res.json(data);
     } catch (error) {
         next(error);
@@ -42,7 +42,7 @@ router.get("/:id", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (re
 
 router.get("/", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (req, res, next) {
     try {
-        const data = await BookStatusController.getBookStatuses(req);
+        const data = await BookStatusController.getBookGroupstatuses(req);
         return res.json(data);
     } catch (error) {
         next(error);

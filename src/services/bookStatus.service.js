@@ -7,7 +7,7 @@ const { errorCodes } = require("../../enums/error-code");
 const { getPagination } = require("../../utils/customer-sequelize");
 
 class BookStatusService {
-    static async getBookStatuses(query, account) {
+    static async getBookGroupstatuses(query, account) {
         let limit = +query.limit || DEFAULT_LIMIT;
         const page = +query.page || 1;
         const offset = (page - 1) * limit;
@@ -51,7 +51,7 @@ class BookStatusService {
         };
     }
 
-    static async getBookStatusById(id, account) {
+    static async getBookGroupstatusById(id, account) {
         const bookStatus = await db.BookStatus.findOne({
             where: { id, active: true, schoolId: account.schoolId },
             attributes: {

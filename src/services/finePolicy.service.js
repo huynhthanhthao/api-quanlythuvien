@@ -367,26 +367,29 @@ class FinePolicyService {
         const offset = (page - 1) * limit;
         const keyword = query.keyword?.trim() || "";
         const finePolicyIds = query.finePolicyIds ? convertToIntArray(query.finePolicyIds) : [];
+        const { bookCode } = query;
 
         if (query.unlimited && query.unlimited == UNLIMITED) {
             limit = null;
         }
 
-        const searchableBookFields = ["bookName", "bookCode"];
+        const searchableBookFields = ["bookName"];
 
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
         };
 
-        const whereBookCondition = {
+        const whereBookGroupCondition = {
             [Op.and]: [
                 keyword && {
-                    [Op.or]: searchableBookFields.map((field) =>
-                        db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(field)), {
-                            [Op.iLike]: `%${unidecode(keyword)}%`,
-                        })
-                    ),
+                    [Op.or]: [
+                        ...searchableBookFields.map((field) =>
+                            db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(`${field}`)), {
+                                [Op.iLike]: `%${unidecode(keyword)}%`,
+                            })
+                        ),
+                    ],
                 },
                 { active: true },
                 { schoolId: account.schoolId },
@@ -417,10 +420,18 @@ class FinePolicyService {
                 {
                     model: db.Book,
                     as: "book",
-                    where: whereCondition,
-                    attributes: ["id", "bookName", "bookCode"],
-                    required: keyword ? true : false,
-                    where: whereBookCondition,
+                    attributes: ["id", "bookCode"],
+                    required: bookCode ? true : false,
+                    where: { ...whereCondition, ...(bookCode && { bookCode: { [Op.iLike]: bookCode } }) },
+                    include: [
+                        {
+                            model: db.BookGroup,
+                            as: "bookGroup",
+                            attributes: ["bookName"],
+                            where: whereBookGroupCondition,
+                            required: true,
+                        },
+                    ],
                 },
                 {
                     model: db.FinePolicy,
@@ -431,6 +442,7 @@ class FinePolicyService {
                 },
             ],
             distinct: true,
+            duplicating: true,
         });
 
         const pagination = getPagination(count, limit, page);
@@ -494,9 +506,16 @@ class FinePolicyService {
                     model: db.Book,
                     as: "book",
                     where: whereCondition,
-                    attributes: ["id", "bookName", "bookCode"],
-                    where: whereCondition,
+                    attributes: ["id", "bookCode"],
                     required: false,
+                    where: whereCondition,
+                    include: [
+                        {
+                            model: db.BookGroup,
+                            as: "bookGroup",
+                            attributes: ["bookName"],
+                        },
+                    ],
                 },
                 {
                     model: db.FinePolicy,

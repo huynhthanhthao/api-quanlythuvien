@@ -7,14 +7,20 @@ const { checkIsDuplicates } = require("../../utils/customer-validate");
 const { QUERY_ONE_TYPE } = require("../../enums/common");
 
 class BookController {
-    static async getBooks(req) {
-        return transformer(await BookService.getBooks(req.query, req.account), "Lấy danh sách thành công.");
+    static async getBookGroups(req) {
+        return transformer(await BookService.getBookGroups(req.query, req.account), "Lấy danh sách thành công.");
     }
 
     static async getBookGroupById(req) {
         const { id } = req.params;
 
         return transformer(await BookService.getBookGroupById(id, req.account), "Lấy chi tiết thành công.");
+    }
+
+    static async getBookByCode(req) {
+        const { code } = req.params;
+
+        return transformer(await BookService.getBookByCode(code, req.account), "Lấy chi tiết thành công.");
     }
 
     static async createBook(req) {
@@ -35,7 +41,7 @@ class BookController {
         );
     }
 
-    static async updateBookById(req) {
+    static async updateBookGroupById(req) {
         const { id } = req.params;
         const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
@@ -49,7 +55,7 @@ class BookController {
         }
 
         return transformer(
-            await BookService.updateBookById(
+            await BookService.updateBookGroupById(
                 { ...req.body, photoURL, fieldIds, id, attachFiles, detailBooks },
                 req.account
             ),
@@ -57,10 +63,10 @@ class BookController {
         );
     }
 
-    static async deleteBookByIds(req) {
+    static async deleteBookGroupByIds(req) {
         const { ids } = req.body;
 
-        return transformer(await BookService.deleteBookByIds(ids, req.account), "Cập nhật thành công.");
+        return transformer(await BookService.deleteBookGroupByIds(ids, req.account), "Cập nhật thành công.");
     }
 }
 

@@ -11,9 +11,9 @@ const FieldService = require("../services/field.service");
 const CardOpeningRegistrationService = require("../services/cardOpeningRegistration.service");
 
 class PublicController {
-    static async getBooks(req) {
+    static async getBookGroups(req) {
         const schoolId = req.params?.schoolId || 0;
-        return transformer(await BookService.getBooks(req.query, { schoolId }), "Lấy danh sách thành công.");
+        return transformer(await BookService.getBookGroups(req.query, { schoolId }), "Lấy danh sách thành công.");
     }
 
     static async createBookingForm(req) {

@@ -3,17 +3,17 @@ const BookStatusService = require("../services/bookStatus.service");
 const db = require("../models");
 
 class BookStatusController {
-    static async getBookStatuses(req) {
+    static async getBookGroupstatuses(req) {
         return transformer(
-            await BookStatusService.getBookStatuses(req.query, req.account),
+            await BookStatusService.getBookGroupstatuses(req.query, req.account),
             "Lấy danh sách thành công."
         );
     }
 
-    static async getBookStatusById(req) {
+    static async getBookGroupstatusById(req) {
         const { id } = req.params;
 
-        return transformer(await BookStatusService.getBookStatusById(id, req.account), "Lấy chi tiết thành công.");
+        return transformer(await BookStatusService.getBookGroupstatusById(id, req.account), "Lấy chi tiết thành công.");
     }
 
     static async createBookStatus(req) {

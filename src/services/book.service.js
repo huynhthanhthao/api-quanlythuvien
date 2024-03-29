@@ -5,7 +5,11 @@ const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { CatchException } = require("../../utils/api-error");
 const ActivityService = require("./activityLog.service");
 const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
-const { mapResponseBookList, mapResponseBookItem } = require("../map-responses/book.map-response");
+const {
+    mapResponseBookGroupItem,
+    mapResponseBookGroupList,
+    mapResponseBookItem,
+} = require("../map-responses/book.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
 const { customerURL, convertToIntArray } = require("../../utils/server");
@@ -130,46 +134,50 @@ class BookService {
             });
     }
 
-    static async updateBookById(updateBook, account) {
+    static async updateBookGroupById(updateBookGroup, account) {
         let transaction;
         try {
             transaction = await db.sequelize.transaction();
             await db.BookGroup.update(
                 {
-                    id: updateBook.id,
-                    publisherId: updateBook.publisherId,
-                    categoryId: updateBook.categoryId,
-                    languageId: updateBook.languageId,
-                    bookName: updateBook.bookName,
-                    bookDes: updateBook.bookDes,
-                    otherName: updateBook.otherName,
-                    author: updateBook.author,
-                    pages: updateBook.pages,
-                    yearPublication: updateBook.yearPublication,
-                    rePublic: updateBook.rePublic,
-                    price: updateBook.price,
-                    photoURL: updateBook.photoURL,
-                    loanFee: updateBook.loanFee,
-                    penaltyApplied: updateBook.penaltyApplied,
-                    slug: updateBook.slug?.trim(),
+                    id: updateBookGroup.id,
+                    publisherId: updateBookGroup.publisherId,
+                    categoryId: updateBookGroup.categoryId,
+                    languageId: updateBookGroup.languageId,
+                    bookName: updateBookGroup.bookName,
+                    bookDes: updateBookGroup.bookDes,
+                    otherName: updateBookGroup.otherName,
+                    author: updateBookGroup.author,
+                    pages: updateBookGroup.pages,
+                    yearPublication: updateBookGroup.yearPublication,
+                    rePublic: updateBookGroup.rePublic,
+                    price: updateBookGroup.price,
+                    photoURL: updateBookGroup.photoURL,
+                    loanFee: updateBookGroup.loanFee,
+                    penaltyApplied: updateBookGroup.penaltyApplied,
+                    slug: updateBookGroup.slug?.trim(),
                     schoolId: account.schoolId,
                     updatedBy: account.id,
                 },
-                { where: { id: updateBook.id, active: true, schoolId: account.schoolId }, transaction }
+                { where: { id: updateBookGroup.id, active: true, schoolId: account.schoolId }, transaction }
             );
 
             // check book code valid
-            const detailBooks = updateBook.detailBooks || [];
+            const detailBooks = updateBookGroup.detailBooks || [];
+
+            // check book is borrowed but not found
+            const bookIds = detailBooks.map((book) => +book.id);
+            await this.checkBookBorrowedNotFound(updateBookGroup.id, bookIds, account);
 
             const bookCodes = detailBooks.map((book) => book.bookCode?.trim());
-            await this.checkBookCodeValid(updateBook.id, bookCodes, account);
+            await this.checkBookCodeValid(updateBookGroup.id, bookCodes, account);
 
-            const fieldIds = updateBook.fieldIds || [];
-            const attachFiles = updateBook.attachFiles || [];
+            const fieldIds = updateBookGroup.fieldIds || [];
+            const attachFiles = updateBookGroup.attachFiles || [];
 
             const fieldList = fieldIds.map((fieldId) => ({
                 fieldId,
-                bookGroupId: updateBook.id,
+                bookGroupId: updateBookGroup.id,
                 schoolId: account.schoolId,
                 createdBy: account.id,
                 updatedBy: account.id,
@@ -179,7 +187,7 @@ class BookService {
                 fileName: file.originalname,
                 fileType: file.mimetype,
                 fileURL: file.path,
-                bookGroupId: updateBook.id,
+                bookGroupId: updateBookGroup.id,
                 schoolId: account.schoolId,
                 createdBy: account.id,
                 updatedBy: account.id,
@@ -187,7 +195,7 @@ class BookService {
 
             const bookList = detailBooks.map((book) => ({
                 id: book.id,
-                bookGroupId: updateBook.id,
+                bookGroupId: updateBookGroup.id,
                 positionId: book.positionId,
                 bookCode: book.bookCode?.trim(),
                 statusId: book.statusId,
@@ -196,7 +204,7 @@ class BookService {
                 updatedBy: account.id,
             }));
 
-            const bulkUpdateCondition = { bookGroupId: updateBook.id, schoolId: account.schoolId };
+            const bulkUpdateCondition = { bookGroupId: updateBookGroup.id, schoolId: account.schoolId };
 
             await Promise.all([
                 bulkUpdate(attachFileData, db.Attachment, bulkUpdateCondition, account, transaction),
@@ -205,7 +213,7 @@ class BookService {
             ]);
 
             await ActivityService.createActivity(
-                { dataTarget: updateBook.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.UPDATED },
+                { dataTarget: updateBookGroup.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.UPDATED },
                 account,
                 transaction
             );
@@ -217,7 +225,42 @@ class BookService {
         }
     }
 
-    static async getBooks(query, account) {
+    static async checkBookBorrowedNotFound(bookGroupId, bookIds, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        const borrowedBooks = await db.Book.findAll({
+            where: whereCondition,
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.BookGroup,
+                    as: "bookGroup",
+                    attributes: ["id"],
+                    where: { ...whereCondition, id: bookGroupId },
+                    required: true,
+                },
+                {
+                    model: db.ReceiptHasBook,
+                    as: "receiptHasBook",
+                    attributes: ["id"],
+                    where: whereCondition,
+                    required: true,
+                },
+            ],
+        });
+
+        const borrowedBookIds = borrowedBooks.map((book) => +book.id) || [];
+
+        const uniqueBorrowedIds = borrowedBookIds.filter((id) => !bookIds.includes(id));
+
+        if (uniqueBorrowedIds.length > 0) {
+            throw new CatchException("Không tìm thấy mã ấn phẩm đang cho mượn trước đó!", errorCodes.DATA_IS_CONFLICT, {
+                field: "detailBooks",
+            });
+        }
+    }
+
+    static async getBookGroups(query, account) {
         let limit = +query.limit || DEFAULT_LIMIT;
         const page = +query.page || 1;
         const offset = (page - 1) * limit;
@@ -380,7 +423,7 @@ class BookService {
 
         return {
             pagination: pagination,
-            list: mapResponseBookList(rows),
+            list: mapResponseBookGroupList(rows),
         };
     }
 
@@ -469,39 +512,48 @@ class BookService {
 
         if (!bookGroup) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
-        return mapResponseBookItem(bookGroup);
+        return mapResponseBookGroupItem(bookGroup);
     }
 
-    static async deleteBookByIds(ids, account) {
+    static async deleteBookGroupByIds(ids, account) {
         let transaction;
         try {
             transaction = await db.sequelize.transaction();
             const whereCondition = { active: true, schoolId: account.schoolId };
 
-            const bookHasLoanReceipt = await db.Book.findAll({
+            const bookGroupHasLoanReceipt = await db.BookGroup.findAll({
                 where: { ...whereCondition, id: { [Op.in]: ids } },
-                attributes: ["id", "bookCode"],
+                attributes: ["id"],
                 include: [
                     {
-                        model: db.ReceiptHasBook,
-                        as: "receiptHasBook",
+                        model: db.Book,
+                        as: "detailBooks",
                         attributes: ["id"],
                         where: { ...whereCondition },
                         required: true,
+                        include: [
+                            {
+                                model: db.ReceiptHasBook,
+                                as: "receiptHasBook",
+                                attributes: ["id"],
+                                where: { ...whereCondition },
+                                required: true,
+                            },
+                        ],
                     },
                 ],
             });
 
-            const borrowedBookIds = bookHasLoanReceipt.map((book) => +book.id);
+            const borrowedBookGroupIds = bookGroupHasLoanReceipt.map((book) => +book.id);
 
-            const validBookIds = ids.filter((id) => !borrowedBookIds.includes(+id));
+            const validBookGroupIds = ids.filter((id) => !borrowedBookGroupIds.includes(+id));
 
-            await db.Book.update(
+            await db.BookGroup.update(
                 {
                     active: false,
                     updatedBy: account.id,
                 },
-                { where: { id: { [Op.in]: validBookIds }, active: true, schoolId: account.schoolId }, transaction }
+                { where: { id: { [Op.in]: validBookGroupIds }, active: true, schoolId: account.schoolId }, transaction }
             );
 
             await db.FieldHasBook.update(
@@ -509,12 +561,25 @@ class BookService {
                     active: false,
                     updatedBy: account.id,
                 },
-                { where: { bookId: { [Op.in]: validBookIds }, active: true, schoolId: account.schoolId }, transaction }
+                {
+                    where: { bookGroupId: { [Op.in]: validBookGroupIds }, active: true, schoolId: account.schoolId },
+                    transaction,
+                }
+            );
+
+            const bookIds = await this.getBookIdsByBookGroupId(validBookGroupIds, account);
+
+            await db.Book.update(
+                {
+                    active: false,
+                    updatedBy: account.id,
+                },
+                { where: { id: { [Op.in]: bookIds }, active: true, schoolId: account.schoolId }, transaction }
             );
 
             await ActivityService.createActivity(
                 {
-                    dataTarget: JSON.stringify(validBookIds),
+                    dataTarget: JSON.stringify(validBookGroupIds),
                     tableTarget: TABLE_NAME.BOOK,
                     action: ACTIVITY_TYPE.DELETED,
                 },
@@ -524,16 +589,109 @@ class BookService {
 
             await transaction.commit();
 
-            if (bookHasLoanReceipt.length > 0)
+            if (bookGroupHasLoanReceipt.length > 0)
                 throw new CatchException("Không thể xóa sách này!", errorCodes.DATA_IS_BINDING, {
                     field: "ids",
-                    ids: borrowedBookIds,
+                    ids: borrowedBookGroupIds,
                 });
         } catch (error) {
             if (error instanceof CatchException) throw error;
             await transaction.rollback();
             throw error;
         }
+    }
+
+    static async getBookByCode(bookCode, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        console.log(99999, bookCode);
+        const book = await db.Book.findOne({
+            where: { ...whereCondition, bookCode: { [Op.iLike]: bookCode } },
+            attributes: ["id", "bookCode"],
+            include: [
+                {
+                    model: db.BookGroup,
+                    as: "bookGroup",
+                    attributes: {
+                        exclude: [
+                            "updatedAt",
+                            "createdBy",
+                            "updatedBy",
+                            "active",
+                            "schoolId",
+                            "positionId",
+                            "statusId",
+                        ],
+                    },
+                    where: whereCondition,
+                    required: true,
+                    include: [
+                        {
+                            model: db.Category,
+                            as: "category",
+                            where: whereCondition,
+                            required: false,
+                            attributes: ["id", "categoryName"],
+                        },
+                        {
+                            model: db.Publisher,
+                            as: "publisher",
+                            attributes: ["id", "pubName"],
+                            where: whereCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.Language,
+                            as: "language",
+                            attributes: ["id", "lanName"],
+                            where: whereCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.FieldHasBook,
+                            as: "fieldHasBook",
+                            attributes: ["id"],
+                            required: false,
+                            where: whereCondition,
+                            include: [
+                                {
+                                    model: db.Field,
+                                    as: "field",
+                                    where: whereCondition,
+                                    required: false,
+                                    attributes: ["id", "fieldName"],
+                                },
+                            ],
+                        },
+                        {
+                            model: db.Attachment,
+                            required: false,
+                            as: "attachFiles",
+                            where: { active: true, schoolId: account.schoolId },
+                            attributes: ["id", "fileURL", "fileName"],
+                        },
+                    ],
+                },
+                {
+                    model: db.BookStatus,
+                    required: false,
+                    as: "status",
+                    where: whereCondition,
+                    attributes: ["id", "statusName"],
+                },
+                {
+                    model: db.Position,
+                    as: "position",
+                    required: false,
+                    attributes: ["id", "positionName"],
+                    where: whereCondition,
+                    required: false,
+                },
+            ],
+        });
+
+        if (!book) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
+
+        return mapResponseBookItem(book);
     }
 
     static async generateBookCode(schoolId) {

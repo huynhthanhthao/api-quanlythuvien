@@ -1,7 +1,7 @@
 const { LOAN_STATUS } = require("../../enums/common");
 const { fDate } = require("../../utils/server");
 
-module.exports.getBookStatus = function (receiptHasBook, bookLostReport) {
+module.exports.getBookGroupStatus = function (receiptHasBook, bookLostReport) {
     const lostBookIds = [];
 
     for (const bookLost of bookLostReport) {
@@ -10,16 +10,15 @@ module.exports.getBookStatus = function (receiptHasBook, bookLostReport) {
         });
     }
 
-
     return (
         receiptHasBook.map((receipt) => {
             return {
                 bookId: receipt?.book?.id || null,
                 type: lostBookIds.includes(+receipt?.book?.id) ? LOAN_STATUS.LOST : receipt.type,
                 bookCode: receipt?.book?.bookCode || null,
-                bookName: receipt?.book?.bookName,
+                bookName: receipt?.book?.bookGroup?.bookName,
                 bookStatusName: receipt?.book?.status?.statusName || null,
-                photoURL: receipt?.book?.photoURL || null,
+                photoURL: receipt?.book?.bookGroup?.photoURL || null,
                 loanFee: receipt.loanFee || 0,
             };
         }) || []
@@ -41,7 +40,7 @@ module.exports.mapResponseLoanReceiptList = function (loanReceiptList) {
             phone: loanReceipt.user?.phone || null,
             userId: loanReceipt.user?.id || null,
             email: loanReceipt.user?.email || null,
-            bookList: module.exports.getBookStatus(loanReceipt?.receiptHasBook, loanReceipt?.bookLostReport),
+            bookList: module.exports.getBookGroupStatus(loanReceipt?.receiptHasBook, loanReceipt?.bookLostReport),
         };
     });
 };

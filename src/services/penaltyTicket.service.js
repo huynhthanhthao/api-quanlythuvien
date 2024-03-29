@@ -61,7 +61,7 @@ class PenaltyTicketService {
             bookIds = bookIds.filter((bookId) => !bookIdNotApplyPenalties.includes(+bookId));
         }
         // Phạt sách đặt biệt
-        const bookSpecialWithFinePolicies = (await this.getBookSpecialWithFinePolicies(bookIds, account)) || [];
+        const bookSpecialWithFinePolicies = (await this.getBookGroupspecialWithFinePolicies(bookIds, account)) || [];
         for (const bookSpecial of bookSpecialWithFinePolicies) {
             const detailFinePolicy = bookSpecial?.finePolicyHasBook?.finePolicy?.detailFinePolicy;
             const finePolicy = bookSpecial?.finePolicyHasBook?.finePolicy;
@@ -170,7 +170,7 @@ class PenaltyTicketService {
         return penaltyTicket.id;
     }
 
-    static async getBookSpecialWithFinePolicies(bookIds, account) {
+    static async getBookGroupspecialWithFinePolicies(bookIds, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         return await db.Book.findAll({

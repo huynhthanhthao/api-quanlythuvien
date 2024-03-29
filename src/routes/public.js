@@ -85,7 +85,7 @@ router.get("/:schoolId/book/:keyword", async function (req, res, next) {
 
 router.get("/:schoolId/book", async function (req, res, next) {
     try {
-        const data = await PublicController.getBooks(req);
+        const data = await PublicController.getBookGroups(req);
         return res.json(data);
     } catch (error) {
         next(error);
