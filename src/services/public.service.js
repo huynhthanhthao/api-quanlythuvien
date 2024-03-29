@@ -53,7 +53,21 @@ class PublishService {
             // gửi email
             const books = await db.Book.findAll({
                 where: { ...whereCondition, id: { [Op.in]: bookIds } },
-                attributes: ["id", "bookCode", "bookName", "photoURL", "author"],
+                attributes: [
+                    "id",
+                    "bookCode",
+                    [db.sequelize.col("bookGroup.bookName"), "bookName"],
+                    [db.sequelize.col("bookGroup.author"), "author"],
+                ],
+                include: [
+                    {
+                        model: db.BookGroup,
+                        as: "bookGroup",
+                        where: whereCondition,
+                        attributes: [],
+                        required: true,
+                    },
+                ],
             });
 
             const school = await SchoolService.getSchoolByIdOrDomain({ keyword: account.schoolId });
@@ -82,7 +96,7 @@ class PublishService {
         let newFormCode = "PDT00001";
 
         if (highestBook && highestBook?.maxFormCode) {
-            const currentNumber = parseInt(highestBook.maxFormCode.slice(2), 10);
+            const currentNumber = parseInt(highestBook.maxFormCode.slice(3), 10);
             const nextNumber = currentNumber + 1;
             newFormCode = `PDT${nextNumber.toString().padStart(5, "0")}`;
         }
@@ -175,7 +189,7 @@ class PublishService {
         });
 
         const whereCondition = { active: true, schoolId: school.id };
-
+        console.log(9999, whereCondition);
         const bookingForm = await db.BookingBorrowForm.findOne({
             where: { ...whereCondition, token: data.token },
             include: [

@@ -75,7 +75,7 @@ class LoanReceiptService {
                 updatedBy: account.id,
             }));
 
-            await db.ReceiptHasBook.bulkCreate(receiptBookData, { transaction });
+            await db.ReceiptHasBook.bulkCreate(receiptBookData, { transaction, validate: true });
 
             await ActivityService.createActivity(
                 { dataTarget: loanReceipt.id, tableTarget: TABLE_NAME.LOAN_RECEIPT, action: ACTIVITY_TYPE.CREATED },

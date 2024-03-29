@@ -113,6 +113,6 @@ router.use("/card-opening-fee", checkToken, cardOpeningFeeRouter);
 
 router.use("/public", publicRouter);
 
-router.use("/card-registration", cardOpeningRegistrationRouter);
+router.use("/card-registration", checkToken, cardOpeningRegistrationRouter);
 
 module.exports = router;
