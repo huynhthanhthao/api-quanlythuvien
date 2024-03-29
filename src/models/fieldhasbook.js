@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            FieldHasBook.belongsTo(models.Book, {
+            FieldHasBook.belongsTo(models.BookGroup, {
                 foreignKey: "bookGroupId",
-                as: "book",
+                as: "bookList",
             });
 
             FieldHasBook.belongsTo(models.Field, {
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
                     notEmpty: true,
                     isNumeric: true,
                     async checkForeignKey(value) {
-                        await checkForeignKey(value, sequelize.models.Book, {
+                        await checkForeignKey(value, sequelize.models.BookGroup, {
                             schoolId: this.schoolId,
                         });
                     },

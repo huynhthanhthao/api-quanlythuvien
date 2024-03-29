@@ -102,12 +102,29 @@ class ReportService {
 
         const dataReport = await db.ReceiptHasBook.findAll({
             where: whereCondition,
-            attributes: ["id", [db.sequelize.col("book.bookName"), "bookName"], "createdAt"],
+            attributes: [
+                "id",
+                "createdAt",
+                [db.sequelize.col("book.bookGroup.bookName"), "bookName"],
+                [db.sequelize.col("book.bookGroup.author"), "author"],
+                [db.sequelize.col("book.bookCode"), "bookCode"],
+            ],
             include: [
                 {
                     model: db.Book,
                     as: "book",
+                    where: {
+                        [Op.and]: whereCondition,
+                    },
                     attributes: [],
+                    include: [
+                        {
+                            model: db.BookGroup,
+                            as: "bookGroup",
+                            where: whereCondition,
+                            attributes: [],
+                        },
+                    ],
                 },
             ],
             limit: 10,
@@ -127,6 +144,7 @@ class ReportService {
                 "bookCode",
                 [db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "totalLoans"],
                 [db.sequelize.col("bookGroup.bookName"), "bookName"],
+                [db.sequelize.col("bookGroup.author"), "author"],
             ],
             include: [
                 {
@@ -148,7 +166,7 @@ class ReportService {
                     attributes: [],
                 },
             ],
-            group: ["Book.id", "receiptHasBook.id", "bookGroup.id"],
+            group: ["Book.id", "bookGroup.id"],
             having: db.sequelize.literal('COUNT("receiptHasBook"."id") > 0'),
             order: [[db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "DESC"]],
             limit: 10,
@@ -221,13 +239,24 @@ class ReportService {
                     required: false,
                     include: [
                         {
-                            model: db.Book,
-                            as: "book",
-                            where: {
-                                [Op.and]: [whereCondition],
-                            },
+                            model: db.BookGroup,
+                            as: "bookList",
+                            where: whereCondition,
+                            include: [
+                                {
+                                    model: db.Book,
+                                    as: "detailBooks",
+                                    where: {
+                                        [Op.and]: [
+                                            whereCondition,
+                                            { createdAt: { [Op.gte]: getStartOfYear(year) } },
+                                            { createdAt: { [Op.lte]: getEndOfYear(year) } },
+                                        ],
+                                    },
+                                    attributes: [],
+                                },
+                            ],
                             attributes: [],
-                            required: false,
                         },
                     ],
                 },

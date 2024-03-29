@@ -37,7 +37,19 @@ class PenaltyTicketService {
 
         if (setting.noSpecialPenalties) {
             const bookNotApplyPenalties = await db.Book.findAll({
-                where: { ...whereCondition, id: { [Op.in]: bookIds }, penaltyApplied: false },
+                where: {
+                    ...whereCondition,
+                    id: { [Op.in]: bookIds },
+                    include: [
+                        {
+                            model: db.BookGroup,
+                            as: "bookGroup",
+                            where: { ...whereCondition, penaltyApplied: false },
+                            required: true,
+                            attributes: ["id"],
+                        },
+                    ],
+                },
                 attributes: ["id"],
             });
 
@@ -61,7 +73,7 @@ class PenaltyTicketService {
             bookIds = bookIds.filter((bookId) => !bookIdNotApplyPenalties.includes(+bookId));
         }
         // Phạt sách đặt biệt
-        const bookSpecialWithFinePolicies = (await this.getBookGroupspecialWithFinePolicies(bookIds, account)) || [];
+        const bookSpecialWithFinePolicies = (await this.getBookSpecialWithFinePolicies(bookIds, account)) || [];
         for (const bookSpecial of bookSpecialWithFinePolicies) {
             const detailFinePolicy = bookSpecial?.finePolicyHasBook?.finePolicy?.detailFinePolicy;
             const finePolicy = bookSpecial?.finePolicyHasBook?.finePolicy;
@@ -120,8 +132,6 @@ class PenaltyTicketService {
             ],
         });
 
-        console.log(99999, finePolicyDefault);
-
         for (const bookId of bookIds) {
             const { returnDate } = bookList.find((book) => book.id == bookId);
             const detailFinePolicy = finePolicyDefault?.detailFinePolicy;
@@ -170,7 +180,7 @@ class PenaltyTicketService {
         return penaltyTicket.id;
     }
 
-    static async getBookGroupspecialWithFinePolicies(bookIds, account) {
+    static async getBookSpecialWithFinePolicies(bookIds, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
         return await db.Book.findAll({
