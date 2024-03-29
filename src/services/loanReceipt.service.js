@@ -388,25 +388,21 @@ class LoanReceiptService {
                             as: "book",
                             where: whereCondition,
                             required: false,
-                            attributes: {
-                                exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-                            },
+                            attributes: ["id", "bookCode"],
                             include: [
                                 {
                                     model: db.BookStatus,
                                     as: "status",
                                     where: whereCondition,
                                     required: false,
-                                    attributes: {
-                                        exclude: [
-                                            "createdAt",
-                                            "updatedAt",
-                                            "createdBy",
-                                            "updatedBy",
-                                            "active",
-                                            "schoolId",
-                                        ],
-                                    },
+                                    attributes: ["statusName"],
+                                },
+                                {
+                                    model: db.BookGroup,
+                                    as: "bookGroup",
+                                    where: whereCondition,
+                                    required: false,
+                                    attributes: ["bookName", "photoURL"],
                                 },
                             ],
                         },

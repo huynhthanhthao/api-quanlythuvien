@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const db = require("../models");
 const { mapResponseBorrowReturnReport, mapResponseReaderReport } = require("../map-responses/report.map-response");
 const { USER_TYPE } = require("../../enums/common");
+const { getStartOfYear, getEndOfYear, convertDate } = require("../../utils/server");
 
 class ReportService {
     static async borrowReturnReport(query, account) {
@@ -123,12 +124,9 @@ class ReportService {
             where: whereCondition,
             attributes: [
                 "id",
-                "bookName",
                 "bookCode",
-                "author",
-                "photoURL",
                 [db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "totalLoans"],
-                [db.sequelize.col("category.categoryName"), "categoryName"],
+                [db.sequelize.col("bookGroup.bookName"), "bookName"],
             ],
             include: [
                 {
@@ -145,12 +143,12 @@ class ReportService {
                     required: false,
                 },
                 {
-                    model: db.Category,
-                    as: "category",
+                    model: db.BookGroup,
+                    as: "bookGroup",
                     attributes: [],
                 },
             ],
-            group: ["Book.id", "category.id"],
+            group: ["Book.id", "receiptHasBook.id", "bookGroup.id"],
             having: db.sequelize.literal('COUNT("receiptHasBook"."id") > 0'),
             order: [[db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "DESC"]],
             limit: 10,
@@ -162,27 +160,35 @@ class ReportService {
 
     static async getCategoryBookCounts(year, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
-
         const dataReport = await db.Category.findAll({
             where: whereCondition,
-            attributes: [
-                "categoryCode",
-                "categoryName",
-                [db.sequelize.fn("COUNT", db.sequelize.col("bookList.id")), "totalBooks"],
-            ],
             include: [
                 {
-                    model: db.Book,
+                    model: db.BookGroup,
                     as: "bookList",
-                    where: {
-                        [Op.and]: [
-                            whereCondition,
-                            db.sequelize.literal(`EXTRACT(year FROM "bookList"."createdAt") = ${year}`),
-                        ],
-                    },
+                    where: whereCondition,
+                    include: [
+                        {
+                            model: db.Book,
+                            as: "detailBooks",
+                            where: {
+                                [Op.and]: [
+                                    whereCondition,
+                                    { createdAt: { [Op.gte]: getStartOfYear(year) } },
+                                    { createdAt: { [Op.lte]: getEndOfYear(year) } },
+                                ],
+                            },
+                            attributes: [],
+                        },
+                    ],
                     attributes: [],
-                    required: false,
                 },
+            ],
+            attributes: [
+                "id",
+                "categoryCode",
+                "categoryName",
+                [db.sequelize.fn("COUNT", db.sequelize.col("bookList.detailBooks.id")), "totalBooks"],
             ],
             group: ["Category.id"],
         });

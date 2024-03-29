@@ -108,3 +108,11 @@ module.exports.getDateNowTypeInt = function () {
 
     return midnightTimestamp;
 };
+
+module.exports.getStartOfYear = function (year) {
+    return new Date(year, 0, 1);
+};
+
+module.exports.getEndOfYear = function (year) {
+    return new Date(year, 11, 31, 23, 59, 59, 999);
+};

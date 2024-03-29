@@ -19,11 +19,11 @@ module.exports.mapResponseBookLostList = function (bookLostList) {
             bookList: bookLost.lostReportHasBook?.map((item) => ({
                 bookId: item?.book?.id || null,
                 bookCode: item?.book?.bookCode || null,
-                bookName: item?.book?.bookName || null,
-                otherName: item?.book?.otherName || null,
-                author: item?.book?.author || null,
-                price: item?.book?.price || null,
-                photoURL: item?.book?.photoURL || null,
+                bookName: item?.book?.bookGroup?.bookName || null,
+                otherName: item?.book?.bookGroup?.otherName || null,
+                author: item?.book?.bookGroup?.author || null,
+                price: item?.book?.bookGroup?.price || null,
+                photoURL: item?.book?.bookGroup?.photoURL || null,
             })),
         };
     });
@@ -48,11 +48,11 @@ module.exports.mapResponseBookLostItem = function (bookLost) {
               bookList: bookLost.lostReportHasBook?.map((item) => ({
                   bookId: item?.book?.id || null,
                   bookCode: item?.book?.bookCode || null,
-                  bookName: item?.book?.bookName || null,
-                  otherName: item?.book?.otherName || null,
-                  author: item?.book?.author || null,
-                  price: item?.book?.price || null,
-                  photoURL: item?.book?.photoURL || null,
+                  bookName: item?.book?.bookGroup?.bookName || null,
+                  otherName: item?.book?.bookGroup?.otherName || null,
+                  author: item?.book?.bookGroup?.author || null,
+                  price: item?.book?.bookGroup?.price || null,
+                  photoURL: item?.book?.bookGroup?.photoURL || null,
               })),
           }
         : null;

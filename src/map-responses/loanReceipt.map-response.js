@@ -64,9 +64,9 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
             type: receipt.type || null,
             loanFee: receipt.loanFee || 0,
             bookCode: receipt?.book?.bookCode || null,
-            bookName: receipt?.book?.bookName,
+            bookName: receipt?.book?.bookGroup?.bookName || null,
             bookStatusName: receipt?.book?.status?.statusName || null,
-            photoURL: receipt?.book?.photoURL || null,
+            photoURL: receipt?.book?.bookGroup?.photoURL || null,
         })),
     };
 };
