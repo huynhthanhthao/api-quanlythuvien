@@ -17,26 +17,6 @@ module.exports = (sequelize, DataTypes) => {
                 as: "position",
             });
 
-            Book.belongsTo(models.Publisher, {
-                foreignKey: "publisherId",
-                as: "publisher",
-            });
-
-            Book.belongsTo(models.Category, {
-                foreignKey: "categoryId",
-                as: "category",
-            });
-
-            Book.belongsTo(models.Language, {
-                foreignKey: "languageId",
-                as: "language",
-            });
-
-            Book.hasMany(models.FieldHasBook, {
-                foreignKey: "bookId",
-                as: "fieldHasBook",
-            });
-
             Book.belongsTo(models.BookStatus, {
                 foreignKey: "statusId",
                 as: "status",
@@ -57,9 +37,9 @@ module.exports = (sequelize, DataTypes) => {
                 as: "bookingHasBook",
             });
 
-            Book.hasMany(models.Attachment, {
-                foreignKey: "bookId",
-                as: "attachFiles",
+            Book.belongsTo(models.BookGroup, {
+                foreignKey: "bookGroupId",
+                as: "bookGroup",
             });
         }
     }
@@ -68,25 +48,25 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            positionId: {
-                type: DataTypes.BIGINT,
-                validate: {
-                    notEmpty: true,
-                    async checkEmptyForeignKey(value) {
-                        await checkEmptyForeignKey(value, sequelize.models.Position, {
-                            schoolId: this.schoolId,
-                        });
-                    },
-                },
-            },
-            publisherId: {
+            bookGroupId: {
                 type: DataTypes.BIGINT,
                 allowNull: false,
                 validate: {
                     notEmpty: true,
                     isNumeric: true,
                     async checkForeignKey(value) {
-                        await checkForeignKey(value, sequelize.models.Publisher, {
+                        await checkForeignKey(value, sequelize.models.BookGroup, {
+                            schoolId: this.schoolId,
+                        });
+                    },
+                },
+            },
+            positionId: {
+                type: DataTypes.BIGINT,
+                validate: {
+                    notEmpty: true,
+                    async checkEmptyForeignKey(value) {
+                        await checkEmptyForeignKey(value, sequelize.models.Position, {
                             schoolId: this.schoolId,
                         });
                     },
@@ -100,32 +80,6 @@ module.exports = (sequelize, DataTypes) => {
                     isNumeric: true,
                     async checkForeignKey(value) {
                         await checkForeignKey(value, sequelize.models.BookStatus, {
-                            schoolId: this.schoolId,
-                        });
-                    },
-                },
-            },
-            categoryId: {
-                type: DataTypes.BIGINT,
-                allowNull: false,
-                validate: {
-                    notEmpty: true,
-                    isNumeric: true,
-                    async checkForeignKey(value) {
-                        await checkForeignKey(value, sequelize.models.Category, {
-                            schoolId: this.schoolId,
-                        });
-                    },
-                },
-            },
-            languageId: {
-                type: DataTypes.BIGINT,
-                allowNull: false,
-                validate: {
-                    notEmpty: true,
-                    isNumeric: true,
-                    async checkForeignKey(value) {
-                        await checkForeignKey(value, sequelize.models.Language, {
                             schoolId: this.schoolId,
                         });
                     },
@@ -147,69 +101,6 @@ module.exports = (sequelize, DataTypes) => {
                         });
                     },
                 },
-            },
-            bookName: {
-                type: DataTypes.TEXT,
-                allowNull: false,
-                validate: {
-                    notEmpty: true,
-                },
-            },
-            bookDes: {
-                type: DataTypes.TEXT,
-            },
-            otherName: {
-                type: DataTypes.TEXT,
-                validate: {
-                    len: {
-                        args: [0, 255],
-                    },
-                },
-            },
-            author: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                validate: {
-                    len: {
-                        args: [0, 255],
-                    },
-                    notEmpty: true,
-                },
-            },
-            pages: {
-                type: DataTypes.INTEGER,
-                validate: {
-                    isNumeric: true,
-                },
-            },
-            yearPublication: {
-                type: DataTypes.INTEGER,
-                validate: {
-                    isNumeric: true,
-                },
-            },
-            rePublic: {
-                type: DataTypes.INTEGER,
-                validate: {
-                    isNumeric: true,
-                },
-            },
-            price: {
-                type: DataTypes.DOUBLE,
-                validate: {
-                    isNumeric: true,
-                },
-            },
-            loanFee: {
-                type: DataTypes.DOUBLE,
-            },
-            penaltyApplied: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: true,
-            },
-            photoURL: {
-                type: DataTypes.TEXT,
-                defaultValue: BOOK_URL_DEFAULT,
             },
             active: {
                 type: DataTypes.BOOLEAN,

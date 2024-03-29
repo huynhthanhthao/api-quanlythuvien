@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            bookId: {
+            bookGroupId: {
                 type: DataTypes.BIGINT,
             },
             fileName: {

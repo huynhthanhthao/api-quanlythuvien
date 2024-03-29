@@ -1,5 +1,6 @@
 const { CatchException } = require("./api-error");
 const { errorCodes } = require("../enums/error-code");
+const { Op } = require("sequelize");
 
 module.exports.checkForeignKey = async function (value = 0, model, options) {
     const data = await model.findOne({
@@ -23,7 +24,7 @@ module.exports.checkEmptyForeignKey = async function (value = 0, model, options)
 module.exports.isUnique = async function (options) {
     const { field, value, model, extraConditions, id } = options;
 
-    const whereClause = { [field]: value, active: true, ...(extraConditions || {}) };
+    const whereClause = { [field]: { [Op.iLike]: value?.trim() }, active: true, ...(extraConditions || {}) };
     const data = await model.findOne({ where: whereClause });
 
     if (data && id != data.id && value) {
@@ -109,4 +110,19 @@ module.exports.checkIsDuplicates = function (arr) {
         hash[arr[i]] = true;
     }
     return false;
+};
+
+module.exports.checkStringIsDuplicates = function (arr) {
+    var hash = {};
+
+    for (var i = 0; i < arr.length; i++) {
+        // Trim whitespace and convert string to lower case
+        var normalizedString = arr[i].trim().toLowerCase();
+
+        if (hash[normalizedString]) {
+            return true; // Duplicate found
+        }
+        hash[normalizedString] = true;
+    }
+    return false; // No duplicates found
 };

@@ -4,6 +4,7 @@ const db = require("../models");
 const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
 const { checkIsDuplicates } = require("../../utils/customer-validate");
+const { QUERY_ONE_TYPE } = require("../../enums/common");
 
 class BookController {
     static async getBooks(req) {
@@ -12,7 +13,7 @@ class BookController {
 
     static async getBookByIdOrCode(req) {
         const { keyword } = req.params;
-        const type = req.query?.type || 0;
+        const type = req.query?.type || QUERY_ONE_TYPE.ID;
 
         return transformer(
             await BookService.getBookByIdOrCode({ keyword, type }, req.account),
@@ -24,6 +25,7 @@ class BookController {
         const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
+        const detailBooks = JSON.parse(req.body.detailBooks || []) || [];
 
         if (checkIsDuplicates(fieldIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
@@ -32,18 +34,17 @@ class BookController {
         }
 
         return transformer(
-            await BookService.createBook({ ...req.body, fieldIds, photoURL, attachFiles }, req.account),
+            await BookService.createBook({ ...req.body, fieldIds, photoURL, attachFiles, detailBooks }, req.account),
             "Đã thêm dữ liệu sách mới."
         );
     }
 
     static async updateBookById(req) {
         const { id } = req.params;
-        const newPhotoURL = req.files?.photoFile?.[0]?.path;
+        const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-
-        console.log(attachFiles);
+        const detailBooks = JSON.parse(req.body.detailBooks || []) || [];
 
         if (checkIsDuplicates(fieldIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
@@ -52,7 +53,10 @@ class BookController {
         }
 
         return transformer(
-            await BookService.updateBookById({ ...req.body, newPhotoURL, fieldIds, id, attachFiles }, req.account),
+            await BookService.updateBookById(
+                { ...req.body, photoURL, fieldIds, id, attachFiles, detailBooks },
+                req.account
+            ),
             "Cập nhật thành công."
         );
     }

@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             FieldHasBook.belongsTo(models.Book, {
-                foreignKey: "bookId",
+                foreignKey: "bookGroupId",
                 as: "book",
             });
 
@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
                     },
                 },
             },
-            bookId: {
+            bookGroupId: {
                 type: DataTypes.BIGINT,
                 validate: {
                     notEmpty: true,

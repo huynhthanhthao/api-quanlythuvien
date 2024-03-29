@@ -27,33 +27,6 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            publisherId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "Publishers",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
-            },
-            categoryId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "Categories",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
-            },
-            languageId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "Languages",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
-            },
             statusId: {
                 type: Sequelize.BIGINT,
                 references: {
@@ -63,47 +36,20 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            penaltyApplied: {
-                type: Sequelize.BOOLEAN,
+            bookGroupId: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "BookGroups",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
             },
             bookCode: {
                 type: Sequelize.STRING,
             },
-            bookName: {
-                type: Sequelize.TEXT,
-            },
-            bookDes: {
-                type: Sequelize.TEXT,
-            },
-            otherName: {
-                type: Sequelize.TEXT,
-            },
-            author: {
-                type: Sequelize.STRING,
-            },
-            pages: {
-                type: Sequelize.INTEGER,
-            },
-            yearPublication: {
-                type: Sequelize.INTEGER,
-            },
-            rePublic: {
-                type: Sequelize.INTEGER,
-            },
-            price: {
-                type: Sequelize.DOUBLE,
-            },
-            photoURL: {
-                type: Sequelize.TEXT,
-            },
             active: {
                 type: Sequelize.BOOLEAN,
-            },
-            penaltyApplied: {
-                type: Sequelize.BOOLEAN,
-            },
-            loanFee: {
-                type: Sequelize.DOUBLE,
             },
             createdBy: {
                 type: Sequelize.BIGINT,

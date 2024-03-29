@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("FieldHasBooks", {
+        await queryInterface.createTable("BookGroups", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -18,26 +18,71 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            fieldId: {
+            publisherId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Fields",
+                    model: "Publishers",
                     key: "id",
                 },
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            bookGroupId: {
+            categoryId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "BookGroups",
+                    model: "Categories",
                     key: "id",
                 },
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
+            },
+            languageId: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "Languages",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
+            },
+            penaltyApplied: {
+                type: Sequelize.BOOLEAN,
+            },
+            bookName: {
+                type: Sequelize.TEXT,
+            },
+            bookDes: {
+                type: Sequelize.TEXT,
+            },
+            slug: {
+                type: Sequelize.STRING,
+            },
+            otherName: {
+                type: Sequelize.TEXT,
+            },
+            author: {
+                type: Sequelize.STRING,
+            },
+            pages: {
+                type: Sequelize.INTEGER,
+            },
+            yearPublication: {
+                type: Sequelize.INTEGER,
+            },
+            rePublic: {
+                type: Sequelize.INTEGER,
+            },
+            price: {
+                type: Sequelize.DOUBLE,
+            },
+            photoURL: {
+                type: Sequelize.TEXT,
             },
             active: {
                 type: Sequelize.BOOLEAN,
+            },
+            loanFee: {
+                type: Sequelize.DOUBLE,
             },
             createdBy: {
                 type: Sequelize.BIGINT,
@@ -71,6 +116,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("FieldHasBooks");
+        await queryInterface.dropTable("BookGroups");
     },
 };

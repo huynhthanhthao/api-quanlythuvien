@@ -18,10 +18,10 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            bookId: {
+            bookGroupId: {
                 type: Sequelize.BIGINT,
                 references: {
-                    model: "Books",
+                    model: "BookGroups",
                     key: "id",
                 },
                 onDelete: "SET NULL",
