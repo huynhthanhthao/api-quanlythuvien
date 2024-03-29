@@ -52,12 +52,12 @@ class PublicController {
         );
     }
 
-    static async getBookByIdOrCode(req) {
+    static async getBookGroupById(req) {
         const { keyword, schoolId = 0 } = req.params;
         const type = req.query?.type || 0;
 
         return transformer(
-            await BookService.getBookByIdOrCode({ keyword, type }, { schoolId }),
+            await BookService.getBookGroupById({ keyword, type }, { schoolId }),
             "Lấy chi tiết thành công."
         );
     }

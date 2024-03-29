@@ -186,6 +186,7 @@ class BookService {
             }));
 
             const bookList = detailBooks.map((book) => ({
+                id: book.id,
                 bookGroupId: updateBook.id,
                 positionId: book.positionId,
                 bookCode: book.bookCode?.trim(),
@@ -383,13 +384,13 @@ class BookService {
         };
     }
 
-    static async getBookById(id, account) {
+    static async getBookGroupById(id, account) {
         const whereCondition = {
             active: true,
             schoolId: account.schoolId,
         };
 
-        return await db.BookGroup.findOne({
+        const bookGroup = await db.BookGroup.findOne({
             where: { ...whereCondition, id },
             attributes: {
                 exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId", "positionId", "statusId"],
@@ -465,54 +466,10 @@ class BookService {
                 },
             ],
         });
-    }
 
-    static async getBookByCode(bookCode, account) {
-        const whereCondition = {
-            active: true,
-            schoolId: account.schoolId,
-        };
-        return await db.Book.findOne({
-            where: { ...whereCondition, bookCode: { [Op.iLike]: bookCode } },
-            attributes: {
-                exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
-            },
-            include: [
-                {
-                    model: db.BookGroup,
-                    as: "bookGroup",
-                    attributes: {
-                        exclude: [
-                            "updatedAt",
-                            "createdBy",
-                            "updatedBy",
-                            "active",
-                            "schoolId",
-                            "positionId",
-                            "statusId",
-                        ],
-                    },
-                    where: whereCondition,
-                    required: false,
-                },
-            ],
-        });
-    }
+        if (!bookGroup) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
-    static async getBookByIdOrCode(query, account) {
-        let book = null;
-
-        if (query.type == QUERY_ONE_TYPE.ID) {
-            book = await this.getBookById(query.keyword, account);
-        }
-
-        if (query.type == QUERY_ONE_TYPE.CODE) {
-            book = await this.getBookByCode(query.keyword, account);
-        }
-
-        if (!book) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
-
-        return query.type == QUERY_ONE_TYPE.ID ? mapResponseBookItem(book) : book;
+        return mapResponseBookItem(bookGroup);
     }
 
     static async deleteBookByIds(ids, account) {

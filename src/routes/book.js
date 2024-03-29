@@ -48,9 +48,9 @@ router.put("/delete", checkPermission([ROLES.BOOK_DELETE]), async function (req,
     }
 });
 
-router.get("/:keyword", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
+router.get("/:id", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
     try {
-        const data = await BookController.getBookByIdOrCode(req);
+        const data = await BookController.getBookGroupById(req);
         return res.json(data);
     } catch (error) {
         next(error);

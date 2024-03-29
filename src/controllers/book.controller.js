@@ -11,14 +11,10 @@ class BookController {
         return transformer(await BookService.getBooks(req.query, req.account), "Lấy danh sách thành công.");
     }
 
-    static async getBookByIdOrCode(req) {
-        const { keyword } = req.params;
-        const type = req.query?.type || QUERY_ONE_TYPE.ID;
+    static async getBookGroupById(req) {
+        const { id } = req.params;
 
-        return transformer(
-            await BookService.getBookByIdOrCode({ keyword, type }, req.account),
-            "Lấy chi tiết thành công."
-        );
+        return transformer(await BookService.getBookGroupById(id, req.account), "Lấy chi tiết thành công.");
     }
 
     static async createBook(req) {
