@@ -40,16 +40,16 @@ class PenaltyTicketService {
                 where: {
                     ...whereCondition,
                     id: { [Op.in]: bookIds },
-                    include: [
-                        {
-                            model: db.BookGroup,
-                            as: "bookGroup",
-                            where: { ...whereCondition, penaltyApplied: false },
-                            required: true,
-                            attributes: ["id"],
-                        },
-                    ],
                 },
+                include: [
+                    {
+                        model: db.BookGroup,
+                        as: "bookGroup",
+                        where: { ...whereCondition, penaltyApplied: false },
+                        required: true,
+                        attributes: ["id"],
+                    },
+                ],
                 attributes: ["id"],
             });
 
