@@ -14,7 +14,7 @@ const CardOpeningFeeService = require("../services/cardOpeningFee.service");
 class PublicController {
     static async getBookGroups(req) {
         const schoolId = req.params?.schoolId || 0;
-        return transformer(await BookService.getBookGroups(req.query, { schoolId }), "Lấy danh sách thành công.");
+        return transformer(await BookService.getPublicBookGroup(req.query, { schoolId }), "Lấy danh sách thành công.");
     }
 
     static async createBookingForm(req) {
@@ -53,12 +53,12 @@ class PublicController {
         );
     }
 
-    static async getBookGroupById(req) {
+    static async getBookGroupPublic(req) {
         const { keyword, schoolId = 0 } = req.params;
-        const type = req.query?.type || 0;
+        const { type } = req.query;
 
         return transformer(
-            await BookService.getBookGroupById({ keyword, type }, { schoolId }),
+            await BookService.getBookGroupPublic({ keyword, type }, { schoolId }),
             "Lấy chi tiết thành công."
         );
     }

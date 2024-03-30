@@ -62,8 +62,8 @@ class LoanReceiptService {
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
-                },
-                { transaction }
+                }
+                // { transaction }
             );
 
             const receiptBookData = newLoanReceipt?.books.map((book) => ({

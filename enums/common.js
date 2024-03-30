@@ -72,6 +72,7 @@ const QUERY_ONE_TYPE = {
     ID: 1,
     CODE: 2,
     DOMAIN: 3,
+    SLUG: 4,
 };
 
 module.exports = {

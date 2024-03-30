@@ -85,7 +85,7 @@ router.get("/:schoolId/card-opening-fee", async function (req, res, next) {
 
 router.get("/:schoolId/book/:keyword", async function (req, res, next) {
     try {
-        const data = await PublicController.getBookGroupById(req);
+        const data = await PublicController.getBookGroupPublic(req);
         return res.json(data);
     } catch (error) {
         next(error);

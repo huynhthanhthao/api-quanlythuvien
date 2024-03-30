@@ -114,3 +114,73 @@ module.exports.mapResponseBookItem = function (book) {
           }
         : null;
 };
+
+module.exports.mapResponseBookGroupListPublic = function (bookGroupList) {
+    return bookGroupList.map((bookGroup) => {
+        return {
+            id: bookGroup.id,
+            bookName: bookGroup.bookName,
+            bookDes: bookGroup.bookDes,
+            otherName: bookGroup.otherName,
+            author: bookGroup.author,
+            pages: bookGroup.pages,
+            slug: bookGroup.slug,
+            yearPublication: bookGroup.yearPublication,
+            rePublic: bookGroup.rePublic,
+            price: bookGroup.price,
+            loanFee: bookGroup.loanFee,
+            photoURL: customerURL(bookGroup.photoURL),
+            penaltyApplied: bookGroup.penaltyApplied,
+            createdAt: fDate(bookGroup.createdAt),
+            categoryName: bookGroup.category?.categoryName || null,
+            pubName: bookGroup.publisher?.pubName || null,
+            lanName: bookGroup.language?.lanName || null,
+            fieldList: bookGroup.fieldHasBook?.map((item) => item?.field?.fieldName) || [],
+            attachFiles: bookGroup?.attachFiles?.map((file) => ({
+                fileName: file.fileName,
+                fileURL: customerURL(file.fileURL),
+            })),
+            detailBooks: bookGroup?.detailBooks?.map((book) => ({
+                bookId: book.id || null,
+                bookCode: book.bookCode || null,
+                statusName: book?.status?.statusName || null,
+                positionName: book?.position?.positionName || null,
+                isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+            })),
+        };
+    });
+};
+
+module.exports.mapResponseBookGroupItemPublic = function (bookGroup) {
+    return {
+        id: bookGroup.id,
+        bookName: bookGroup.bookName,
+        bookDes: bookGroup.bookDes,
+        otherName: bookGroup.otherName,
+        author: bookGroup.author,
+        pages: bookGroup.pages,
+        slug: bookGroup.slug,
+        yearPublication: bookGroup.yearPublication,
+        rePublic: bookGroup.rePublic,
+        price: bookGroup.price,
+        loanFee: bookGroup.loanFee,
+        photoURL: customerURL(bookGroup.photoURL),
+        penaltyApplied: bookGroup.penaltyApplied,
+        createdAt: fDate(bookGroup.createdAt),
+        categoryName: bookGroup.category?.categoryName || null,
+        pubName: bookGroup.publisher?.pubName || null,
+        lanName: bookGroup.language?.lanName || null,
+        fieldList: bookGroup.fieldHasBook?.map((item) => item?.field?.fieldName) || [],
+        attachFiles: bookGroup?.attachFiles?.map((file) => ({
+            fileName: file.fileName,
+            fileURL: customerURL(file.fileURL),
+        })),
+        detailBooks: bookGroup?.detailBooks?.map((book) => ({
+            bookId: book.id || null,
+            bookCode: book.bookCode || null,
+            statusName: book?.status?.statusName || null,
+            positionName: book?.position?.positionName || null,
+            isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+        })),
+    };
+};

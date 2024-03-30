@@ -9,11 +9,13 @@ const {
     mapResponseBookGroupItem,
     mapResponseBookGroupList,
     mapResponseBookItem,
+    mapResponseBookGroupListPublic,
+    mapResponseBookGroupItemPublic,
 } = require("../map-responses/book.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
-const { customerURL, convertToIntArray } = require("../../utils/server");
-const { checkIsDuplicates, checkStringIsDuplicates } = require("../../utils/customer-validate");
+const { convertToIntArray } = require("../../utils/server");
+const { checkStringIsDuplicates } = require("../../utils/customer-validate");
 
 class BookService {
     static async createBook(newBook, account) {
@@ -547,6 +549,8 @@ class BookService {
 
             const validBookGroupIds = ids.filter((id) => !borrowedBookGroupIds.includes(+id));
 
+            console.log(borrowedBookGroupIds, validBookGroupIds, 9999);
+
             await db.BookGroup.update(
                 {
                     active: false,
@@ -598,6 +602,17 @@ class BookService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    static async getBookIdsByBookGroupId(bookGroupIds, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const books = await db.Book.findAll({
+            where: { ...whereCondition, bookGroupId: { [Op.in]: bookGroupIds } },
+
+            attributes: ["id"],
+        });
+
+        return books.map((book) => +book.id);
     }
 
     static async getBookByCode(bookCode, account) {
@@ -691,6 +706,287 @@ class BookService {
         if (!book) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
         return mapResponseBookItem(book);
+    }
+
+    static async getPublicBookGroup(query, account) {
+        let limit = +query.limit || DEFAULT_LIMIT;
+        const page = +query.page || 1;
+        const offset = (page - 1) * limit;
+        const keyword = query.keyword?.trim() || "";
+        const publisherIds = query.publisherIds ? convertToIntArray(query.publisherIds) : [];
+        const languageIds = query.languageIds ? convertToIntArray(query.languageIds) : [];
+        const fieldIds = query.fieldIds ? convertToIntArray(query.fieldIds) : [];
+        const rePublics = query.rePublics ? convertToIntArray(query.rePublics) : [];
+        const statusIds = query.statusIds ? convertToIntArray(query.statusIds) : [];
+        const categoryIds = query.categoryIds ? convertToIntArray(query.categoryIds) : [];
+        const positionIds = query.positionIds ? convertToIntArray(query.positionIds) : [];
+
+        if (query.unlimited && query.unlimited == UNLIMITED) {
+            limit = null;
+        }
+
+        const searchableFields = ["bookName", "author", "otherName"];
+
+        const whereBookGroupCondition = {
+            [Op.and]: [
+                query.rePublics?.length > 0 && { rePublic: { [Op.in]: rePublics } },
+                keyword && {
+                    [Op.or]: [
+                        ...searchableFields.map((field) =>
+                            db.sequelize.where(db.sequelize.fn("unaccent", db.sequelize.col(field)), {
+                                [Op.iLike]: `%${unidecode(keyword)}%`,
+                            })
+                        ),
+                    ],
+                },
+                { active: true },
+                { schoolId: account.schoolId },
+            ].filter(Boolean),
+        };
+
+        const wherePublisherCondition = {
+            ...(publisherIds.length > 0 && { id: { [Op.in]: publisherIds } }),
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const whereLanguageCondition = {
+            ...(languageIds.length > 0 && { id: { [Op.in]: languageIds } }),
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const whereFieldCondition = {
+            ...(fieldIds.length > 0 && { fieldId: { [Op.in]: fieldIds } }),
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const whereCategoryCondition = {
+            ...(categoryIds.length > 0 && { id: { [Op.in]: categoryIds } }),
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const whereDetailBookCondition = {
+            ...(statusIds.length > 0 && { statusId: { [Op.in]: statusIds } }),
+            ...(positionIds.length > 0 && { positionId: { [Op.in]: positionIds } }),
+            active: true,
+            schoolId: account.schoolId,
+        };
+        const whereCommonCondition = { active: true, schoolId: account.schoolId };
+
+        const { rows, count } = await db.BookGroup.findAndCountAll({
+            where: whereBookGroupCondition,
+            limit,
+            offset,
+            order: [["createdAt", "DESC"]],
+            attributes: {
+                exclude: [
+                    "updatedAt",
+                    "createdBy",
+                    "updatedBy",
+                    "active",
+                    "schoolId",
+                    "publisherId",
+                    "categoryId",
+                    "languageId",
+                ],
+            },
+            include: [
+                {
+                    model: db.Category,
+                    as: "category",
+                    where: whereCategoryCondition,
+                    required: categoryIds.length > 0 ? true : false,
+                    attributes: ["id", "categoryName"],
+                },
+                {
+                    model: db.Publisher,
+                    as: "publisher",
+                    attributes: ["id", "pubName"],
+                    where: wherePublisherCondition,
+                    required: publisherIds.length > 0 ? true : false,
+                },
+                {
+                    model: db.Language,
+                    as: "language",
+                    attributes: ["id", "lanName"],
+                    where: whereLanguageCondition,
+                    required: languageIds.length > 0 ? true : false,
+                },
+                {
+                    model: db.FieldHasBook,
+                    as: "fieldHasBook",
+                    attributes: ["id"],
+                    required: fieldIds.length > 0 ? true : false,
+                    where: whereFieldCondition,
+                    include: [
+                        {
+                            model: db.Field,
+                            as: "field",
+                            where: whereCommonCondition,
+                            required: false,
+                            attributes: ["id", "fieldName"],
+                        },
+                    ],
+                },
+                {
+                    model: db.Attachment,
+                    required: false,
+                    as: "attachFiles",
+                    where: whereCommonCondition,
+                    attributes: ["id", "fileURL", "fileName"],
+                },
+                {
+                    model: db.Book,
+                    as: "detailBooks",
+                    where: whereDetailBookCondition,
+                    required: statusIds.length > 0 || positionIds.length > 0 ? true : false,
+                    attributes: ["bookCode", "id"],
+                    include: [
+                        {
+                            model: db.BookStatus,
+                            required: false,
+                            as: "status",
+                            where: whereCommonCondition,
+                            attributes: ["id", "statusName"],
+                        },
+                        {
+                            model: db.Position,
+                            as: "position",
+                            required: false,
+                            attributes: ["id", "positionName"],
+                            where: whereCommonCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.ReceiptHasBook,
+                            as: "receiptHasBook",
+                            required: false,
+                            attributes: ["id"],
+                            where: { ...whereCommonCondition, type: LOAN_STATUS.BORROWING },
+                            required: false,
+                            limit: 1,
+                        },
+                    ],
+                },
+            ],
+            distinct: true,
+        });
+
+        const pagination = getPagination(count, limit, page);
+
+        return {
+            pagination: pagination,
+            list: mapResponseBookGroupListPublic(rows),
+        };
+    }
+
+    static async getBookGroupPublic(query, account) {
+        const { keyword } = query;
+        const type = query.type || QUERY_ONE_TYPE.SLUG;
+
+        const whereCondition = {
+            active: true,
+            schoolId: account.schoolId,
+        };
+
+        const whereBookGroupCondition = { active: true, schoolId: account.schoolId };
+
+        if (type == QUERY_ONE_TYPE.ID) whereBookGroupCondition.id = keyword;
+
+        if (type == QUERY_ONE_TYPE.SLUG) whereBookGroupCondition.slug = { [Op.iLike]: keyword };
+
+        const bookGroup = await db.BookGroup.findOne({
+            where: { ...whereBookGroupCondition },
+            attributes: {
+                exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId", "positionId", "statusId"],
+            },
+            include: [
+                {
+                    model: db.Category,
+                    as: "category",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id", "categoryName"],
+                },
+                {
+                    model: db.Publisher,
+                    as: "publisher",
+                    attributes: ["id", "pubName"],
+                    where: whereCondition,
+                    required: false,
+                },
+                {
+                    model: db.Language,
+                    as: "language",
+                    attributes: ["id", "lanName"],
+                    where: whereCondition,
+                    required: false,
+                },
+                {
+                    model: db.FieldHasBook,
+                    as: "fieldHasBook",
+                    attributes: ["id"],
+                    required: false,
+                    where: whereCondition,
+                    include: [
+                        {
+                            model: db.Field,
+                            as: "field",
+                            where: whereCondition,
+                            required: false,
+                            attributes: ["id", "fieldName"],
+                        },
+                    ],
+                },
+                {
+                    model: db.Attachment,
+                    required: false,
+                    as: "attachFiles",
+                    where: whereCondition,
+                    attributes: ["id", "fileURL", "fileName"],
+                },
+                {
+                    model: db.Book,
+                    as: "detailBooks",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["bookCode", "id"],
+                    include: [
+                        {
+                            model: db.BookStatus,
+                            required: false,
+                            as: "status",
+                            where: whereCondition,
+                            attributes: ["id", "statusName"],
+                        },
+                        {
+                            model: db.Position,
+                            as: "position",
+                            required: false,
+                            attributes: ["id", "positionName"],
+                            where: whereCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.ReceiptHasBook,
+                            as: "receiptHasBook",
+                            required: false,
+                            attributes: ["id"],
+                            where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
+                            required: false,
+                            limit: 1,
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!bookGroup) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
+
+        return mapResponseBookGroupItemPublic(bookGroup);
     }
 
     static async generateBookCode(schoolId) {

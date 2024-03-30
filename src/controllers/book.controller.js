@@ -4,7 +4,6 @@ const db = require("../models");
 const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
 const { checkIsDuplicates } = require("../../utils/customer-validate");
-const { QUERY_ONE_TYPE } = require("../../enums/common");
 
 class BookController {
     static async getBookGroups(req) {
