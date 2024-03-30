@@ -1,10 +1,12 @@
-const { Op } = require("sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
-const { CatchException } = require("../../utils/api-error");
 const db = require("../models");
+const { Op } = require("sequelize");
 const unidecode = require("unidecode");
-const { errorCodes } = require("../../enums/error-code");
 const { getPagination } = require("../../utils/customer-sequelize");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
+const ActivityService = require("./activityLog.service");
+const { CatchException } = require("../../utils/api-error");
 
 class BookStatusService {
     static async getBookGroupstatuses(query, account) {
@@ -51,7 +53,7 @@ class BookStatusService {
         };
     }
 
-    static async getBookGroupstatusById(id, account) {
+    static async getBookGroupStatusById(id, account) {
         const bookStatus = await db.BookStatus.findOne({
             where: { id, active: true, schoolId: account.schoolId },
             attributes: {
@@ -65,11 +67,51 @@ class BookStatusService {
         return bookStatus;
     }
 
-    static async createBookStatus(newBookStatus, account) {}
+    static async createBookStatus(newBookStatus, account) {
+        const status = await db.BookStatus.create({
+            statusName: newBookStatus.statusName,
+            statusDes: newBookStatus.statusDes,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        });
 
-    static async updateBookStatusById(updateBookStatus, account) {}
+        await ActivityService.createActivity(
+            { dataTarget: status.id, tableTarget: TABLE_NAME.BOOK_STATUS, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
+    }
 
-    static async deleteBookStatusByIds(ids, account) {}
+    static async updateBookStatusById(updateBookStatus, account) {
+        await db.BookStatus.update(
+            {
+                statusName: updateBookStatus.statusName,
+                statusDes: updateBookStatus.statusDes,
+                updatedBy: account.id,
+            },
+            { where: { id: updateBookStatus.id, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateBookStatus.id, tableTarget: TABLE_NAME.BOOK_STATUS, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
+    }
+
+    static async deleteBookStatusByIds(ids, account) {
+        await db.BookStatus.update(
+            {
+                active: false,
+                updatedBy: account.id,
+            },
+            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.BOOK_STATUS, action: ACTIVITY_TYPE.DELETED },
+            account
+        );
+    }
 }
 
 module.exports = BookStatusService;

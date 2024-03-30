@@ -10,10 +10,10 @@ class BookStatusController {
         );
     }
 
-    static async getBookGroupstatusById(req) {
+    static async getBookGroupStatusById(req) {
         const { id } = req.params;
 
-        return transformer(await BookStatusService.getBookGroupstatusById(id, req.account), "Lấy chi tiết thành công.");
+        return transformer(await BookStatusService.getBookGroupStatusById(id, req.account), "Lấy chi tiết thành công.");
     }
 
     static async createBookStatus(req) {

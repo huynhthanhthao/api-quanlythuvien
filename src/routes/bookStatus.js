@@ -22,7 +22,7 @@ router.put("/delete", checkPermission([ROLES.BOOK_STATUS_DELETE]), async functio
     }
 });
 
-router.put("/:id", checkPermission([ROLES.BOOK_STATUS_UPDATE]), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.BOOK_STATUS_UPDATE]), async function (req, res, next) {
     try {
         const data = await BookStatusController.updateBookStatusById(req);
         return res.json(data);
@@ -33,7 +33,7 @@ router.put("/:id", checkPermission([ROLES.BOOK_STATUS_UPDATE]), async function (
 
 router.get("/:id", checkPermission([ROLES.BOOK_STATUS_VIEW]), async function (req, res, next) {
     try {
-        const data = await BookStatusController.getBookGroupstatusById(req);
+        const data = await BookStatusController.getBookGroupStatusById(req);
         return res.json(data);
     } catch (error) {
         next(error);

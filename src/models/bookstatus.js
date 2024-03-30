@@ -19,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
             },
             statusName: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             statusDes: {
                 type: DataTypes.TEXT,

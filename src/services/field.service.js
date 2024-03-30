@@ -1,12 +1,12 @@
+const unidecode = require("unidecode");
+const db = require("../models");
 const { Op } = require("sequelize");
 const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
-const { CatchException } = require("../../utils/api-error");
-const db = require("../models");
-const unidecode = require("unidecode");
-const { errorCodes } = require("../../enums/error-code");
-const { getPagination } = require("../../utils/customer-sequelize");
-const { TABLE_NAME } = require("../../enums/languages");
 const ActivityService = require("./activityLog.service");
+const { CatchException } = require("../../utils/api-error");
+const { errorCodes } = require("../../enums/error-code");
+const { TABLE_NAME } = require("../../enums/languages");
+const { getPagination } = require("../../utils/customer-sequelize");
 
 class FieldService {
     static async getFields(query, account) {
