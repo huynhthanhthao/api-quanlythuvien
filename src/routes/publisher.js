@@ -22,7 +22,7 @@ router.put("/delete", checkPermission([ROLES.PUBLISHER_DELETE]), async function 
     }
 });
 
-router.put("/:id", checkPermission([ROLES.PUBLISHER_UPDATE]), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.PUBLISHER_UPDATE]), async function (req, res, next) {
     try {
         const data = await PublisherController.updatePublisherById(req);
         return res.json(data);

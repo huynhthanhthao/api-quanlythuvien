@@ -15,6 +15,7 @@ const TABLE_NAME = {
     BOOKING_BOOK_FORM: "BOOKING_BOOK_FORM",
     FIELD: "FIELD",
     BOOK_STATUS: "BOOK_STATUS",
+    PUBLISHER: "PUBLISHER",
 };
 
 module.exports = { TABLE_NAME };

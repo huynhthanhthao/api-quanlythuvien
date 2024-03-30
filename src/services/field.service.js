@@ -117,15 +117,15 @@ class FieldService {
     }
 
     static async generateFieldCode(schoolId) {
-        const { dataValues: highestBook } = (await db.Field.findOne({
+        const { dataValues: highestField } = (await db.Field.findOne({
             attributes: [[db.sequelize.fn("MAX", db.sequelize.col("fieldCode")), "maxFieldCode"]],
             where: { schoolId },
         })) || { dataValues: null };
 
         let newFieldCode = "LV0001";
 
-        if (highestBook && highestBook?.maxFieldCode) {
-            const currentNumber = parseInt(highestBook.maxFieldCode.slice(2), 10);
+        if (highestField && highestField?.maxFieldCode) {
+            const currentNumber = parseInt(highestField.maxFieldCode.slice(2), 10);
             const nextNumber = currentNumber + 1;
             newFieldCode = `LV${nextNumber.toString().padStart(4, "0")}`;
         }
