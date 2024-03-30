@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            CardOpeningRegistration.belongsTo(models.CardOpeningFee, {
+                foreignKey: "feeId",
+                as: "cardOpeningFee",
+            });
         }
     }
     CardOpeningRegistration.init(
@@ -59,20 +63,6 @@ module.exports = (sequelize, DataTypes) => {
                     len: {
                         args: [0, 255],
                     },
-                    async isUnique(value) {
-                        await isUnique({
-                            id: this.id,
-                            field: "email",
-                            value,
-                            model: sequelize.models.CardOpeningRegistration,
-                            extraConditions: {
-                                schoolId: this.schoolId,
-                                id: {
-                                    [Op.not]: this.id,
-                                },
-                            },
-                        });
-                    },
                     isEmail(value) {
                         isEmail(value);
                     },
@@ -82,22 +72,13 @@ module.exports = (sequelize, DataTypes) => {
             phone: {
                 type: DataTypes.STRING,
                 validate: {
-                    async isUnique(value) {
-                        await isUnique({
-                            field: "phone",
-                            value,
-                            model: sequelize.models.User,
-                            extraConditions: {
-                                schoolId: this.schoolId,
-                                id: {
-                                    [Op.not]: this.id,
-                                },
-                            },
-                        });
+                    len: {
+                        args: [0, 255],
                     },
                     isPhone(value) {
                         isPhone(value);
                     },
+                    notEmpty: true,
                 },
             },
             photo3x4: {
