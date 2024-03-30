@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class ReaderGroup extends Model {
@@ -23,15 +24,42 @@ module.exports = (sequelize, DataTypes) => {
             },
             groupName: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             groupCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 50],
+                    },
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "groupCode",
+                            value,
+                            model: sequelize.models.ReaderGroup,
+                            extraConditions: { schoolId: this.schoolId },
+                        });
+                    },
+                    notEmpty: true,
+                },
             },
             quantityLimit: {
                 type: DataTypes.INTEGER,
+                allowNull: false,
+                validate: { isNumeric: true, notEmpty: true },
             },
             timeLimit: {
                 type: DataTypes.INTEGER,
+                allowNull: false,
+                validate: { isNumeric: true, notEmpty: true },
             },
             groupDes: {
                 type: DataTypes.TEXT,

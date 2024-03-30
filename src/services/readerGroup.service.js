@@ -1,10 +1,12 @@
+const unidecode = require("unidecode");
 const { Op } = require("sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
+const db = require("../models");
+const { TABLE_NAME } = require("../../enums/languages");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
+const ActivityService = require("./activityLog.service");
 const { getPagination } = require("../../utils/customer-sequelize");
-const db = require("../models");
-const unidecode = require("unidecode");
 
 class ReaderGroupService {
     static async getReaderGroups(query, account) {
@@ -91,6 +93,94 @@ class ReaderGroupService {
             });
 
         return { quantityLimit: readerGroup.quantityLimit, timeLimit: readerGroup.timeLimit } || null;
+    }
+
+    static async createReaderGroup(newReaderGroup, account) {
+        const groupCode = await this.generateReaderGroupCode(account.schoolId);
+
+        const readerGroup = await db.ReaderGroup.create({
+            groupCode,
+            groupName: newReaderGroup.groupName,
+            groupDes: newReaderGroup.groupDes,
+            quantityLimit: newReaderGroup.quantityLimit,
+            timeLimit: newReaderGroup.timeLimit,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        });
+
+        await ActivityService.createActivity(
+            { dataTarget: readerGroup.id, tableTarget: TABLE_NAME.READER_GROUP, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
+    }
+
+    static async updateReaderGroupById(updateReaderGroup, account) {
+        await db.ReaderGroup.update(
+            {
+                groupName: updateReaderGroup.groupName,
+                groupDes: updateReaderGroup.groupDes,
+                quantityLimit: updateReaderGroup.quantityLimit,
+                timeLimit: updateReaderGroup.timeLimit,
+                updatedBy: account.id,
+            },
+            { where: { id: updateReaderGroup.id, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateReaderGroup.id, tableTarget: TABLE_NAME.READER_GROUP, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
+    }
+
+    static async deleteReaderGroupByIds(ids, account) {
+        const whereCondition = { active: true, schoolId: account.id };
+
+        const groupHasReader = await db.ReaderGroup.findAll({
+            where: whereCondition,
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.User,
+                    as: "userList",
+                    where: whereCondition,
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
+        });
+
+        const groupHasReaderIds = groupHasReader.map((group) => group.id);
+
+        await db.ReaderGroup.update(
+            {
+                active: false,
+                updatedBy: account.id,
+            },
+            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.FIELD, action: ACTIVITY_TYPE.DELETED },
+            account
+        );
+    }
+
+    static async generateReaderGroupCode(schoolId) {
+        const { dataValues: highestReaderGroup } = (await db.ReaderGroup.findOne({
+            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("groupCode")), "maxReaderGroupCode"]],
+            where: { schoolId },
+        })) || { dataValues: null };
+
+        let newReaderGroupCode = "NBD0001";
+
+        if (highestReaderGroup && highestReaderGroup?.maxReaderGroupCode) {
+            const currentNumber = parseInt(highestReaderGroup.maxReaderGroupCode.slice(3), 10);
+            const nextNumber = currentNumber + 1;
+            newReaderGroupCode = `NBD${nextNumber.toString().padStart(4, "0")}`;
+        }
+
+        return newReaderGroupCode;
     }
 }
 

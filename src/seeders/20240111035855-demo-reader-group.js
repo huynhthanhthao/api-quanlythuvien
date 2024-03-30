@@ -6,7 +6,7 @@ module.exports = {
             {
                 schoolId: 1,
                 groupName: "Giảng viên",
-                groupCode: "RG00001",
+                groupCode: "NBD00001",
                 quantityLimit: 10,
                 timeLimit: 30,
                 groupDes: "Nhóm bạn đọc là giảng viên",
@@ -19,7 +19,7 @@ module.exports = {
             {
                 schoolId: 1,
                 groupName: "Sinh viên",
-                groupCode: "RG00002",
+                groupCode: "NBD00002",
                 quantityLimit: 15,
                 timeLimit: 45,
                 groupDes: "Nhóm bạn đọc là sinh viên",
@@ -32,7 +32,7 @@ module.exports = {
             {
                 schoolId: 2,
                 groupName: "Người đi làm",
-                groupCode: "RG00003",
+                groupCode: "NBD00003",
                 quantityLimit: 15,
                 timeLimit: 45,
                 groupDes: "Nhóm bạn đọc là người đi làm",

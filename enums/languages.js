@@ -16,6 +16,7 @@ const TABLE_NAME = {
     FIELD: "FIELD",
     BOOK_STATUS: "BOOK_STATUS",
     PUBLISHER: "PUBLISHER",
+    READER_GROUP: "READER_GROUP",
 };
 
 module.exports = { TABLE_NAME };
