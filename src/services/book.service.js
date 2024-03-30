@@ -719,6 +719,7 @@ class BookService {
         const statusIds = query.statusIds ? convertToIntArray(query.statusIds) : [];
         const categoryIds = query.categoryIds ? convertToIntArray(query.categoryIds) : [];
         const positionIds = query.positionIds ? convertToIntArray(query.positionIds) : [];
+        const ids = query.ids ? convertToIntArray(query.ids) : [];
 
         if (query.unlimited && query.unlimited == UNLIMITED) {
             limit = null;
@@ -729,6 +730,7 @@ class BookService {
         const whereBookGroupCondition = {
             [Op.and]: [
                 query.rePublics?.length > 0 && { rePublic: { [Op.in]: rePublics } },
+                query.ids?.length > 0 && { id: { [Op.in]: ids } },
                 keyword && {
                     [Op.or]: [
                         ...searchableFields.map((field) =>
