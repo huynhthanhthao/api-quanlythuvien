@@ -87,6 +87,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             bookCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 validate: {
                     len: {
                         args: [0, 50],
@@ -100,6 +101,7 @@ module.exports = (sequelize, DataTypes) => {
                             extraConditions: { schoolId: this.schoolId },
                         });
                     },
+                    notEmpty: true,
                 },
             },
             active: {

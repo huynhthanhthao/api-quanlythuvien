@@ -22,7 +22,7 @@ router.put("/delete", checkPermission([ROLES.FIELD_DELETE]), async function (req
     }
 });
 
-router.put("/:id", checkPermission([ROLES.FIELD_UPDATE]), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.FIELD_UPDATE]), async function (req, res, next) {
     try {
         const data = await FieldController.updateFieldById(req);
         return res.json(data);

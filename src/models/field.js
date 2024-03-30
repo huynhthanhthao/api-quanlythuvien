@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class Field extends Model {
@@ -23,9 +24,32 @@ module.exports = (sequelize, DataTypes) => {
             },
             fieldName: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             fieldCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 50],
+                    },
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "fieldCode",
+                            value,
+                            model: sequelize.models.Field,
+                            extraConditions: { schoolId: this.schoolId },
+                        });
+                    },
+                    notEmpty: true,
+                },
             },
             fieldDes: {
                 type: DataTypes.TEXT,

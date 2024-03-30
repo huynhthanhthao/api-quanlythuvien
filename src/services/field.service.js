@@ -1,10 +1,12 @@
 const { Op } = require("sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
 const { CatchException } = require("../../utils/api-error");
 const db = require("../models");
 const unidecode = require("unidecode");
 const { errorCodes } = require("../../enums/error-code");
 const { getPagination } = require("../../utils/customer-sequelize");
+const { TABLE_NAME } = require("../../enums/languages");
+const ActivityService = require("./activityLog.service");
 
 class FieldService {
     static async getFields(query, account) {
@@ -65,11 +67,71 @@ class FieldService {
         return field;
     }
 
-    static async createField(newField, account) {}
+    static async createField(newField, account) {
+        const fieldCode = await this.generateFieldCode(account.schoolId);
 
-    static async updateFieldById(updateField, account) {}
+        const field = await db.Field.create({
+            fieldCode,
+            fieldName: newField.fieldName,
+            fieldDes: newField.fieldDes,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        });
 
-    static async deleteFieldByIds(ids, account) {}
+        await ActivityService.createActivity(
+            { dataTarget: field.id, tableTarget: TABLE_NAME.FIELD, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
+    }
+
+    static async updateFieldById(updateField, account) {
+        await db.Field.update(
+            {
+                fieldName: updateField.fieldName,
+                fieldDes: updateField.fieldDes,
+                updatedBy: account.id,
+            },
+            { where: { id: updateField.id, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateField.id, tableTarget: TABLE_NAME.FIELD, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
+    }
+
+    static async deleteFieldByIds(ids, account) {
+        await db.Field.update(
+            {
+                active: false,
+                updatedBy: account.id,
+            },
+            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.FIELD, action: ACTIVITY_TYPE.DELETED },
+            account
+        );
+    }
+
+    static async generateFieldCode(schoolId) {
+        const { dataValues: highestBook } = (await db.Field.findOne({
+            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("fieldCode")), "maxFieldCode"]],
+            where: { schoolId },
+        })) || { dataValues: null };
+
+        let newFieldCode = "LV0001";
+
+        if (highestBook && highestBook?.maxFieldCode) {
+            const currentNumber = parseInt(highestBook.maxFieldCode.slice(2), 10);
+            const nextNumber = currentNumber + 1;
+            newFieldCode = `LV${nextNumber.toString().padStart(4, "0")}`;
+        }
+
+        return newFieldCode;
+    }
 }
 
 module.exports = FieldService;
