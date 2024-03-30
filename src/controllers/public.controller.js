@@ -9,6 +9,7 @@ const PublisherService = require("../services/publisher.service");
 const LanguageService = require("../services/language.service");
 const FieldService = require("../services/field.service");
 const CardOpeningRegistrationService = require("../services/cardOpeningRegistration.service");
+const CardOpeningFeeService = require("../services/cardOpeningFee.service");
 
 class PublicController {
     static async getBookGroups(req) {
@@ -102,6 +103,15 @@ class PublicController {
                 { schoolId }
             ),
             "Đã thêm dữ liệu đăng ký mở thẻ mới."
+        );
+    }
+
+    static async getCardOpeningFees(req) {
+        const { schoolId = 0 } = req.params;
+
+        return transformer(
+            await CardOpeningFeeService.getCardOpeningFees(req.query, { schoolId }),
+            "Lấy danh sách hành công."
         );
     }
 }

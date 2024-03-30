@@ -74,6 +74,15 @@ router.get("/:schoolId/field", async function (req, res, next) {
     }
 });
 
+router.get("/:schoolId/card-opening-fee", async function (req, res, next) {
+    try {
+        const data = await PublicController.getCardOpeningFees(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get("/:schoolId/book/:keyword", async function (req, res, next) {
     try {
         const data = await PublicController.getBookGroupById(req);
