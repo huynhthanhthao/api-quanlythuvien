@@ -40,6 +40,11 @@ module.exports.mapResponseLoanReceiptList = function (loanReceiptList) {
             phone: loanReceipt.user?.phone || null,
             userId: loanReceipt.user?.id || null,
             email: loanReceipt.user?.email || null,
+            extensionHistory:
+                loanReceipt?.extensionHistory?.map((history) => ({
+                    returnDate: fDate(history?.returnDate),
+                    createdAt: fDate(history?.createdAt),
+                })) || [],
             bookList: module.exports.getBookGroupStatus(loanReceipt?.receiptHasBook, loanReceipt?.bookLostReport),
         };
     });

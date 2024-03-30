@@ -275,6 +275,13 @@ class LoanReceiptService {
                     },
                 },
                 {
+                    model: db.ExtensionHistory,
+                    as: "extensionHistory",
+                    where: whereUserCondition,
+                    required: keyword || readerCode ? true : false,
+                    attributes: ["returnDate", "createdAt"],
+                },
+                {
                     model: db.BookLostReport,
                     as: "bookLostReport",
                     where: whereCommonCondition,
@@ -666,6 +673,36 @@ class LoanReceiptService {
             },
             account
         );
+    }
+
+    static async extendLoanReceiptById(loanReceipt, account) {
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
+
+            const whereCondition = { active: true, schoolId: account.schoolId };
+
+            await db.LoanReceipt.update(
+                { returnDate: loanReceipt.returnDate, updatedBy: account.id },
+                { where: { ...whereCondition, id: loanReceipt.id }, transaction }
+            );
+
+            await db.ExtensionHistory.create(
+                {
+                    loanReceiptId: loanReceipt.id,
+                    returnDate: loanReceipt.returnDate,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                    schoolId: account.schoolId,
+                },
+                { transaction }
+            );
+
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 }
 

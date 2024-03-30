@@ -42,6 +42,15 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
+            createdBy: {
+                type: Sequelize.BIGINT,
+                references: {
+                    model: "Accounts",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
+            },
             createdAt: {
                 allowNull: false,
                 type: "TIMESTAMP",

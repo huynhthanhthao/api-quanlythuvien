@@ -40,6 +40,15 @@ router.put("/:id/update", checkPermission([ROLES.LOAN_RECEIPT_UPDATE]), async fu
     }
 });
 
+router.put("/:id/extend", async function (req, res, next) {
+    try {
+        const data = await LoanReceiptController.extendLoanReceiptById(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get("/:keyword", checkPermission([ROLES.LOAN_RECEIPT_VIEW]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.getLoanReceiptByIdOrCode(req);

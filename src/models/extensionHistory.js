@@ -18,15 +18,6 @@ module.exports = (sequelize, DataTypes) => {
             schoolId: {
                 type: DataTypes.BIGINT,
             },
-            userId: {
-                type: DataTypes.BIGINT,
-                references: {
-                    model: "Users",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
-            },
             loanReceiptId: {
                 type: DataTypes.BIGINT,
             },

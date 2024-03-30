@@ -106,6 +106,26 @@ class LoanReceiptController {
 
         return transformer(await LoanReceiptService.deleteLoanReceiptByIds(ids, req.account), "Cập nhật thành công.");
     }
+
+    static async extendLoanReceiptById(req) {
+        const { id } = req.params;
+        let { returnDate } = req.body;
+        const returnDateTime = new Date(convertDate(returnDate)).getTime() / 1000;
+        const nowDateTime = getDateNowTypeInt();
+
+        if ((!isDate(returnDate) && returnDate) || returnDateTime < nowDateTime) {
+            throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ!", errorCodes.DATA_INCORRECT_FORMAT, {
+                field: "returnDate",
+            });
+        }
+
+        returnDate = convertDate(returnDate);
+
+        return transformer(
+            await LoanReceiptService.extendLoanReceiptById({ id, ...req.body, returnDate }, req.account),
+            "Cập nhật thành công."
+        );
+    }
 }
 
 module.exports = LoanReceiptController;

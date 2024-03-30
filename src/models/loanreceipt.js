@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "loanReceiptId",
                 as: "bookLostReport",
             });
+
+            LoanReceipt.hasMany(models.ExtensionHistory, {
+                foreignKey: "loanReceiptId",
+                as: "extensionHistory",
+            });
         }
     }
     LoanReceipt.init(
