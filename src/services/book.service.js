@@ -617,7 +617,6 @@ class BookService {
 
     static async getBookByCode(bookCode, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
-        console.log(99999, bookCode);
         const book = await db.Book.findOne({
             where: { ...whereCondition, bookCode: { [Op.iLike]: bookCode } },
             attributes: ["id", "bookCode"],

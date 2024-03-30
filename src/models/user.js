@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
                 as: "readerGroup",
             });
 
+            User.belongsTo(models.School, {
+                foreignKey: "schoolId",
+                as: "school",
+            });
+
             User.hasMany(models.ClassHasUser, {
                 foreignKey: "userId",
                 as: "classHasUser",

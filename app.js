@@ -1,4 +1,3 @@
-const multer = require("multer");
 const express = require("express");
 const HttpStatus = require("http-status-codes");
 const path = require("path");
@@ -13,8 +12,8 @@ const app = express();
 
 const indexRouter = require("./src/routes/index");
 const { ValidationError } = require("sequelize");
-
-const { errorCodes } = require("./enums/error-code");
+const { CronJob } = require("cron");
+const sendLateNotificationEmail = require("./src/crons/sendLateNotificationEmail");
 
 var bodyParser = require("body-parser");
 const { customErrorMessage, customErrorMessageDatabase } = require("./utils/customer-error-sequelize");
@@ -31,6 +30,13 @@ const corsOptions = {
     credentials: false, //access-control-allow-credentials:true
     optionSuccessStatus: 200,
 };
+
+// CRON JOB
+const job = new CronJob("0 0 9 * * *", function () {
+    sendLateNotificationEmail();
+});
+
+job.start();
 
 app.use(cors(corsOptions));
 

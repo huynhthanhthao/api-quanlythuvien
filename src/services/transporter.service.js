@@ -7,6 +7,8 @@ class TransporterService {
             const mailOptions = this.createMailOptions(recipientEmail, subject, htmlContent);
 
             await transporter.sendMail(mailOptions);
+
+            console.log("Gửi email thành công!");
         } catch (error) {
             throw error;
         }

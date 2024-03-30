@@ -107,7 +107,7 @@ module.exports.mapResponseBookItem = function (book) {
                       fieldId: item?.field?.id,
                       fieldName: item?.field?.fieldName,
                   })) || [],
-              attachFiles: book?.attachFiles?.map((file) => ({
+              attachFiles: book?.bookGroup.attachFiles?.map((file) => ({
                   fileName: file.fileName,
                   fileURL: customerURL(file.fileURL),
               })),
