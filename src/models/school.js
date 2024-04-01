@@ -27,16 +27,6 @@ module.exports = (sequelize, DataTypes) => {
             logo: {
                 type: DataTypes.TEXT,
             },
-            schoolDomain: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                validate: {
-                    len: {
-                        args: [0, 255],
-                    },
-                    notEmpty: true,
-                },
-            },
             address: {
                 type: DataTypes.TEXT,
             },

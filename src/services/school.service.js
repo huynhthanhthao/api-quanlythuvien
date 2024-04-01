@@ -1,7 +1,7 @@
 const db = require("../models");
 const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
-const { QUERY_ONE_TYPE, FULL_ROLE_IDS } = require("../../enums/common");
+const { QUERY_ONE_TYPE, FULL_ROLE_IDS, USER_TYPE } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
 
@@ -17,11 +17,12 @@ class SchoolService {
 
             const user = await db.User.create(
                 {
-                    fullName: "Quản trị viênzzz",
+                    fullName: "Quản trị viên",
                     schoolId: school.id,
                     birthday: "01/01/2000",
                     address: "Việt Nam",
                     email: newSchool.email,
+                    type: USER_TYPE.SYSTEM_USER,
                 },
                 { transaction }
             );

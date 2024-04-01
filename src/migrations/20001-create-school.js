@@ -12,9 +12,6 @@ module.exports = {
             logo: {
                 type: Sequelize.TEXT,
             },
-            schoolDomain: {
-                type: Sequelize.STRING,
-            },
             schoolName: {
                 type: Sequelize.STRING,
             },
