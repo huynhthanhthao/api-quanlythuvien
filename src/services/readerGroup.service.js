@@ -137,7 +137,7 @@ class ReaderGroupService {
         const whereCondition = { active: true, schoolId: account.id };
 
         const groupHasReader = await db.ReaderGroup.findAll({
-            where: whereCondition,
+            where: { ...whereCondition, id: { [Op.in]: ids } },
             attributes: ["id"],
             include: [
                 {

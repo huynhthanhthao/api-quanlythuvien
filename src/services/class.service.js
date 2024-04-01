@@ -105,7 +105,7 @@ class ClassService {
         const whereCondition = { active: true, schoolId: account.id };
 
         const classHasReader = await db.Class.findAll({
-            where: whereCondition,
+            where: { ...whereCondition, id: { [Op.in]: ids } },
             attributes: ["id"],
             include: [
                 {

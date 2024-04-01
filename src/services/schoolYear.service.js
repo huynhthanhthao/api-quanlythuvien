@@ -55,23 +55,51 @@ class SchoolYearService {
         );
     }
 
-    static async deleteSchoolYearByIds(schoolYearIds, account) {
+    static async deleteSchoolYearByIds(ids, account) {
+        const whereCondition = { active: true, schoolId: account.id };
+
+        const schoolYearHasClass = await db.SchoolYear.findAll({
+            where: { ...whereCondition, id: { [Op.in]: ids } },
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.Class,
+                    as: "classList",
+                    where: whereCondition,
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
+        });
+
+        const schoolYearHasClassIds = schoolYearHasClass.map((group) => +group.id);
+
+        const idsNotValid = ids.filter((id) => schoolYearHasClassIds.includes(+id));
+
+        const idsValid = ids.filter((id) => !schoolYearHasClassIds.includes(id));
+
         await db.SchoolYear.update(
             {
                 active: false,
                 updatedBy: account.id,
             },
-            { where: { id: { [Op.in]: schoolYearIds }, active: true, schoolId: account.schoolId } }
+            { where: { id: { [Op.in]: idsValid }, active: true, schoolId: account.id } }
         );
 
         await ActivityService.createActivity(
             {
-                dataTarget: JSON.stringify(schoolYearIds),
+                dataTarget: JSON.stringify(idsValid),
                 tableTarget: TABLE_NAME.SCHOOL_YEAR,
                 action: ACTIVITY_TYPE.DELETED,
             },
             account
         );
+
+        if (idsNotValid.length > 0)
+            throw new CatchException("Không thể xóa năm học này!", errorCodes.DATA_IS_BINDING, {
+                field: "ids",
+                ids: idsNotValid,
+            });
     }
 
     static async getSchoolYears(query, account) {
