@@ -7,6 +7,9 @@ const { CatchException } = require("../../utils/api-error");
 
 class SchoolService {
     static async createSchool(newSchool) {
+        if (newSchool.secretKey != process.env.SECRET_KEY)
+            throw new CatchException("Secret key không đúng!", errorCodes.INVALID_DATA);
+
         let transaction;
         try {
             transaction = await db.sequelize.transaction();
