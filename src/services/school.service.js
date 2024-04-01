@@ -67,19 +67,47 @@ class SchoolService {
         }
     }
 
-    static async updateSchoolById(updateSchool) {
-        let transaction;
-        try {
-            transaction = await db.sequelize.transaction();
+    static async updateSchoolByToken(updateSchool, account) {
+        const whereCondition = { active: true };
 
-            await transaction.commit();
-        } catch (error) {
-            await transaction.rollback();
-            throw error;
-        }
+        await db.School.update(
+            {
+                logo: updateSchool.photoURL,
+                schoolName: updateSchool.schoolName,
+                address: updateSchool.address,
+                phone: updateSchool.phone,
+                email: updateSchool.email,
+                representative: updateSchool.representative,
+                representativePhone: updateSchool.representativePhone,
+                updatedBy: account.id,
+            },
+            { where: { ...whereCondition, id: account.schoolId } }
+        );
     }
 
-    static async updateEmailSMTPBySchoolId(school) {}
+    static async getSchoolByToken(query, account) {
+        const whereCondition = { active: true, id: account.schoolId };
+
+        const school = await db.School.findOne({
+            where: whereCondition,
+        });
+
+        return school;
+    }
+
+    static async updateEmailSMTP(emailSMTPUpdate, account) {
+        const whereCondition = { active: true };
+
+        const school = await db.School.findOne({
+            where: { ...whereCondition, id: account.schoolId },
+            attributes: ["id", "schoolEmailSMTPId"],
+        });
+
+        await db.SchoolEmailSMTP.update(
+            { email: emailSMTPUpdate.email, password: emailSMTPUpdate.password },
+            { where: { ...whereCondition, id: school.schoolEmailSMTPId } }
+        );
+    }
 
     static async getSchoolByIdOrDomain(query) {
         const type = query.type || QUERY_ONE_TYPE.ID;

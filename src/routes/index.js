@@ -115,12 +115,12 @@ router.use("/booking-book", checkToken, bookingBookRouter);
 
 router.use("/card-opening-fee", checkToken, cardOpeningFeeRouter);
 
-router.use("/public", publicRouter);
-
 router.use("/card-registration", checkToken, cardOpeningRegistrationRouter);
 
 router.use("/school-year", checkToken, schoolYearRouter);
 
 router.use("/school", checkToken, schoolRouter);
+
+router.use("/public", publicRouter);
 
 module.exports = router;

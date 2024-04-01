@@ -35,6 +35,12 @@ module.exports = {
             },
             schoolEmailSMTPId: {
                 type: Sequelize.BIGINT,
+                references: {
+                    model: "SchoolEmailSMTPs",
+                    key: "id",
+                },
+                onDelete: "SET NULL",
+                onUpdate: "CASCADE",
             },
             createdAt: {
                 allowNull: false,
