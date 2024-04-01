@@ -150,20 +150,34 @@ class ReaderGroupService {
             ],
         });
 
-        const groupHasReaderIds = groupHasReader.map((group) => group.id);
+        const groupHasReaderIds = groupHasReader.map((group) => +group.id);
+
+        const idsNotValid = ids.filter((id) => groupHasReaderIds.includes(+id));
+
+        const idsValid = ids.filter((id) => !groupHasReaderIds.includes(id));
 
         await db.ReaderGroup.update(
             {
                 active: false,
                 updatedBy: account.id,
             },
-            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.id } }
+            { where: { id: { [Op.in]: idsValid }, active: true, schoolId: account.id } }
         );
 
         await ActivityService.createActivity(
-            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.FIELD, action: ACTIVITY_TYPE.DELETED },
+            {
+                dataTarget: JSON.stringify(idsValid),
+                tableTarget: TABLE_NAME.READER_GROUP,
+                action: ACTIVITY_TYPE.DELETED,
+            },
             account
         );
+
+        if (idsNotValid.length > 0)
+            throw new CatchException("Không thể xóa nhóm bạn đọc này!", errorCodes.DATA_IS_BINDING, {
+                field: "ids",
+                ids: idsNotValid,
+            });
     }
 
     static async generateReaderGroupCode(schoolId) {
