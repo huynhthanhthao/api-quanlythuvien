@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { isPhone, isEmail } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class School extends Model {
@@ -32,15 +33,44 @@ module.exports = (sequelize, DataTypes) => {
             },
             phone: {
                 type: DataTypes.STRING,
+                validate: {
+                    isPhone(value) {
+                        isPhone(value);
+                    },
+                    len: {
+                        args: [0, 255],
+                    },
+                },
             },
             email: {
                 type: DataTypes.STRING,
+                validate: {
+                    isEmail(value) {
+                        isEmail(value);
+                    },
+                    len: {
+                        args: [0, 255],
+                    },
+                },
             },
             representative: {
                 type: DataTypes.STRING,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                },
             },
             representativePhone: {
                 type: DataTypes.STRING,
+                validate: {
+                    isPhone(value) {
+                        isPhone(value);
+                    },
+                    len: {
+                        args: [0, 255],
+                    },
+                },
             },
             schoolEmailSMTPId: {
                 type: DataTypes.BIGINT,

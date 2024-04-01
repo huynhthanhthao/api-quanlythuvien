@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             password: {
                 type: DataTypes.STRING,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                },
             },
             active: {
                 type: DataTypes.BOOLEAN,
