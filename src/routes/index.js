@@ -57,6 +57,8 @@ const cardOpeningFeeRouter = require("./cardOpeningFee");
 
 const cardOpeningRegistrationRouter = require("./cardOpeningRegistration");
 
+const SchoolYearRouter = require("./schoolYear");
+
 const checkToken = require("../middlewares/verifyToken");
 
 router.use("/auth", authRouter);
@@ -114,5 +116,7 @@ router.use("/card-opening-fee", checkToken, cardOpeningFeeRouter);
 router.use("/public", publicRouter);
 
 router.use("/card-registration", checkToken, cardOpeningRegistrationRouter);
+
+router.use("/school-year", checkToken, SchoolYearRouter);
 
 module.exports = router;

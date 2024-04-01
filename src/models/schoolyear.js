@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class SchoolYear extends Model {
@@ -19,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             year: {
                 type: DataTypes.INTEGER,
+                allowNull: false,
+                validate: {
+                    isNumeric: true,
+                    notEmpty: true,
+                },
             },
             schoolYearDes: {
                 type: DataTypes.TEXT,

@@ -189,7 +189,7 @@ class PublishService {
         });
 
         const whereCondition = { active: true, schoolId: school.id };
-        console.log(9999, whereCondition);
+
         const bookingForm = await db.BookingBorrowForm.findOne({
             where: { ...whereCondition, token: data.token },
             include: [
