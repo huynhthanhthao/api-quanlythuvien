@@ -16,6 +16,15 @@ async function sendLateNotificationEmail() {
                 where: whereCondition,
                 required: true,
                 attributes: ["id", "schoolName", "logo"],
+                include: [
+                    {
+                        model: db.SchoolEmailSMTP,
+                        as: "schoolEmailSMTP",
+                        where: { active: true },
+                        required: false,
+                        attributes: ["email", "password"],
+                    },
+                ],
             },
             {
                 model: db.LoanReceipt,
@@ -56,9 +65,11 @@ async function sendLateNotificationEmail() {
     const dataSendMail = mapResponseNotificationEmailBookLate(users);
 
     const subject = "Thông báo sách mượn đã quá hạn!";
-
     const emailPromises = dataSendMail.map((data) =>
-        TransporterService.sendEmail(data.email, subject, notifyBookLate(data))
+        TransporterService.sendEmail(data.email, subject, notifyBookLate(data), {
+            email: data?.emailSMTP,
+            password: data?.passwordSMTP,
+        })
     );
 
     await Promise.all(emailPromises);

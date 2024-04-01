@@ -19,6 +19,8 @@ module.exports.mapResponseNotificationEmailBookLate = function (userList) {
             fullName: user.fullName,
             readerCode: user.readerCode,
             email: user.email,
+            emailSMTP: user?.school?.schoolEmailSMTP?.email,
+            passwordSMTP: user?.school?.schoolEmailSMTP?.password,
             schoolName: user?.school?.schoolName,
             schoolId: user?.school?.id,
             logo: user?.school?.logo,

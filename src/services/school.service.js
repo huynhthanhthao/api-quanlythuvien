@@ -120,7 +120,18 @@ class SchoolService {
             whereCondition.id = keyword;
         }
 
-        const school = await db.School.findOne({ where: whereCondition });
+        const school = await db.School.findOne({
+            where: whereCondition,
+            include: [
+                {
+                    model: db.SchoolEmailSMTP,
+                    as: "schoolEmailSMTP",
+                    where: { active: true },
+                    required: false,
+                    attributes: ["email", "password"],
+                },
+            ],
+        });
 
         if (!school) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 

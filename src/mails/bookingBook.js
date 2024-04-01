@@ -89,7 +89,11 @@ const bookingBookHtml = (data) => {
     <tbody>
         <tr>
             <td align="left" style="width: 50%;">
-                <img src="${data.school.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;">
+              ${
+                  data.school.logo
+                      ? `<img src="https://${data.school?.schoolDomain}/${data.school.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;>`
+                      : ""
+              }
             </td>
             <td align="right" style="width: 50%;">
                 <h2 style="margin: 0;">${data.school.schoolName}</h2>
@@ -122,7 +126,7 @@ const bookingBookHtml = (data) => {
         )}
       </div>
       
-      <a class="btn-confirm" style="color: #fff !important" href="${data.school?.schoolDomain}/${
+      <a class="btn-confirm" style="color: #fff !important" href="https://${data.school?.schoolDomain}/${
         data.token
     }">XÁC NHẬN</a>
       <div class="contact-info">

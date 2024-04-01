@@ -11,11 +11,25 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            School.belongsTo(models.SchoolEmailSMTP, {
+                foreignKey: "schoolEmailSMTPId",
+                as: "schoolEmailSMTP",
+            });
         }
     }
     School.init(
         {
             schoolName: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
+            },
+            schoolDomain: {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {

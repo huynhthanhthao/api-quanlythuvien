@@ -1,7 +1,7 @@
 const { CatchException } = require("../../utils/api-error");
 const BookService = require("../services/book.service");
 const PublishService = require("../services/public.service");
-const { transformer, convertDate, fDate, getDateNowTypeInt } = require("../../utils/server");
+const { transformer, convertDate, getDateNowTypeInt } = require("../../utils/server");
 const { errorCodes } = require("../../enums/error-code");
 const { isDate, checkIsDuplicates } = require("../../utils/customer-validate");
 const CategoryService = require("../services/category.service");
@@ -11,6 +11,7 @@ const FieldService = require("../services/field.service");
 const CardOpeningRegistrationService = require("../services/cardOpeningRegistration.service");
 const CardOpeningFeeService = require("../services/cardOpeningFee.service");
 const SchoolService = require("../services/school.service");
+const BookingFormService = require("../services/bookingForm.service");
 
 class PublicController {
     static async getPublicBookGroup(req) {
@@ -54,7 +55,7 @@ class PublicController {
         receiveDate = convertDate(receiveDate);
 
         return transformer(
-            await PublishService.createBookingForm({ ...req.body, receiveDate }, { schoolId }),
+            await BookingFormService.createBookingForm({ ...req.body, receiveDate }, { schoolId }),
             "Đăng kí thành công."
         );
     }

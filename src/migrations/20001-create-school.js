@@ -42,6 +42,9 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
+            schoolDomain: {
+                type: Sequelize.STRING,
+            },
             createdAt: {
                 allowNull: false,
                 type: "TIMESTAMP",

@@ -1,25 +1,24 @@
 const nodemailer = require("nodemailer");
 
 class TransporterService {
-    static async sendEmail(recipientEmail, subject, htmlContent) {
+    static async sendEmail(recipientEmail, subject, htmlContent, accountEmail) {
         try {
-            const transporter = this.createTransporter();
+            const transporter = this.createTransporter(accountEmail);
             const mailOptions = this.createMailOptions(recipientEmail, subject, htmlContent);
-
             await transporter.sendMail(mailOptions);
 
             console.log("Gửi email thành công!");
         } catch (error) {
-            throw error;
+            console.error("Lỗi khi gửi email:", error.message);
         }
     }
 
-    static createTransporter() {
+    static createTransporter(accountEmail) {
         return nodemailer.createTransport({
             service: "Gmail",
             auth: {
-                user: process.env.MAIL_USERNAME,
-                pass: process.env.MAIL_PASSWORD,
+                user: accountEmail?.email,
+                pass: accountEmail?.password,
             },
         });
     }

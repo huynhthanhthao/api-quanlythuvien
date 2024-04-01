@@ -143,7 +143,11 @@ const notifyBookLate = (data) => {
             <tbody>
               <tr>
                 <td align="left" style="width: 50%;">
-                  <img src="${data.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;">
+                  ${
+                      data.logo
+                          ? `<img src="https://${data?.schoolDomain}/${data.school.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;>`
+                          : ""
+                  }
                 </td>
                 <td align="right" style="width: 50%;">
                   <h2 style="margin: 0;">${data.schoolName}</h2>
