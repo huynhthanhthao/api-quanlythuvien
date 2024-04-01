@@ -18,6 +18,7 @@ const TABLE_NAME = {
     PUBLISHER: "PUBLISHER",
     READER_GROUP: "READER_GROUP",
     SCHOOL_YEAR: "SCHOOL_YEAR",
+    CLASS: "CLASS",
 };
 
 module.exports = { TABLE_NAME };

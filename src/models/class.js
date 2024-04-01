@@ -1,5 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
+const { checkForeignKey, isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class Class extends Model {
@@ -14,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "schoolYearId",
                 as: "schoolYear",
             });
+
+            Class.hasMany(models.ClassHasUser, {
+                foreignKey: "classId",
+                as: "classHasUser",
+            });
         }
     }
     Class.init(
@@ -23,12 +29,45 @@ module.exports = (sequelize, DataTypes) => {
             },
             schoolYearId: {
                 type: DataTypes.BIGINT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                    isNumeric: true,
+                    async checkForeignKey(value) {
+                        await checkForeignKey(value, sequelize.models.SchoolYear, {
+                            schoolId: this.schoolId,
+                        });
+                    },
+                },
             },
             classCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 50],
+                    },
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "classCode",
+                            value,
+                            model: sequelize.models.Class,
+                            extraConditions: { schoolId: this.schoolId },
+                        });
+                    },
+                    notEmpty: true,
+                },
             },
             className: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             classDes: {
                 type: DataTypes.TEXT,

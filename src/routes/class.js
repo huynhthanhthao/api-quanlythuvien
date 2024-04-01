@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/", checkPermission([ROLES.CLASS_CREATE]), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.CLASS_CREATE]), async function (req, res, next) {
     try {
         const data = await ClassController.createClass(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/delete", checkPermission([ROLES.CLASS_DELETE]), async function (req
     }
 });
 
-router.put("/:id", checkPermission([ROLES.CLASS_UPDATE]), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.CLASS_UPDATE]), async function (req, res, next) {
     try {
         const data = await ClassController.updateClassById(req);
         return res.json(data);
