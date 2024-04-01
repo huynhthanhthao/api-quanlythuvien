@@ -107,12 +107,51 @@ module.exports.mapResponseBookItem = function (book) {
                       fieldId: item?.field?.id,
                       fieldName: item?.field?.fieldName,
                   })) || [],
-              attachFiles: book?.bookGroup.attachFiles?.map((file) => ({
+              attachFiles: book?.bookGroup?.attachFiles?.map((file) => ({
                   fileName: file.fileName,
                   fileURL: customerURL(file.fileURL),
               })),
           }
         : null;
+};
+
+module.exports.mapResponseBookList = function (bookList) {
+    return bookList.map((book) => ({
+        id: book.id,
+        status: book?.status?.statusName || null,
+        statusId: book?.status?.id || null,
+        positionName: book.position?.positionName || null,
+        positionId: book.position?.id || null,
+        bookCode: book.bookCode,
+        bookName: book?.bookGroup?.bookName || null,
+        bookDes: book?.bookGroup?.bookDes || null,
+        otherName: book?.bookGroup?.otherName || null,
+        author: book?.bookGroup?.author || null,
+        pages: book?.bookGroup?.pages || null,
+        loanFee: book?.bookGroup?.loanFee || null,
+        yearPublication: book?.bookGroup?.yearPublication || null,
+        rePublic: book?.bookGroup?.rePublic || null,
+        price: book?.bookGroup?.price || null,
+        photoURL: customerURL(book?.bookGroup?.photoURL) || null,
+        penaltyApplied: book?.bookGroup?.penaltyApplied || null,
+        createdAt: fDate(book?.bookGroup?.createdAt) || null,
+        categoryName: book?.bookGroup?.category?.categoryName || null,
+        categoryId: book?.bookGroup?.category?.id || null,
+        pubName: book?.bookGroup?.publisher?.pubName || null,
+        pubId: book?.bookGroup?.publisher?.id || null,
+        lanName: book?.bookGroup?.language?.lanName || null,
+        lanId: book?.bookGroup?.language?.id || null,
+        isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+        fieldList:
+            book?.bookGroup?.fieldHasBook?.map((item) => ({
+                fieldId: item?.field?.id,
+                fieldName: item?.field?.fieldName,
+            })) || [],
+        attachFiles: book?.bookGroup?.attachFiles?.map((file) => ({
+            fileName: file.fileName,
+            fileURL: customerURL(file.fileURL),
+        })),
+    }));
 };
 
 module.exports.mapResponseBookGroupListPublic = function (bookGroupList) {

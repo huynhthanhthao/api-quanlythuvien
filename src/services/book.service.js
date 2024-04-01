@@ -11,6 +11,7 @@ const {
     mapResponseBookItem,
     mapResponseBookGroupListPublic,
     mapResponseBookGroupItemPublic,
+    mapResponseBookList,
 } = require("../map-responses/book.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
@@ -988,6 +989,133 @@ class BookService {
         if (!bookGroup) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
         return mapResponseBookGroupItemPublic(bookGroup);
+    }
+
+    static async getBookDetail(query, account) {
+        let limit = +query.limit || DEFAULT_LIMIT;
+        const page = +query.page || 1;
+        const offset = (page - 1) * limit;
+        const ids = query.ids ? convertToIntArray(query.ids) : [];
+
+        const whereBookCondition = {
+            [Op.and]: [
+                query.ids?.length > 0 && { id: { [Op.in]: ids } },
+                { active: true },
+                { schoolId: account.schoolId },
+            ].filter(Boolean),
+        };
+
+        const whereCondition = {
+            [Op.and]: [{ active: true }, { schoolId: account.schoolId }].filter(Boolean),
+        };
+
+        if (query.unlimited && query.unlimited == UNLIMITED) {
+            limit = null;
+        }
+
+        const { rows, count } = await db.Book.findAndCountAll({
+            where: { ...whereBookCondition },
+            limit,
+            offset,
+            attributes: ["id", "bookCode"],
+            include: [
+                {
+                    model: db.BookGroup,
+                    as: "bookGroup",
+                    attributes: {
+                        exclude: [
+                            "updatedAt",
+                            "createdBy",
+                            "updatedBy",
+                            "active",
+                            "schoolId",
+                            "positionId",
+                            "statusId",
+                        ],
+                    },
+                    where: whereCondition,
+                    required: true,
+                    include: [
+                        {
+                            model: db.Category,
+                            as: "category",
+                            where: whereCondition,
+                            required: false,
+                            attributes: ["id", "categoryName"],
+                        },
+                        {
+                            model: db.Publisher,
+                            as: "publisher",
+                            attributes: ["id", "pubName"],
+                            where: whereCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.Language,
+                            as: "language",
+                            attributes: ["id", "lanName"],
+                            where: whereCondition,
+                            required: false,
+                        },
+                        {
+                            model: db.FieldHasBook,
+                            as: "fieldHasBook",
+                            attributes: ["id"],
+                            required: false,
+                            where: whereCondition,
+                            include: [
+                                {
+                                    model: db.Field,
+                                    as: "field",
+                                    where: whereCondition,
+                                    required: false,
+                                    attributes: ["id", "fieldName"],
+                                },
+                            ],
+                        },
+                        {
+                            model: db.Attachment,
+                            required: false,
+                            as: "attachFiles",
+                            where: { active: true, schoolId: account.schoolId },
+                            attributes: ["id", "fileURL", "fileName"],
+                        },
+                    ],
+                },
+                {
+                    model: db.BookStatus,
+                    required: false,
+                    as: "status",
+                    where: whereCondition,
+                    attributes: ["id", "statusName"],
+                },
+                {
+                    model: db.Position,
+                    as: "position",
+                    required: false,
+                    attributes: ["id", "positionName"],
+                    where: whereCondition,
+                    required: false,
+                },
+                {
+                    model: db.ReceiptHasBook,
+                    as: "receiptHasBook",
+                    required: false,
+                    attributes: ["id"],
+                    where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
+                    required: false,
+                    limit: 1,
+                },
+            ],
+            distinct: true,
+        });
+
+        const pagination = getPagination(count, limit, page);
+
+        return {
+            pagination: pagination,
+            list: mapResponseBookList(rows),
+        };
     }
 
     static async generateBookCode(schoolId) {

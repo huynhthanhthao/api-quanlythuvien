@@ -103,7 +103,16 @@ router.get("/:schoolId/book/:keyword", async function (req, res, next) {
 
 router.get("/:schoolId/book", async function (req, res, next) {
     try {
-        const data = await PublicController.getBookGroups(req);
+        const data = await PublicController.getPublicBookGroup(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/:schoolId/book-detail", async function (req, res, next) {
+    try {
+        const data = await PublicController.getBookDetail(req);
         return res.json(data);
     } catch (error) {
         next(error);
