@@ -1,11 +1,10 @@
 const express = require("express");
-const UserController = require("../controllers/user.controller");
+const SchoolController = require("../controllers/school.controller");
 const router = express.Router();
 
-/* GET users liSTRING. */
 router.post("/create", async function (req, res, next) {
     try {
-        const data = await UserController.createUser(req);
+        const data = await SchoolController.createSchool(req);
         return res.json(data);
     } catch (error) {
         next(error);

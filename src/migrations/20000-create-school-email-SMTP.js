@@ -2,36 +2,18 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("Settings", {
+        await queryInterface.createTable("SchoolEmailSMTPs", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.BIGINT,
             },
-            schoolId: {
-                type: Sequelize.BIGINT,
-                references: {
-                    model: "Schools",
-                    key: "id",
-                },
-                onDelete: "SET NULL",
-                onUpdate: "CASCADE",
+            email: {
+                type: Sequelize.STRING,
             },
-            hasFineFee: {
-                type: Sequelize.BOOLEAN,
-            },
-            noSpecialPenalties: {
-                type: Sequelize.BOOLEAN,
-            },
-            hasLoanFee: {
-                type: Sequelize.BOOLEAN,
-            },
-            typeLoanFee: {
-                type: Sequelize.INTEGER,
-            },
-            valueLoanFee: {
-                type: Sequelize.DOUBLE,
+            password: {
+                type: Sequelize.STRING,
             },
             active: {
                 type: Sequelize.BOOLEAN,
@@ -50,6 +32,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("Settings");
+        await queryInterface.dropTable("SchoolEmailSMTPs");
     },
 };

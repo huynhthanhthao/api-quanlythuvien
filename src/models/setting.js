@@ -40,12 +40,6 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
             },
-            createdBy: {
-                type: DataTypes.BIGINT,
-            },
-            updatedBy: {
-                type: DataTypes.BIGINT,
-            },
         },
         {
             sequelize,

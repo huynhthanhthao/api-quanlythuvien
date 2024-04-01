@@ -75,6 +75,8 @@ const QUERY_ONE_TYPE = {
     SLUG: 4,
 };
 
+const FULL_ROLE_IDS = [];
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -94,4 +96,5 @@ module.exports = {
     ACTIVITY_TYPE,
     USER_TYPE,
     QUERY_ONE_TYPE,
+    FULL_ROLE_IDS,
 };

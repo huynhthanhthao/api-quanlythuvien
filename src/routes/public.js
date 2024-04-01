@@ -3,6 +3,15 @@ const PublicController = require("../controllers/public.controller");
 const router = express.Router();
 const upload = require("../middlewares/multer-multi-user-register");
 
+router.post("/school/create", async function (req, res, next) {
+    try {
+        const data = await PublicController.createSchool(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.post("/booking/create", async function (req, res, next) {
     try {
         const data = await PublicController.createBookingForm(req);

@@ -18,9 +18,6 @@ module.exports = {
             schoolName: {
                 type: Sequelize.STRING,
             },
-            schoolCode: {
-                type: Sequelize.STRING,
-            },
             address: {
                 type: Sequelize.TEXT,
             },
@@ -39,10 +36,7 @@ module.exports = {
             active: {
                 type: Sequelize.BOOLEAN,
             },
-            createdBy: {
-                type: Sequelize.BIGINT,
-            },
-            updatedBy: {
+            schoolEmailSMTPId: {
                 type: Sequelize.BIGINT,
             },
             createdAt: {

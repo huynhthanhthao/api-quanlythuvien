@@ -119,7 +119,7 @@ class PublishService {
         });
 
         if (!user)
-            throw new CatchException("Bạn đọc không tồn tài!", errorCodes.RESOURCE_NOT_FOUND, {
+            throw new CatchException("Bạn đọc không tồn tại!", errorCodes.RESOURCE_NOT_FOUND, {
                 field: "readerCode",
             });
 

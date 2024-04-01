@@ -16,15 +16,26 @@ module.exports = (sequelize, DataTypes) => {
         {
             schoolName: {
                 type: DataTypes.STRING,
-            },
-            schoolCode: {
-                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             logo: {
                 type: DataTypes.TEXT,
             },
             schoolDomain: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             address: {
                 type: DataTypes.TEXT,
@@ -41,29 +52,16 @@ module.exports = (sequelize, DataTypes) => {
             representativePhone: {
                 type: DataTypes.STRING,
             },
+            schoolEmailSMTPId: {
+                type: DataTypes.BIGINT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                },
+            },
             active: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
-            },
-            createdBy: {
-                type: DataTypes.BIGINT,
-
-                // references: {
-                //     model: "Accounts",
-                //     key: "id",
-                // },
-                // onDelete: "SET NULL",
-                // onUpdate: "CASCADE",
-            },
-            updatedBy: {
-                type: DataTypes.BIGINT,
-
-                // references: {
-                //     model: "Accounts",
-                //     key: "id",
-                // },
-                // onDelete: "SET NULL",
-                // onUpdate: "CASCADE",
             },
         },
         {
