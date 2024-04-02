@@ -8,7 +8,7 @@ const BookService = require("./book.service");
 const ActivityService = require("./activityLog.service");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
-const { LOAN_STATUS, DEFAULT_LIMIT, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
+const { LOAN_STATUS, DEFAULT_LIMIT, ACTIVITY_TYPE, QUERY_ONE_TYPE, TYPE_LOAN_FEES } = require("../../enums/common");
 const {
     calculateDaysDiff,
     convertToIntArray,
@@ -62,20 +62,17 @@ class LoanReceiptService {
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
-                }
-                // { transaction }
+                },
+                { transaction }
             );
+            const bookIds = newLoanReceipt?.books?.map((book) => +book.id);
 
-            const receiptBookData = newLoanReceipt?.books.map((book) => ({
-                bookId: book.id,
-                loanFee: book.loanFee,
-                loanReceiptId: loanReceipt.id,
-                schoolId: account.schoolId,
-                createdBy: account.id,
-                updatedBy: account.id,
-            }));
+            let receiptBookData = await this.getReceiptHasBookData(bookIds, loanReceipt.id, account);
 
-            await db.ReceiptHasBook.bulkCreate(receiptBookData, { transaction, validate: true });
+            if (receiptBookData.length != bookIds.length)
+                throw new CatchException("Sách không hợp lệ !", errorCodes.INVALID_DATA, { field: "books" });
+
+            await db.ReceiptHasBook.bulkCreate(receiptBookData, { transaction });
 
             await ActivityService.createActivity(
                 { dataTarget: loanReceipt.id, tableTarget: TABLE_NAME.LOAN_RECEIPT, action: ACTIVITY_TYPE.CREATED },
@@ -88,6 +85,72 @@ class LoanReceiptService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    static async getReceiptHasBookData(bookIds, loanReceiptId, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const setting = await db.Setting.findOne({ where: whereCondition });
+        if (setting.hasLoanFee) {
+            const books = await db.Book.findAll({
+                where: { ...whereCondition, id: { [Op.in]: bookIds } },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.BookGroup,
+                        as: "bookGroup",
+                        where: whereCondition,
+                        required: true,
+                        attributes: ["id", "price", "loanFee"],
+                    },
+                ],
+            });
+
+            if (setting.typeLoanFee == TYPE_LOAN_FEES.FIXED_PRICE) {
+                return books.map((book) => ({
+                    bookId: book.id,
+                    loanFee: setting.valueLoanFee || 0,
+                    loanReceiptId: loanReceiptId,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                }));
+            }
+
+            if (setting.typeLoanFee == TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE) {
+                return books.map((book) => {
+                    let loanFee = (setting.valueLoanFee * (book?.bookGroup?.price || 0)) / 100;
+                    loanFee = isNaN(loanFee) ? 0 : loanFee;
+                    return {
+                        bookId: book.id,
+                        loanFee: loanFee,
+                        loanReceiptId: loanReceiptId,
+                        schoolId: account.schoolId,
+                        createdBy: account.id,
+                        updatedBy: account.id,
+                    };
+                });
+            }
+
+            if (setting.typeLoanFee == TYPE_LOAN_FEES.INDIVIDUAL_BOOK_FEE) {
+                return books.map((book) => ({
+                    bookId: book.id,
+                    loanFee: book?.bookGroup?.loanFee || 0,
+                    loanReceiptId: loanReceiptId,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                }));
+            }
+        }
+
+        return bookIds.map((bookId) => ({
+            bookId: bookId,
+            loanFee: 0,
+            loanReceiptId: loanReceiptId,
+            schoolId: account.schoolId,
+            createdBy: account.id,
+            updatedBy: account.id,
+        }));
     }
 
     static async checkBorrowLimitExceeded(returnDate, newQuantity, userId, account) {

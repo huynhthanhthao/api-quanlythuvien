@@ -81,6 +81,12 @@ const FULL_ROLE_IDS = [
     68, 69, 70,
 ];
 
+const TYPE_LOAN_FEES = {
+    FIXED_PRICE: 1,
+    BOOK_COVER_PERCENTAGE: 2,
+    INDIVIDUAL_BOOK_FEE: 3,
+};
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -101,4 +107,5 @@ module.exports = {
     USER_TYPE,
     QUERY_ONE_TYPE,
     FULL_ROLE_IDS,
+    TYPE_LOAN_FEES,
 };

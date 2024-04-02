@@ -129,6 +129,7 @@ module.exports.mapResponseBookList = function (bookList) {
         author: book?.bookGroup?.author || null,
         pages: book?.bookGroup?.pages || null,
         loanFee: book?.bookGroup?.loanFee || null,
+        slug: book?.bookGroup?.slug || null,
         yearPublication: book?.bookGroup?.yearPublication || null,
         rePublic: book?.bookGroup?.rePublic || null,
         price: book?.bookGroup?.price || null,
