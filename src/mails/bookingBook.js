@@ -1,4 +1,4 @@
-const { convertDateVi } = require("../../utils/server");
+const { convertDateVi, customerURL } = require("../../utils/server");
 
 const bookingBookHtml = (data) => {
     return `
@@ -88,16 +88,18 @@ const bookingBookHtml = (data) => {
     <table class="header" style="width:100%;margin-bottom: 15px;border: none;border-bottom: 1px;border-color: #333;border-bottom-style: solid;padding-bottom: 12px;" cellpadding="0" cellspacing="0">
     <tbody>
         <tr>
-            <td align="left" style="width: 50%;">
-              ${
-                  data.school.logo
-                      ? `<img src="https://${data.school?.schoolDomain}/${data.school.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;>`
-                      : ""
-              }
-            </td>
-            <td align="right" style="width: 50%;">
-                <h2 style="margin: 0;">${data.school.schoolName}</h2>
-            </td>
+        <td align="left" style="width: 50%;">
+          ${
+              data.school.logo
+                  ? `<img src="${process.env.DOMAIN}/${customerURL(
+                        data.school.logo
+                    )}" alt="Logo Trường" style="max-height: 70px; width: 100%"/>`
+                  : ""
+          }
+          </td>
+          <td align="right" style="width: 50%;">
+              <h2 style="margin: 0;">${data.school.schoolName}</h2>
+          </td>
         </tr>
     </tbody>
     </table>

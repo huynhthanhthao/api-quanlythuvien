@@ -1,4 +1,4 @@
-const { convertDateVi } = require("../../utils/server");
+const { convertDateVi, customerURL } = require("../../utils/server");
 
 const notifyBookLate = (data) => {
     return `
@@ -145,7 +145,9 @@ const notifyBookLate = (data) => {
                 <td align="left" style="width: 50%;">
                   ${
                       data.logo
-                          ? `<img src="https://${data?.schoolDomain}/${data.school.logo}" alt="Logo Trường" style="max-height: 70px; width: 100%;>`
+                          ? `<img src="${process.env.DOMAIN}/${customerURL(
+                                data.logo
+                            )}" alt="Logo Trường" style="max-height: 70px; width: 100%"/>`
                           : ""
                   }
                 </td>
