@@ -1,4 +1,7 @@
+const { TYPE_LOAN_FEES } = require("../../enums/common");
 const { transformer } = require("../../utils/server");
+const { errorCodes } = require("../../enums/error-code");
+const { CatchException } = require("../../utils/api-error");
 const SettingService = require("../services/setting.service");
 
 class SettingController {

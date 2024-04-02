@@ -1,6 +1,9 @@
 "use strict";
 const { Model, Op } = require("sequelize");
-const { SETTING_STATUS } = require("../../enums/common");
+const { CatchException } = require("../../utils/api-error");
+const { errorCodes } = require("../../enums/error-code");
+const { TYPE_LOAN_FEES } = require("../../enums/common");
+const { isInEnum } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class Setting extends Model {
@@ -32,9 +35,28 @@ module.exports = (sequelize, DataTypes) => {
             },
             typeLoanFee: {
                 type: DataTypes.INTEGER,
+                validate: {
+                    isInEnum: (value) => {
+                        isInEnum(value, [
+                            TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE,
+                            TYPE_LOAN_FEES.FIXED_PRICE,
+                            TYPE_LOAN_FEES.INDIVIDUAL_BOOK_FEE,
+                        ]);
+                    },
+                },
             },
             valueLoanFee: {
                 type: DataTypes.DOUBLE,
+                validate: {
+                    isValid(value) {
+                        if (this.hasLoanFee) {
+                            if (value < 0 || (this.typeLoanFee == TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE && value > 100))
+                                throw new CatchException("Phần trăm phải từ 0 đến 100.", errorCodes.INVALID_DATA, {
+                                    field: "valueLoanFee",
+                                });
+                        }
+                    },
+                },
             },
             active: {
                 type: DataTypes.BOOLEAN,
