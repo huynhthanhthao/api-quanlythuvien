@@ -100,6 +100,20 @@ class AccountController {
 
         return transformer(await AccountService.getAccountById(id, req.account), "Lấy chi tiết thành công.");
     }
+
+    static async changePassword(req) {
+        if (!req.body?.oldPassword || !req.body?.newPassword) {
+            throw new CatchException("Mật khẩu không được để trống!", errorCodes.INVALID_DATA, {});
+        }
+
+        if (req.body?.newPassword?.length < 6) {
+            throw new CatchException("Mật khẩu phải trên 6 kí tự!", errorCodes.INVALID_DATA, {
+                field: "newPassword",
+            });
+        }
+
+        return transformer(await AccountService.changePassword({ ...req.body }, req.account), "Cập nhật thành công.");
+    }
 }
 
 module.exports = AccountController;

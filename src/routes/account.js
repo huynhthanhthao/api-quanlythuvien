@@ -14,7 +14,16 @@ router.post("/create", checkPermission([ROLES.ACCOUNT_CREATE]), async function (
     }
 });
 
-router.put("/:id/update",  async function (req, res, next) {
+router.put("/me/change-password", async function (req, res, next) {
+    try {
+        const data = await AccountController.changePassword(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.put("/:id/update", async function (req, res, next) {
     try {
         const data = await AccountController.updateAccountById(req);
         return res.json(data);

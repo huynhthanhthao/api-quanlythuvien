@@ -348,6 +348,22 @@ class AccountService {
 
         return account;
     }
+
+    static async changePassword(dataUpdate, account) {
+        const accountExist = await db.Account.findOne({
+            where: { active: true, id: account.id },
+            attributes: ["id", "password"],
+        });
+
+        const isMatch = await bcrypt.compare(dataUpdate.oldPassword, accountExist.password);
+
+        if (!isMatch)
+            throw new CatchException("Mật khẩu cũ không đúng!", errorCodes.INVALID_DATA, { field: "oldPassword" });
+
+        const hashedPassword = await bcrypt.hash(dataUpdate.newPassword, 10);
+
+        await db.Account.update({ password: hashedPassword }, { where: { active: true, id: account.id } });
+    }
 }
 
 module.exports = AccountService;
