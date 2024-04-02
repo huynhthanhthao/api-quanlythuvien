@@ -26,18 +26,6 @@ module.exports = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
-            {
-                schoolId: 2,
-                positionCode: "KS0003",
-                positionName: "Kệ sách khu vực thư viện",
-                positionDes:
-                    "Vị trí đặt sách trên kệ sách trong khu vực thư viện, tối ưu hóa không gian và thuận tiện cho độc giả.",
-                active: true,
-                createdBy: 2,
-                updatedBy: 2,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
         ]);
     },
 

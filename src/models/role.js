@@ -37,16 +37,6 @@ module.exports = (sequelize, DataTypes) => {
             groupId: {
                 type: DataTypes.BIGINT,
             },
-            active: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: true,
-            },
-            createdBy: {
-                type: DataTypes.BIGINT,
-            },
-            updatedBy: {
-                type: DataTypes.BIGINT,
-            },
         },
         {
             sequelize,

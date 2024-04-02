@@ -4,7 +4,7 @@ const ReaderGroupController = require("../controllers/readerGroup.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 
-router.post("/", async function (req, res, next) {
+router.post("/", checkPermission([ROLES.READER_GROUP_CREATE]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.createReaderGroup(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.post("/", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.READER_GROUP_DELETE]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.deleteReaderGroupByIds(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.READER_GROUP_UPDATE]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.updateReaderGroupById(req);
         return res.json(data);
@@ -31,7 +31,7 @@ router.put("/:id/update", async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission([ROLES.READER_GROUP_VIEW]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.getReaderGroupById(req);
         return res.json(data);
@@ -40,7 +40,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-router.get("/", async function (req, res, next) {
+router.get("/", checkPermission([ROLES.READER_GROUP_VIEW]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.getReaderGroups(req);
         return res.json(data);

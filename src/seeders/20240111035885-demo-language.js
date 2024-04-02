@@ -36,17 +36,6 @@ module.exports = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
-            {
-                schoolId: 2,
-                lanName: "French",
-                lanCode: "fr",
-                lanDes: "French is a Romance language of the Indo-European family. It is spoken by about 220 million people as a first or second language.",
-                active: true,
-                createdBy: 2,
-                updatedBy: 2,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
         ]);
     },
 

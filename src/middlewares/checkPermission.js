@@ -8,11 +8,11 @@ function checkPermission(roleCodes) {
     return async function (req, res, next) {
         try {
             const { id: accountId, schoolId, permissionId } = req.account;
-            const whereCondition = { active: true, schoolId };
+            const whereCondition = { schoolId };
 
             const [roleInPermission, roleInAccount] = await Promise.all([
                 db.Role.findOne({
-                    where: { active: true, roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
+                    where: { roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
                     attributes: ["id"],
                     include: [
                         {
@@ -25,7 +25,7 @@ function checkPermission(roleCodes) {
                     ],
                 }),
                 db.Role.findOne({
-                    where: { active: true, roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
+                    where: { roleCode: { [Op.in]: roleCodes.map((roleCode) => roleCode?.trim()) } },
                     attributes: ["id"],
                     include: [
                         {

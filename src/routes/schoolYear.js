@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/create", async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.YEAR_SCHOOL_CREATE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.createSchoolYear(req);
         return res.json(data);
@@ -13,7 +13,7 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.YEAR_SCHOOL_UPDATE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.updateSchoolYearById(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/:id/update", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.YEAR_SCHOOL_UPDATE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.deleteSchoolYearByIds(req);
         return res.json(data);
@@ -31,7 +31,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", checkPermission([ROLES.YEAR_SCHOOL_VIEW]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.getSchoolYearById(req);
         return res.json(data);
@@ -40,7 +40,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-router.get("/", async function (req, res, next) {
+router.get("/", checkPermission([ROLES.YEAR_SCHOOL_VIEW]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.getSchoolYears(req);
         return res.json(data);

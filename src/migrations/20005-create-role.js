@@ -24,15 +24,6 @@ module.exports = {
                 onDelete: "SET NULL",
                 onUpdate: "CASCADE",
             },
-            active: {
-                type: Sequelize.BOOLEAN,
-            },
-            createdBy: {
-                type: Sequelize.BIGINT,
-            },
-            updatedBy: {
-                type: Sequelize.BIGINT,
-            },
             createdAt: {
                 allowNull: false,
                 type: "TIMESTAMP",

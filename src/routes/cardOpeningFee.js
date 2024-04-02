@@ -1,8 +1,10 @@
 const express = require("express");
 const CardOpeningFeeController = require("../controllers/cardOpeningFee.controller");
+const checkPermission = require("../middlewares/checkPermission");
+const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/create", async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.CARD_OPENING_FEE_CREATE]), async function (req, res, next) {
     try {
         const data = await CardOpeningFeeController.createCardOpeningFee(req);
         return res.json(data);
@@ -11,7 +13,7 @@ router.post("/create", async function (req, res, next) {
     }
 });
 
-router.put("/delete", async function (req, res, next) {
+router.put("/delete", checkPermission([ROLES.CARD_OPENING_FEE_DELETE]), async function (req, res, next) {
     try {
         const data = await CardOpeningFeeController.deleteCardOpeningFeeByIds(req);
         return res.json(data);
@@ -20,7 +22,7 @@ router.put("/delete", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.CARD_OPENING_FEE_UPDATE]), async function (req, res, next) {
     try {
         const data = await CardOpeningFeeController.updateCardOpeningFeeById(req);
         return res.json(data);

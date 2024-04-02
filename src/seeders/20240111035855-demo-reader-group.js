@@ -29,19 +29,6 @@ module.exports = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
-            {
-                schoolId: 2,
-                groupName: "Người đi làm",
-                groupCode: "NBD00003",
-                quantityLimit: 15,
-                timeLimit: 45,
-                groupDes: "Nhóm bạn đọc là người đi làm",
-                active: true,
-                createdBy: 2,
-                updatedBy: 2,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
         ]);
     },
 

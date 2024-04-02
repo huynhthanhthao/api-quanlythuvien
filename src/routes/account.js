@@ -23,7 +23,7 @@ router.put("/me/change-password", async function (req, res, next) {
     }
 });
 
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.ACCOUNT_UPDATE]), async function (req, res, next) {
     try {
         const data = await AccountController.updateAccountById(req);
         return res.json(data);

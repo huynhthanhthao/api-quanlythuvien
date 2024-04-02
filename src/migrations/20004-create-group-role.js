@@ -12,15 +12,6 @@ module.exports = {
             groupName: {
                 type: Sequelize.STRING,
             },
-            active: {
-                type: Sequelize.BOOLEAN,
-            },
-            createdBy: {
-                type: Sequelize.BIGINT,
-            },
-            updatedBy: {
-                type: Sequelize.BIGINT,
-            },
             createdAt: {
                 allowNull: false,
                 type: "TIMESTAMP",

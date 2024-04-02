@@ -31,16 +31,16 @@ router.put("/delete", checkPermission([ROLES.LOAN_RECEIPT_DELETE]), async functi
     }
 });
 
-router.put("/:id/update", checkPermission([ROLES.LOAN_RECEIPT_UPDATE]), async function (req, res, next) {
-    try {
-        const data = await LoanReceiptController.updateLoanReceiptById(req);
-        return res.json(data);
-    } catch (error) {
-        next(error);
-    }
-});
+// router.put("/:id/update", checkPermission([ROLES.LOAN_RECEIPT_UPDATE]), async function (req, res, next) {
+//     try {
+//         const data = await LoanReceiptController.updateLoanReceiptById(req);
+//         return res.json(data);
+//     } catch (error) {
+//         next(error);
+//     }
+// });
 
-router.put("/:id/extend", async function (req, res, next) {
+router.put("/:id/extend", checkPermission([ROLES.LOAN_RECEIPT_EXTEND]), async function (req, res, next) {
     try {
         const data = await LoanReceiptController.extendLoanReceiptById(req);
         return res.json(data);

@@ -27,28 +27,6 @@ module.exports = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
-            {
-                schoolId: 2,
-                schoolYearId: 1,
-                classCode: "PHY101",
-                className: "Physics I",
-                classDes: "This class covers basic principles of physics.",
-                createdBy: 1,
-                updatedBy: 1,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-            {
-                schoolId: 2,
-                schoolYearId: 1,
-                classCode: "CHEM101",
-                className: "Chemistry I",
-                classDes: "This class covers basic principles of chemistry.",
-                createdBy: 1,
-                updatedBy: 1,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
         ]);
     },
 

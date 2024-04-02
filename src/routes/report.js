@@ -1,7 +1,5 @@
 const express = require("express");
 const ReportController = require("../controllers/report.controller");
-const { ROLES } = require("../../enums/permission");
-const checkPermission = require("../middlewares/checkPermission");
 const router = express.Router();
 
 router.get("/loan-payment", async function (req, res, next) {

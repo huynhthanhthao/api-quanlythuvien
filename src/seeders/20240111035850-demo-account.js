@@ -5,6 +5,7 @@ module.exports = {
         // Tạo một số dữ liệu mẫu cho bảng "Accounts"
         await queryInterface.bulkInsert("Accounts", [
             {
+                id: 1,
                 schoolId: 1,
                 userId: 1,
                 permissionId: null,
@@ -17,6 +18,7 @@ module.exports = {
                 updatedAt: new Date(),
             },
             {
+                id: 2,
                 schoolId: 2,
                 userId: 2,
                 permissionId: null,
