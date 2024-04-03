@@ -128,9 +128,9 @@ const bookingBookHtml = (data) => {
         )}
       </div>
       
-      <a class="btn-confirm" style="color: #fff !important" href="https://${data.school?.schoolDomain}/${
-        data.token
-    }">XÁC NHẬN</a>
+      <a class="btn-confirm" style="color: #fff !important" href="https://${
+          data.school?.schoolDomain
+      }/xac-nhan-dang-ky-muon/${data.token}">XÁC NHẬN</a>
       <div class="contact-info">
         Nếu có thắc mắc, vui lòng liên hệ trực tiếp với thư viện để được giải đáp & hỗ trợ.
       </div>

@@ -67,10 +67,8 @@ class CategoryService {
     }
 
     static async createCategory(newCategory, account) {
-        const categoryCode = await this.generateCategoryCode(account.schoolId);
-
         const category = await db.Category.create({
-            categoryCode,
+            categoryCode: newCategory.categoryCode,
             categoryName: newCategory.categoryName,
             categoryDes: newCategory.categoryDes,
             schoolId: account.schoolId,
@@ -82,23 +80,6 @@ class CategoryService {
             { dataTarget: category.id, tableTarget: TABLE_NAME.CATEGORY, action: ACTIVITY_TYPE.CREATED },
             account
         );
-    }
-
-    static async generateCategoryCode(schoolId) {
-        const { dataValues: highestCategory } = (await db.Category.findOne({
-            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("categoryCode")), "maxCategoryCode"]],
-            where: { schoolId },
-        })) || { dataValues: null };
-
-        let newCategoryCode = "DM0001";
-
-        if (highestCategory && highestCategory?.maxCategoryCode) {
-            const currentNumber = parseInt(highestCategory.maxCategoryCode.slice(2), 10);
-            const nextNumber = currentNumber + 1;
-            newCategoryCode = `DM${nextNumber.toString().padStart(4, "0")}`;
-        }
-
-        return newCategoryCode;
     }
 
     static async updateCategoryById(updateCategory, account) {

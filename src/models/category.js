@@ -24,10 +24,12 @@ module.exports = (sequelize, DataTypes) => {
             },
             categoryCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 validate: {
                     len: {
                         args: [0, 50],
                     },
+                    notEmpty: true,
                     async isUnique(value) {
                         await isUnique({
                             id: this.id,

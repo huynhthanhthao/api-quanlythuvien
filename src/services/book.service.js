@@ -48,27 +48,8 @@ class BookService {
                 { transaction }
             );
 
-            const detailBooks = newBook.detailBooks || [];
-
-            // check book code valid
-            const bookCodes = detailBooks.map((book) => book.bookCode?.trim());
-            await this.checkBookCodeValid(bookGroup.id, bookCodes, account);
-
             const fieldIds = newBook.fieldIds || [];
             const attachFiles = newBook.attachFiles || [];
-
-            const bulkCreateBooks = db.Book.bulkCreate(
-                detailBooks.map((book) => ({
-                    bookGroupId: bookGroup.id,
-                    positionId: book.positionId,
-                    bookCode: book.bookCode?.trim(),
-                    statusId: book.statusId,
-                    schoolId: account.schoolId,
-                    createdBy: account.id,
-                    updatedBy: account.id,
-                })),
-                { transaction }
-            );
 
             const bulkCreateFieldHasBooks = db.FieldHasBook.bulkCreate(
                 fieldIds.map((fieldId) => ({
@@ -94,7 +75,7 @@ class BookService {
                 { transaction }
             );
 
-            await Promise.all([bulkCreateBooks, bulkCreateFieldHasBooks, bulkCreateAttachments]);
+            await Promise.all([bulkCreateFieldHasBooks, bulkCreateAttachments]);
 
             await ActivityService.createActivity(
                 { dataTarget: bookGroup.id, tableTarget: TABLE_NAME.BOOK, action: ACTIVITY_TYPE.CREATED },
@@ -165,16 +146,6 @@ class BookService {
                 { where: { id: updateBookGroup.id, active: true, schoolId: account.schoolId }, transaction }
             );
 
-            // check book code valid
-            const detailBooks = updateBookGroup.detailBooks || [];
-
-            // check book is borrowed but not found
-            const bookIds = detailBooks.map((book) => +book.id);
-            await this.checkBookBorrowedNotFound(updateBookGroup.id, bookIds, account);
-
-            const bookCodes = detailBooks.map((book) => book.bookCode?.trim());
-            await this.checkBookCodeValid(updateBookGroup.id, bookCodes, account);
-
             const fieldIds = updateBookGroup.fieldIds || [];
             const attachFiles = updateBookGroup.attachFiles || [];
 
@@ -196,23 +167,11 @@ class BookService {
                 updatedBy: account.id,
             }));
 
-            const bookList = detailBooks.map((book) => ({
-                id: book.id,
-                bookGroupId: updateBookGroup.id,
-                positionId: book.positionId,
-                bookCode: book.bookCode?.trim(),
-                statusId: book.statusId,
-                schoolId: account.schoolId,
-                createdBy: account.id,
-                updatedBy: account.id,
-            }));
-
             const bulkUpdateCondition = { bookGroupId: updateBookGroup.id, schoolId: account.schoolId };
 
             await Promise.all([
                 bulkUpdate(attachFileData, db.Attachment, bulkUpdateCondition, account, transaction),
                 bulkUpdate(fieldList, db.FieldHasBook, bulkUpdateCondition, account, transaction),
-                bulkUpdate(bookList, db.Book, bulkUpdateCondition, account, transaction),
             ]);
 
             await ActivityService.createActivity(

@@ -28,7 +28,7 @@ class PublishService {
             ],
         });
 
-        if (!bookingForm) throw new CatchException("Không tìm thiếu phiếu đặt trước!", errorCodes.RESOURCE_NOT_FOUND);
+        if (!bookingForm) throw new CatchException("Không tìm thấy phiếu đặt trước!", errorCodes.RESOURCE_NOT_FOUND);
 
         if (bookingForm.isConfirmed) return;
 

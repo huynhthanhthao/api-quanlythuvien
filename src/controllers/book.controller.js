@@ -26,7 +26,6 @@ class BookController {
         const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-        const detailBooks = JSON.parse(req.body.detailBooks || []) || [];
 
         if (checkIsDuplicates(fieldIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
@@ -35,7 +34,7 @@ class BookController {
         }
 
         return transformer(
-            await BookService.createBook({ ...req.body, fieldIds, photoURL, attachFiles, detailBooks }, req.account),
+            await BookService.createBook({ ...req.body, fieldIds, photoURL, attachFiles }, req.account),
             "Đã thêm dữ liệu sách mới."
         );
     }
@@ -45,7 +44,6 @@ class BookController {
         const photoURL = req.files?.photoFile?.[0]?.path;
         const attachFiles = req.files?.attachFiles;
         const fieldIds = convertToIntArray(req.body.fieldIds) || [];
-        const detailBooks = JSON.parse(req.body.detailBooks || []) || [];
 
         if (checkIsDuplicates(fieldIds)) {
             throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
@@ -54,10 +52,7 @@ class BookController {
         }
 
         return transformer(
-            await BookService.updateBookGroupById(
-                { ...req.body, photoURL, fieldIds, id, attachFiles, detailBooks },
-                req.account
-            ),
+            await BookService.updateBookGroupById({ ...req.body, photoURL, fieldIds, id, attachFiles }, req.account),
             "Cập nhật thành công."
         );
     }

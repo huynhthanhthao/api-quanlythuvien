@@ -5,7 +5,7 @@ module.exports = {
         await queryInterface.bulkInsert("Categories", [
             {
                 schoolId: 1,
-                categoryCode: "DM0001",
+                categoryCode: "KH",
                 categoryName: "Sách Khoa Học",
                 categoryDes: "Danh mục sách chứa các tác phẩm liên quan đến lĩnh vực khoa học và công nghệ.",
                 active: true,
@@ -16,7 +16,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM0002",
+                categoryCode: "VH",
                 categoryName: "Sách Văn Học",
                 categoryDes: "Danh mục sách chứa các tác phẩm văn học từ các tác giả nổi tiếng trên thế giới.",
                 active: true,
@@ -27,7 +27,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM4547",
+                categoryCode: "LA",
                 categoryName: "Luận án",
                 categoryDes: "Danh mục sách chứa các luận án nghiên cứu cao cấp từ các học giả và nghiên cứu viên.",
                 active: true,
@@ -38,7 +38,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM8327",
+                categoryCode: "DT",
                 categoryName: "Sách đầu tư",
                 categoryDes: "Danh mục sách chứa các tác phẩm liên quan đến chiến lược và kỹ năng đầu tư tài chính.",
                 active: true,
@@ -49,7 +49,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM3703",
+                categoryCode: "PM",
                 categoryName: "Sách phần mềm",
                 categoryDes: "Danh mục sách chứa các tác phẩm liên quan đến phát triển và sử dụng phần mềm máy tính.",
                 active: true,
@@ -60,7 +60,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM8725",
+                categoryCode: "TK",
                 categoryName: "Sách tham khảo",
                 categoryDes:
                     "Danh mục sách chứa các tác phẩm dùng để tham khảo và nghiên cứu trong quá trình học tập và nghiên cứu.",
@@ -72,7 +72,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM7287",
+                categoryCode: "PP",
                 categoryName: "Sách phương pháp",
                 categoryDes:
                     "Danh mục sách chứa các tác phẩm về các phương pháp và kỹ thuật trong các lĩnh vực khác nhau.",
@@ -84,7 +84,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM2305",
+                categoryCode: "GK",
                 categoryName: "Sách giáo khoa",
                 categoryDes:
                     "Danh mục sách chứa các tài liệu dùng để giảng dạy và học tập trong các khóa học chính thống.",
@@ -96,7 +96,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM3895",
+                categoryCode: "TLI",
                 categoryName: "Tài liệu in",
                 categoryDes:
                     "Danh mục sách chứa các tài liệu in ấn và xuất bản dùng để phục vụ nhu cầu học tập và nghiên cứu.",
@@ -108,7 +108,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM5886",
+                categoryCode: "TLS",
                 categoryName: "Tài liệu số",
                 categoryDes:
                     "Danh mục sách chứa các tài liệu điện tử và số hóa dùng để phục vụ nhu cầu học tập và nghiên cứu.",
@@ -120,7 +120,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM5738",
+                categoryCode: "BC",
                 categoryName: "Báo chí",
                 categoryDes:
                     "Danh mục sách chứa các báo cáo, bài báo và tài liệu từ các phương tiện truyền thông và báo chí.",
@@ -132,7 +132,7 @@ module.exports = {
             },
             {
                 schoolId: 1,
-                categoryCode: "DM1544",
+                categoryCode: "KH",
                 categoryName: "Khác",
                 categoryDes: "Danh mục sách chứa các tác phẩm không thuộc vào các danh mục khác.",
                 active: true,
