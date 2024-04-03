@@ -87,6 +87,11 @@ const TYPE_LOAN_FEES = {
     INDIVIDUAL_BOOK_FEE: 3,
 };
 
+const ACTION_TYPE = {
+    AUTOMATIC: 1,
+    MANUAL: 2,
+};
+
 module.exports = {
     ACCOUNT_STATUS,
     GENDER,
@@ -108,4 +113,5 @@ module.exports = {
     QUERY_ONE_TYPE,
     FULL_ROLE_IDS,
     TYPE_LOAN_FEES,
+    ACTION_TYPE,
 };

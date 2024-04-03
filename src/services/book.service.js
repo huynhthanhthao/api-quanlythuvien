@@ -4,7 +4,14 @@ const unidecode = require("unidecode");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const { CatchException } = require("../../utils/api-error");
 const ActivityService = require("./activityLog.service");
-const { DEFAULT_LIMIT, UNLIMITED, LOAN_STATUS, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
+const {
+    DEFAULT_LIMIT,
+    UNLIMITED,
+    LOAN_STATUS,
+    ACTIVITY_TYPE,
+    QUERY_ONE_TYPE,
+    ACTION_TYPE,
+} = require("../../enums/common");
 const {
     mapResponseBookGroupItem,
     mapResponseBookGroupList,
@@ -90,34 +97,6 @@ class BookService {
         }
     }
 
-    static async checkBookCodeValid(bookGroupId, bookCodes, account) {
-        const whereCondition = { active: true, schoolId: account.schoolId };
-        if (checkStringIsDuplicates(bookCodes))
-            throw new CatchException("Danh sách sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
-                field: "bookCodes",
-            });
-
-        const books = await db.Book.findAll({
-            where: { ...whereCondition, bookCode: { [Op.in]: bookCodes } },
-            attributes: ["id", "bookCode"],
-            include: [
-                {
-                    model: db.BookGroup,
-                    as: "bookGroup",
-                    where: { ...whereCondition, id: { [Op.not]: bookGroupId } },
-                    required: true,
-                    attributes: ["id"],
-                },
-            ],
-        });
-
-        if (books.length > 0)
-            throw new CatchException("Mã sách đã tồn tại!", errorCodes.DATA_ALREADY_EXISTS, {
-                field: "detailBooks",
-                bookCodes: books.map((book) => book.bookCode),
-            });
-    }
-
     static async updateBookGroupById(updateBookGroup, account) {
         let transaction;
         try {
@@ -184,41 +163,6 @@ class BookService {
         } catch (error) {
             await transaction.rollback();
             throw error;
-        }
-    }
-
-    static async checkBookBorrowedNotFound(bookGroupId, bookIds, account) {
-        const whereCondition = { active: true, schoolId: account.schoolId };
-
-        const borrowedBooks = await db.Book.findAll({
-            where: whereCondition,
-            attributes: ["id"],
-            include: [
-                {
-                    model: db.BookGroup,
-                    as: "bookGroup",
-                    attributes: ["id"],
-                    where: { ...whereCondition, id: bookGroupId },
-                    required: true,
-                },
-                {
-                    model: db.ReceiptHasBook,
-                    as: "receiptHasBook",
-                    attributes: ["id"],
-                    where: whereCondition,
-                    required: true,
-                },
-            ],
-        });
-
-        const borrowedBookIds = borrowedBooks.map((book) => +book.id) || [];
-
-        const uniqueBorrowedIds = borrowedBookIds.filter((id) => !bookIds.includes(id));
-
-        if (uniqueBorrowedIds.length > 0) {
-            throw new CatchException("Không tìm thấy mã ấn phẩm đang cho mượn trước đó!", errorCodes.DATA_IS_CONFLICT, {
-                field: "detailBooks",
-            });
         }
     }
 
@@ -508,8 +452,6 @@ class BookService {
             const borrowedBookGroupIds = bookGroupHasLoanReceipt.map((book) => +book.id);
 
             const validBookGroupIds = ids.filter((id) => !borrowedBookGroupIds.includes(+id));
-
-            console.log(borrowedBookGroupIds, validBookGroupIds, 9999);
 
             await db.BookGroup.update(
                 {
@@ -1077,21 +1019,72 @@ class BookService {
         };
     }
 
-    static async generateBookCode(schoolId) {
-        const { dataValues: highestBook } = (await db.Book.findOne({
-            attributes: [[db.sequelize.fn("MAX", db.sequelize.col("bookCode")), "maxBookCode"]],
-            where: { schoolId },
-        })) || { dataValues: null };
+    static async generateBookCode(schoolId) {}
 
-        let newBookCode = "S00001";
+    static async createBookCode(dataCreate, account) {
+        const { bookGroupId, amount, statusId, positionId, bookList } = dataCreate;
+        const type = dataCreate.type || ACTION_TYPE.AUTOMATIC;
+        const whereCondition = { schoolId: account.schoolId, active: true };
 
-        if (highestBook && highestBook?.maxBookCode) {
-            const currentNumber = parseInt(highestBook.maxBookCode.slice(2), 10);
-            const nextNumber = currentNumber + 1;
-            newBookCode = `S${nextNumber.toString().padStart(5, "0")}`;
+        let transaction;
+
+        try {
+            transaction = await db.sequelize.transaction();
+
+            const bookCodes = bookList.map((book) => book.bookCode);
+            await this.checkBookCodeValid(bookCodes, account);
+
+            if (type == ACTION_TYPE.MANUAL) {
+                const bookData = bookList.map((book) => ({
+                    bookCode: book.bookCode,
+                    statusId: book.statusId,
+                    bookGroupId,
+                    positionId: book.positionId,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                }));
+
+                await db.Book.bulkCreate(bookData, { transaction, validate: true });
+            }
+
+            if (type == ACTION_TYPE.AUTOMATIC) {
+                const categoryBook = await db.Book.findOne({ where: whereCondition });
+            }
+
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
+    }
 
-        return newBookCode;
+    static async checkBookCodeValid(bookCodes, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        if (checkStringIsDuplicates(bookCodes))
+            throw new CatchException("Mã sách bị trùng lặp!", errorCodes.LIST_IS_DUPLICATED, {
+                field: "bookList",
+            });
+
+        const books = await db.Book.findAll({
+            where: { ...whereCondition, bookCode: { [Op.in]: bookCodes } },
+            attributes: ["id", "bookCode"],
+            include: [
+                {
+                    model: db.BookGroup,
+                    as: "bookGroup",
+                    where: whereCondition,
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
+        });
+
+        if (books.length > 0)
+            throw new CatchException("Mã sách đã tồn tại!", errorCodes.DATA_ALREADY_EXISTS, {
+                field: "bookList",
+                bookCodes: books.map((book) => book.bookCode),
+            });
     }
 }
 

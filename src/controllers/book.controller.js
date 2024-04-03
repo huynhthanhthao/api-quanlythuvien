@@ -62,6 +62,10 @@ class BookController {
 
         return transformer(await BookService.deleteBookGroupByIds(ids, req.account), "Cập nhật thành công.");
     }
+
+    static async createBookCode(req) {
+        return transformer(await BookService.createBookCode(req.body, req.account), "Dữ liệu mã sách mới đã được tạo.");
+    }
 }
 
 module.exports = BookController;

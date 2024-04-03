@@ -28,7 +28,15 @@ class CardOpeningRegistrationService {
         );
     }
 
-    static async deleteCardOpeningRegistrationByIds(ids, account) {}
+    static async deleteCardOpeningRegistrationByIds(ids, account) {
+        await db.CardOpeningRegistration.update(
+            {
+                active: false,
+                updatedBy: account.id,
+            },
+            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.schoolId } }
+        );
+    }
 
     static async getCardOpeningRegistrations(query, account) {
         let limit = +query.limit || DEFAULT_LIMIT;

@@ -22,6 +22,15 @@ router.post(
     }
 );
 
+router.post("/create-book-code", checkPermission([ROLES.BOOK_CREATE]), async function (req, res, next) {
+    try {
+        const data = await BookController.createBookCode(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.put(
     "/:id/update",
     checkPermission([ROLES.BOOK_UPDATE]),
