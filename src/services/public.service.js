@@ -10,8 +10,7 @@ const SchoolService = require("./school.service");
 class PublishService {
     static async confirmBookingForm(data) {
         const school = await SchoolService.getSchoolByIdOrDomain({
-            keyword: data.schoolDomain,
-            type: QUERY_ONE_TYPE.DOMAIN,
+            keyword: data.schoolId,
         });
 
         const whereCondition = { active: true, schoolId: school.id };
@@ -29,9 +28,9 @@ class PublishService {
             ],
         });
 
-        if (bookingForm.isConfirmed) return;
-
         if (!bookingForm) throw new CatchException("Không tìm thiếu phiếu đặt trước!", errorCodes.RESOURCE_NOT_FOUND);
+
+        if (bookingForm.isConfirmed) return;
 
         const dayLate = -calculateDaysDiff(bookingForm.receiveDate);
 
