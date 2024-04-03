@@ -107,10 +107,11 @@ class PublicController {
         const photo3x4 = req.files?.photo3x4?.[0]?.path;
         const cardFrontPhoto = req.files?.cardFrontPhoto?.[0]?.path;
         const cardBackPhoto = req.files?.cardBackPhoto?.[0]?.path;
+        const formPhoto = req.files?.formPhoto?.[0]?.path;
 
         return transformer(
             await CardOpeningRegistrationService.createCardOpeningRegistration(
-                { ...req.body, photo3x4, cardFrontPhoto, cardBackPhoto },
+                { ...req.body, photo3x4, cardFrontPhoto, cardBackPhoto, formPhoto },
                 { schoolId }
             ),
             "Đã thêm dữ liệu đăng ký mở thẻ mới."

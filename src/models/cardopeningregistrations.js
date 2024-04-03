@@ -102,6 +102,13 @@ module.exports = (sequelize, DataTypes) => {
                     notEmpty: true,
                 },
             },
+            formPhoto: {
+                type: DataTypes.TEXT,
+                allowNull: false,
+                validate: {
+                    notEmpty: true,
+                },
+            },
             isConfirmed: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,

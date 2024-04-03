@@ -48,6 +48,9 @@ module.exports = {
             cardBackPhoto: {
                 type: Sequelize.TEXT,
             },
+            formPhoto: {
+                type: Sequelize.TEXT,
+            },
             isConfirmed: {
                 type: Sequelize.BOOLEAN,
             },

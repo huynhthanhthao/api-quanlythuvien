@@ -36,6 +36,7 @@ router.post(
         { name: "photo3x4", maxCount: 1 },
         { name: "cardFrontPhoto", maxCount: 1 },
         { name: "cardBackPhoto", maxCount: 1 },
+        { name: "formPhoto", maxCount: 1 },
     ]),
     async function (req, res, next) {
         try {
