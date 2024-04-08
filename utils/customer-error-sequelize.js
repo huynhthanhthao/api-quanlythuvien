@@ -40,7 +40,7 @@ module.exports.customErrorMessage = (error) => {
                 message: `Trường ${error?.path} không đúng định dạng!`,
             });
 
-        if (error?.validatorKey == "isInEnum")
+        if (error?.validatorKey == "isInEnum" || error?.validatorKey == "min")
             return messages.push({
                 field: error?.path,
                 code: errorCodes.INVALID_DATA,

@@ -4,7 +4,7 @@ const ReaderGroupController = require("../controllers/readerGroup.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 
-router.post("/", checkPermission([ROLES.READER_GROUP_CREATE]), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.READER_GROUP_CREATE]), async function (req, res, next) {
     try {
         const data = await ReaderGroupController.createReaderGroup(req);
         return res.json(data);

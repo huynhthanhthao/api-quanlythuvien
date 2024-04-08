@@ -1,24 +1,15 @@
-const { LOAN_STATUS } = require("../../enums/common");
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.getBookGroupStatus = function (receiptHasBook, bookLostReport) {
-    const lostBookIds = [];
-
-    for (const bookLost of bookLostReport) {
-        bookLost.lostReportHasBook?.forEach((item) => {
-            lostBookIds.push(+item.bookId);
-        });
-    }
-
     return (
         receiptHasBook.map((receipt) => {
             return {
                 bookId: receipt?.book?.id || null,
-                type: lostBookIds.includes(+receipt?.book?.id) ? LOAN_STATUS.LOST : receipt.type,
+                type: receipt.type,
                 bookCode: receipt?.book?.bookCode || null,
                 bookName: receipt?.book?.bookGroup?.bookName,
                 bookStatusName: receipt?.book?.status?.statusName || null,
-                photoURL: receipt?.book?.bookGroup?.photoURL || null,
+                photoURL: customerURL(receipt?.book?.bookGroup?.photoURL) || null,
                 loanFee: receipt.loanFee || 0,
             };
         }) || []
@@ -36,7 +27,7 @@ module.exports.mapResponseLoanReceiptList = function (loanReceiptList) {
             createdAt: fDate(loanReceipt.createdAt),
             fullName: loanReceipt.user?.fullName || null,
             readerCode: loanReceipt.user?.readerCode || null,
-            photoURL: loanReceipt.user?.photoURL || null,
+            photoURL: customerURL(loanReceipt.user?.photoURL) || null,
             phone: loanReceipt.user?.phone || null,
             userId: loanReceipt.user?.id || null,
             email: loanReceipt.user?.email || null,
@@ -61,7 +52,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
         userId: loanReceipt.user?.id || null,
         fullName: loanReceipt.user?.fullName || null,
         readerCode: loanReceipt.user?.readerCode || null,
-        photoURL: loanReceipt.user?.photoURL || null,
+        photoURL: customerURL(loanReceipt.user?.photoURL) || null,
         phone: loanReceipt.user?.phone || null,
         email: loanReceipt.user?.email || null,
         bookList: loanReceipt?.receiptHasBook?.map((receipt) => ({
@@ -71,7 +62,7 @@ module.exports.mapResponseLoanReceiptItem = function (loanReceipt) {
             bookCode: receipt?.book?.bookCode || null,
             bookName: receipt?.book?.bookGroup?.bookName || null,
             bookStatusName: receipt?.book?.status?.statusName || null,
-            photoURL: receipt?.book?.bookGroup?.photoURL || null,
+            photoURL: customerURL(receipt?.book?.bookGroup?.photoURL) || null,
         })),
     };
 };

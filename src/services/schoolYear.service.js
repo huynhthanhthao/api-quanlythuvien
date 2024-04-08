@@ -112,7 +112,9 @@ class SchoolYearService {
         }
 
         const whereCondition = {
-            [Op.and]: [{ active: true }, { schoolId: account.schoolId }].filter(Boolean),
+            [Op.and]: [{ active: true }, { schoolId: account.schoolId }, query.year && { year: query.year }].filter(
+                Boolean
+            ),
         };
 
         const { rows, count } = await db.SchoolYear.findAndCountAll({

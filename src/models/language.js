@@ -29,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
             },
             lanCode: {
                 type: DataTypes.STRING,
-                allowNull: false,
                 validate: {
                     len: {
                         args: [0, 50],
@@ -43,7 +42,6 @@ module.exports = (sequelize, DataTypes) => {
                             extraConditions: { schoolId: this.schoolId },
                         });
                     },
-                    notEmpty: true,
                 },
             },
             lanDes: {

@@ -54,6 +54,7 @@ class BookLostService {
     }
 
     static async createBookLost(newBookLost, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
         const bookIds = newBookLost.bookIds || [];
 
         // Kiểm tra sách có trong phiếu mượn không
@@ -86,6 +87,17 @@ class BookLostService {
             }));
 
             await db.LostReportHasBook.bulkCreate(lostBookData, { transaction });
+
+            await db.ReceiptHasBook.update(
+                { type: LOAN_STATUS.LOST },
+                {
+                    where: {
+                        ...whereCondition,
+                        loanReceiptId: newBookLost.loanReceiptId,
+                        bookId: { [Op.in]: bookIds },
+                    },
+                }
+            );
 
             await ActivityService.createActivity(
                 { dataTarget: lostReport.id, tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.CREATED },
@@ -332,22 +344,71 @@ class BookLostService {
     }
 
     static async deleteBookLostReportByIds(ids, account) {
+        let transaction;
+        try {
+            transaction = await db.sequelize.transaction();
+            const whereCondition = { active: true, schoolId: account.schoolId };
+
+            await db.BookLostReport.update(
+                { active: false, updatedBy: account.id },
+                { where: { ...whereCondition, id: { [Op.in]: ids } }, transaction }
+            );
+
+            await db.LostReportHasBook.update(
+                { active: false, updatedBy: account.id },
+                { where: { ...whereCondition, lostReportId: { [Op.in]: ids } }, transaction }
+            );
+
+            await this.updateTypeLoanReceipt(ids, LOAN_STATUS.BORROWING, transaction, account);
+
+            await ActivityService.createActivity(
+                { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.DELETED },
+                account,
+                transaction
+            );
+
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    }
+
+    static async updateTypeLoanReceipt(ids, type, transaction, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
-        await db.BookLostReport.update(
-            { active: false, updatedBy: account.id },
-            { where: { ...whereCondition, id: { [Op.in]: ids } } }
-        );
+        const lostReportHasBooks = await db.LostReportHasBook.findAll({
+            where: { ...whereCondition, lostReportId: { [Op.in]: ids } },
+            attributes: ["bookId"],
+            include: [
+                {
+                    model: db.BookLostReport,
+                    as: "lostReport",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["id", "loanReceiptId"],
+                },
+            ],
+        });
 
-        await db.LostReportHasBook.update(
-            { active: false, updatedBy: account.id },
-            { where: { ...whereCondition, lostReportId: { [Op.in]: ids } } }
-        );
+        const updatePromises = lostReportHasBooks.map(async (lostReportHasBook) => {
+            const bookId = lostReportHasBook?.bookId || 0;
+            const loanReceiptId = lostReportHasBook?.lostReport?.loanReceiptId || 0;
 
-        await ActivityService.createActivity(
-            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.BOOK_LOST, action: ACTIVITY_TYPE.DELETED },
-            account
-        );
+            await db.ReceiptHasBook.update(
+                { type: type, updatedBy: account.id },
+                {
+                    where: {
+                        ...whereCondition,
+                        loanReceiptId,
+                        bookId,
+                    },
+                    transaction,
+                }
+            );
+        });
+
+        await Promise.all(updatePromises);
     }
 }
 

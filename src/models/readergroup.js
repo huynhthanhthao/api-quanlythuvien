@@ -54,12 +54,24 @@ module.exports = (sequelize, DataTypes) => {
             quantityLimit: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                validate: { isNumeric: true, notEmpty: true },
+                validate: {
+                    isNumeric: true,
+                    notEmpty: true,
+                    min: {
+                        args: [1],
+                    },
+                },
             },
             timeLimit: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                validate: { isNumeric: true, notEmpty: true },
+                validate: {
+                    isNumeric: true,
+                    notEmpty: true,
+                    min: {
+                        args: [1],
+                    },
+                },
             },
             groupDes: {
                 type: DataTypes.TEXT,
