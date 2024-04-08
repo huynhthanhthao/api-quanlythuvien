@@ -1019,8 +1019,6 @@ class BookService {
         };
     }
 
-    static async generateBookCode(schoolId) {}
-
     static async createBookCode(dataCreate, account) {
         const { bookGroupId, amount, statusId, positionId, bookList } = dataCreate;
         const type = dataCreate.type || ACTION_TYPE.AUTOMATIC;
@@ -1031,7 +1029,7 @@ class BookService {
         try {
             transaction = await db.sequelize.transaction();
 
-            const bookCodes = bookList.map((book) => book.bookCode);
+            const bookCodes = bookList.map((book) => book.bookCode || "");
             await this.checkBookCodeValid(bookCodes, account);
 
             if (type == ACTION_TYPE.MANUAL) {
@@ -1049,7 +1047,30 @@ class BookService {
             }
 
             if (type == ACTION_TYPE.AUTOMATIC) {
-                const categoryBook = await db.Book.findOne({ where: whereCondition });
+                const categoryCode = await this.getCategoryCode(bookGroupId, account);
+
+                const maxBookCode = await this.getMaxCode(categoryCode, account);
+
+                const nextBookCodes = [];
+
+                for (let i = 0; i < dataCreate.amount || 0; i++) {
+                    const nextNumber = parseInt(maxBookCode) + i + 1;
+                    const formattedNumber = String(nextNumber).padStart(maxBookCode.length, "0");
+                    const nextBookCode = `${categoryCode}${formattedNumber}`;
+                    nextBookCodes.push(nextBookCode);
+                }
+
+                const bookData = nextBookCodes.map((bookCode) => ({
+                    bookCode: bookCode,
+                    statusId: dataCreate.statusId,
+                    bookGroupId: dataCreate.bookGroupId,
+                    positionId: dataCreate.positionId,
+                    schoolId: account.schoolId,
+                    createdBy: account.id,
+                    updatedBy: account.id,
+                }));
+
+                await db.Book.bulkCreate(bookData, { transaction, validate: true });
             }
 
             await transaction.commit();
@@ -1057,6 +1078,49 @@ class BookService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    static async getMaxCode(categoryCode, account) {
+        const book = await db.Book.findOne({
+            where: {
+                bookCode: {
+                    [Op.and]: [
+                        { [Op.like]: `${categoryCode}%` },
+                        db.sequelize.where(
+                            db.sequelize.fn("substr", db.sequelize.col("bookCode"), categoryCode.length + 1),
+                            { [Op.regexp]: "^[0-9]+$" }
+                        ),
+                    ],
+                },
+            },
+            order: [["bookCode", "DESC"]],
+        });
+
+        if (book) {
+            const suffix = book.bookCode.substring(categoryCode.length);
+            return suffix;
+        } else {
+            return `000000`;
+        }
+    }
+
+    static async getCategoryCode(bookGroupId, account) {
+        const whereCondition = { schoolId: account.schoolId, active: true };
+
+        const category = await db.Category.findOne({
+            where: whereCondition,
+            include: [
+                {
+                    model: db.BookGroup,
+                    as: "bookList",
+                    where: { ...whereCondition, id: bookGroupId },
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
+        });
+
+        return category.categoryCode;
     }
 
     static async checkBookCodeValid(bookCodes, account) {
