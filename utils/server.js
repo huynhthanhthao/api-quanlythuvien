@@ -1,4 +1,5 @@
 const moment = require("moment");
+const unidecode = require("unidecode");
 
 module.exports.transformer = function (result, message) {
     return {
@@ -115,4 +116,16 @@ module.exports.getStartOfYear = function (year) {
 
 module.exports.getEndOfYear = function (year) {
     return new Date(year, 11, 31, 23, 59, 59, 999);
+};
+
+module.exports.slugify = function (text) {
+    const slugText = unidecode(text)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9 -]/g, "") // Loại bỏ tất cả các ký tự không phải chữ cái, số, dấu gạch ngang và khoảng trắng
+        .replace(/\s+/g, "-") // Thay thế khoảng trắng bằng dấu gạch ngang
+        .replace(/-+/g, "-") // Loại bỏ các dấu gạch ngang liên tiếp
+        .replace(/^-+/, "") // Loại bỏ dấu gạch ngang từ đầu
+        .replace(/-+$/, ""); // Loại bỏ dấu gạch ngang từ cuối
+    return slugText;
 };

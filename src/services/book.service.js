@@ -22,7 +22,7 @@ const {
 } = require("../map-responses/book.map-response");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
-const { convertToIntArray } = require("../../utils/server");
+const { convertToIntArray, slugify } = require("../../utils/server");
 const { checkStringIsDuplicates } = require("../../utils/customer-validate");
 
 class BookService {
@@ -1158,6 +1158,7 @@ class BookService {
     static async createBookFromExcel(dataCreate, account) {
         dataCreate = dataCreate.map((data) => ({
             ...data,
+            slug: data.slug ? data.slug : slugify(data.bookName),
             createdBy: account.id,
             updatedBy: account.id,
             schoolId: account.schoolId,
