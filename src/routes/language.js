@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/", checkPermission([ROLES.LANGUAGE_CREATE]), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.LANGUAGE_CREATE]), async function (req, res, next) {
     try {
         const data = await LanguageController.createLanguage(req);
         return res.json(data);
@@ -22,7 +22,7 @@ router.put("/delete", checkPermission([ROLES.LANGUAGE_DELETE]), async function (
     }
 });
 
-router.put("/:id", checkPermission([ROLES.LANGUAGE_UPDATE]), async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.LANGUAGE_UPDATE]), async function (req, res, next) {
     try {
         const data = await LanguageController.updateLanguageById(req);
         return res.json(data);
