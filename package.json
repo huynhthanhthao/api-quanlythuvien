@@ -3,7 +3,9 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "start": "nodemon ./bin/www.js"
+        "start": "nodemon ./bin/www.js",
+        "migrate": "npx sequelize db:migrate",
+        "seeder": "npx sequelize db:seed:all"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",

@@ -68,11 +68,10 @@ module.exports = (sequelize, DataTypes) => {
             },
             receiveDate: {
                 type: DataTypes.DATE,
-                allowNull: false,
-                validate: {
-                    notEmpty: true,
-                },
-                defaultValue: new Date(),
+                // allowNull: false,
+                // validate: {
+                //     notEmpty: true,
+                // },
             },
             returnDate: {
                 type: DataTypes.DATE,

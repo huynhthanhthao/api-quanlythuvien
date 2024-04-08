@@ -20,7 +20,7 @@ module.exports.mapResponseLoanReceiptList = function (loanReceiptList) {
     return loanReceiptList.map((loanReceipt) => {
         return {
             id: loanReceipt.id,
-            receiptCode: loanReceipt.receiptCode,
+            receiptCode: fDate(loanReceipt.receiptCode),
             receiveDate: fDate(loanReceipt.receiveDate),
             returnDate: fDate(loanReceipt.returnDate),
             receiptDes: loanReceipt.receiptDes,
