@@ -1,9 +1,11 @@
-const { Op } = require("sequelize");
-const { DEFAULT_LIMIT, UNLIMITED } = require("../../enums/common");
-const { CatchException } = require("../../utils/api-error");
 const db = require("../models");
 const unidecode = require("unidecode");
+const { Op } = require("sequelize");
+const { DEFAULT_LIMIT, UNLIMITED, ACTIVITY_TYPE } = require("../../enums/common");
+const { TABLE_NAME } = require("../../enums/languages");
 const { errorCodes } = require("../../enums/error-code");
+const { CatchException } = require("../../utils/api-error");
+const ActivityService = require("./activityLog.service");
 const { getPagination } = require("../../utils/customer-sequelize");
 
 class LanguageService {
@@ -64,11 +66,53 @@ class LanguageService {
         return language;
     }
 
-    static async createLanguage(newLanguage, account) {}
+    static async createLanguage(newLanguage, account) {
+        const language = await db.Language.create({
+            ...newLanguage,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        });
 
-    static async updateLanguageById(updateLanguage, account) {}
+        await ActivityService.createActivity(
+            { dataTarget: language.id, tableTarget: TABLE_NAME.LANGUAGE, action: ACTIVITY_TYPE.CREATED },
+            account
+        );
+    }
 
-    static async deleteLanguageByIds(ids, account) {}
+    static async updateLanguageById(updateLanguage, account) {
+        await db.Language.update(
+            {
+                lanName: updateLanguage.lanName,
+                lanCode: updateLanguage.lanCode,
+                lanDes: updateLanguage.lanDes,
+                id: updateLanguage.id,
+                schoolId: account.schoolId,
+                updatedBy: account.id,
+            },
+            { where: { id: updateLanguage.id, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: updateLanguage.id, tableTarget: TABLE_NAME.LANGUAGE, action: ACTIVITY_TYPE.UPDATED },
+            account
+        );
+    }
+
+    static async deleteLanguageByIds(ids, account) {
+        await db.Language.update(
+            {
+                active: false,
+                updatedBy: account.id,
+            },
+            { where: { id: { [Op.in]: ids }, active: true, schoolId: account.id } }
+        );
+
+        await ActivityService.createActivity(
+            { dataTarget: JSON.stringify(ids), tableTarget: TABLE_NAME.LANGUAGE, action: ACTIVITY_TYPE.DELETED },
+            account
+        );
+    }
 }
 
 module.exports = LanguageService;

@@ -1,5 +1,6 @@
 "use strict";
-const { Model, Op } = require("sequelize");
+const { Model } = require("sequelize");
+const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class Language extends Model {
@@ -19,9 +20,31 @@ module.exports = (sequelize, DataTypes) => {
             },
             lanName: {
                 type: DataTypes.STRING,
+                validate: {
+                    len: {
+                        args: [0, 255],
+                    },
+                    notEmpty: true,
+                },
             },
             lanCode: {
                 type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    len: {
+                        args: [0, 50],
+                    },
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "lanCode",
+                            value,
+                            model: sequelize.models.Language,
+                            extraConditions: { schoolId: this.schoolId },
+                        });
+                    },
+                    notEmpty: true,
+                },
             },
             lanDes: {
                 type: DataTypes.TEXT,
