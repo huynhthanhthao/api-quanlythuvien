@@ -1020,9 +1020,8 @@ class BookService {
     }
 
     static async createBookCode(dataCreate, account) {
-        const { bookGroupId, amount, statusId, positionId, bookList } = dataCreate;
+        const { bookGroupId, bookList } = dataCreate;
         const type = dataCreate.type || ACTION_TYPE.AUTOMATIC;
-        const whereCondition = { schoolId: account.schoolId, active: true };
 
         let transaction;
 
@@ -1052,6 +1051,11 @@ class BookService {
                 const maxBookCode = await this.getMaxCode(categoryCode, account);
 
                 const nextBookCodes = [];
+
+                if (!dataCreate.amount)
+                    throw new CatchException("Số lượng phải lớn hơn 0!", errorCodes.INVALID_DATA, {
+                        field: "amount",
+                    });
 
                 for (let i = 0; i < dataCreate.amount || 0; i++) {
                     const nextNumber = parseInt(maxBookCode) + i + 1;
