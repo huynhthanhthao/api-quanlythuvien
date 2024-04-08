@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/", checkPermission([ROLES.FIELD_CREATE]), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.FIELD_CREATE]), async function (req, res, next) {
     try {
         const data = await FieldController.createField(req);
         return res.json(data);

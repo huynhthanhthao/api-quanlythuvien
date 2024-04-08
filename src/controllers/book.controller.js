@@ -66,6 +66,13 @@ class BookController {
     static async createBookCode(req) {
         return transformer(await BookService.createBookCode(req.body, req.account), "Dữ liệu mã sách mới đã được tạo.");
     }
+
+    static async createBookFromExcel(req) {
+        return transformer(
+            await BookService.createBookFromExcel(req.body, req.account),
+            "Dữ liệu sách mới đã được tạo."
+        );
+    }
 }
 
 module.exports = BookController;

@@ -31,6 +31,15 @@ router.post("/create-book-code", checkPermission([ROLES.BOOK_CREATE]), async fun
     }
 });
 
+router.post("/create-book-form-excel", checkPermission([ROLES.BOOK_CREATE]), async function (req, res, next) {
+    try {
+        const data = await BookController.createBookFromExcel(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.put(
     "/:id/update",
     checkPermission([ROLES.BOOK_UPDATE]),

@@ -1154,6 +1154,37 @@ class BookService {
                 bookCodes: books.map((book) => book.bookCode),
             });
     }
+
+    static async createBookFromExcel(dataCreate, account) {
+        dataCreate = dataCreate.map((data) => ({
+            ...data,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        }));
+
+        const validData = [];
+        const errorData = [];
+
+        await Promise.all(
+            dataCreate.map(async (data, index) => {
+                try {
+                    await db.BookGroup.create(data);
+                    validData.push(data);
+                } catch (error) {
+                    errorData.push({
+                        index: index,
+                        data: data,
+                    });
+                }
+            })
+        );
+
+        return {
+            totalSuccess: validData.length,
+            errorData,
+        };
+    }
 }
 
 module.exports = BookService;

@@ -52,10 +52,12 @@ module.exports = (sequelize, DataTypes) => {
             },
             phone: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 validate: {
                     isPhone(value) {
                         isPhone(value);
                     },
+                    notEmpty: true,
                 },
             },
             address: {

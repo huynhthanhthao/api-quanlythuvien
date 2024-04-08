@@ -8,7 +8,7 @@ class CommonService {
     static async backup(account) {
         // delete db.sequelize.models.School;
         const tables = Object.keys(db.sequelize.models).filter(
-            (table) => table != "School" && table != "Role" && table != "GroupRole"
+            (table) => table != "School" && table != "Role" && table != "GroupRole" && table != "SchoolEmailSMTP"
         );
 
         const queryPromises = tables.map(async (table) => {

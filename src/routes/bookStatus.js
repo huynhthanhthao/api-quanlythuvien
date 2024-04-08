@@ -4,7 +4,7 @@ const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
 
-router.post("/", checkPermission([ROLES.BOOK_STATUS_CREATE]), async function (req, res, next) {
+router.post("/create", checkPermission([ROLES.BOOK_STATUS_CREATE]), async function (req, res, next) {
     try {
         const data = await BookStatusController.createBookStatus(req);
         return res.json(data);
