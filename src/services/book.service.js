@@ -1186,6 +1186,53 @@ class BookService {
             errorData,
         };
     }
+
+    static async deleteBookCodeByIds(ids, account) {
+        let transaction;
+
+        try {
+            transaction = await db.sequelize.transaction();
+            const whereCondition = { active: true, schoolId: account.schoolId };
+
+            const bookHasLoanReceipt = await db.Book.findAll({
+                where: { ...whereCondition, id: { [Op.in]: ids } },
+                attributes: ["id"],
+                include: [
+                    {
+                        model: db.ReceiptHasBook,
+                        as: "receiptHasBook",
+                        attributes: ["id"],
+                        where: { ...whereCondition },
+                        required: true,
+                    },
+                ],
+            });
+
+            const borrowedBookIds = bookHasLoanReceipt.map((book) => +book.id);
+
+            const validBookGroupIds = ids.filter((id) => !borrowedBookIds.includes(+id));
+
+            await db.Book.update(
+                {
+                    active: false,
+                    updatedBy: account.id,
+                },
+                { where: { id: { [Op.in]: validBookGroupIds }, active: true, schoolId: account.schoolId }, transaction }
+            );
+
+            await transaction.commit();
+
+            if (bookHasLoanReceipt.length > 0)
+                throw new CatchException("Không thể xóa mã sách này!", errorCodes.DATA_IS_BINDING, {
+                    field: "ids",
+                    ids: borrowedBookIds,
+                });
+        } catch (error) {
+            if (error instanceof CatchException) throw error;
+            await transaction.rollback();
+            throw error;
+        }
+    }
 }
 
 module.exports = BookService;

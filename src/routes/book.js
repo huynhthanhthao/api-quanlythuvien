@@ -66,6 +66,15 @@ router.put("/delete", checkPermission([ROLES.BOOK_DELETE]), async function (req,
     }
 });
 
+router.put("/delete-book-code", checkPermission([ROLES.BOOK_DELETE]), async function (req, res, next) {
+    try {
+        const data = await BookController.deleteBookCodeByIds(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get("/:code/code", checkPermission([ROLES.BOOK_VIEW]), async function (req, res, next) {
     try {
         const data = await BookController.getBookByCode(req);

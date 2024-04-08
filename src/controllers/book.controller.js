@@ -73,6 +73,12 @@ class BookController {
             "Dữ liệu sách mới đã được tạo."
         );
     }
+
+    static async deleteBookCodeByIds(req) {
+        const { ids } = req.body;
+
+        return transformer(await BookService.deleteBookCodeByIds(ids, req.account), "Cập nhật thành công.");
+    }
 }
 
 module.exports = BookController;
