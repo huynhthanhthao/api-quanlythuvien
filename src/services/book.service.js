@@ -97,6 +97,22 @@ class BookService {
         }
     }
 
+    static async updateBookById(updateBook, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+
+        await db.Book.update(
+            {
+                id: updateBook.id,
+                schoolId: account.schoolId,
+                positionId: updateBook.positionId,
+                statusId: updateBook.statusId,
+                bookCode: updateBook.bookCode,
+                updatedBy: account.id,
+            },
+            { where: { ...whereCondition, id: updateBook.id } }
+        );
+    }
+
     static async updateBookGroupById(updateBookGroup, account) {
         let transaction;
         try {

@@ -57,6 +57,12 @@ class BookController {
         );
     }
 
+    static async updateBookById(req) {
+        const { id } = req.params;
+
+        return transformer(await BookService.updateBookById({ ...req.body, id }, req.account), "Cập nhật thành công.");
+    }
+
     static async deleteBookGroupByIds(req) {
         const { ids } = req.body;
 
