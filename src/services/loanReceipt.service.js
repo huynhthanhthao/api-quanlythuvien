@@ -569,7 +569,7 @@ class LoanReceiptService {
                         {
                             model: db.BookingBorrowForm,
                             as: "bookingForm",
-                            where: { ...whereCondition, isConfirmed: true },
+                            where: { ...whereCondition, isConfirmed: true, userId: { [Op.ne]: loanReceipt.userId } },
                             required: true,
                             attributes: ["id"],
                         },

@@ -122,7 +122,7 @@ const bookingBookHtml = (data) => {
         ${data.books?.map(
             (book) => ` 
             <div class="book-item">
-                <div class="book-title" style="font-size:16px">${book?.dataValues?.bookName}</div>
+                <div class="book-title" style="font-size:16px">${book?.dataValues?.bookName} (${book?.bookCode})</div>
                 <div style="font-size:16px">Tác Giả: ${book?.dataValues?.author}</div>
              </div>`
         )}
