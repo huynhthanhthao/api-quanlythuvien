@@ -33,6 +33,9 @@ module.exports = {
             valueLoanFee: {
                 type: Sequelize.DOUBLE,
             },
+            borrowTime: {
+                type: Sequelize.INTEGER,
+            },
             active: {
                 type: Sequelize.BOOLEAN,
             },

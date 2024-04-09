@@ -132,7 +132,7 @@ module.exports.slugify = function (text) {
 };
 
 module.exports.getPhotoURLFromLink = function (url) {
-    const index = url.indexOf("/documents/users/");
-    const path = url.substring(index);
+    const index = url?.indexOf("/documents/users/");
+    const path = url?.substring(index);
     return "public" + path;
 };

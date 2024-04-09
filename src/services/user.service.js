@@ -22,7 +22,7 @@ class UserService {
             const user = await db.User.create(
                 {
                     ...newUser,
-                    photoURL: getPhotoURLFromLink(newUser.photoURL) || newUser.newPhotoURL,
+                    photoURL: newUser.photoURL ? getPhotoURLFromLink(newUser.photoURL) : newUser.newPhotoURL,
                     readerCode,
                     schoolId: account.schoolId,
                     createdBy: account.id,

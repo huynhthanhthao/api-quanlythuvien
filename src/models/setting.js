@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            borrowTime: {
+                type: DataTypes.INTEGER,
+                defaultValue: 14,
+            },
             noSpecialPenalties: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,

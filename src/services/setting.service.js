@@ -27,6 +27,7 @@ class SettingService {
                 hasLoanFee: updateSetting.hasLoanFee,
                 typeLoanFee: updateSetting.typeLoanFee,
                 valueLoanFee: updateSetting.valueLoanFee,
+                borrowTime: updateSetting.borrowTime,
                 updatedBy: account.id,
             },
             { where: { ...whereCondition } }
