@@ -6,35 +6,46 @@ const {
     mapResponseGetMostBorrowedBooksReport,
     mapResponseLoanReceiptReport,
 } = require("../map-responses/report.map-response");
-const { USER_TYPE } = require("../../enums/common");
+const { USER_TYPE, LOAN_STATUS } = require("../../enums/common");
 const { getStartOfYear, getEndOfYear, convertDate } = require("../../utils/server");
 
 class ReportService {
     static async borrowReturnReport(query, account) {
         const year = query.year || new Date().getFullYear();
+        const type = query.type || 1;
 
         const whereCondition = { active: true, schoolId: account.schoolId };
 
-        const dataReport = await db.ReceiptHasBook.findAll({
-            where: {
-                [Op.and]: [
-                    whereCondition,
-                    db.sequelize.literal(`EXTRACT('year' FROM "loanReceipt"."receiveDate") = ${year}`),
-                ],
-            },
-            attributes: ["type"],
-            include: [
-                {
-                    model: db.LoanReceipt,
-                    as: "loanReceipt",
-                    where: whereCondition,
-                    required: false,
-                    attributes: ["receiveDate", "returnDate"],
+        // Thống kê lượt mượn theo tháng
+        if (type == 1) {
+            const dataReport = await db.ReceiptHasBook.findAll({
+                where: {
+                    [Op.and]: [
+                        whereCondition,
+                        db.sequelize.literal(`EXTRACT('year' FROM "loanReceipt"."receiveDate") = ${year}`),
+                    ],
                 },
-            ],
-        });
+                attributes: ["type"],
+                include: [
+                    {
+                        model: db.LoanReceipt,
+                        as: "loanReceipt",
+                        where: whereCondition,
+                        required: false,
+                        attributes: ["receiveDate", "returnDate"],
+                    },
+                ],
+            });
 
-        return mapResponseBorrowReturnReport(dataReport);
+            return mapResponseBorrowReturnReport(dataReport);
+        }
+
+        // Thống kê số lần mượn
+        if (type == 2) {
+            const countLoan = await db.LoanReceipt.count({ where: whereCondition });
+
+            return countLoan;
+        }
     }
 
     static async readerReport(query, account) {
@@ -116,6 +127,20 @@ class ReportService {
             // Danh sách ấn phẩm
             return this.totalBookReport(account);
         }
+
+        if (type == 6) {
+            // Tổng số sách cho mượn hiện tại
+            return this.totalBookBorrowing(account);
+        }
+    }
+
+    static async totalBookBorrowing(account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const countBookBorrowing = await db.ReceiptHasBook.count({
+            where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
+        });
+
+        return countBookBorrowing;
     }
 
     static async totalBookReport(account) {
