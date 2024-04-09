@@ -1037,10 +1037,11 @@ class BookService {
         try {
             transaction = await db.sequelize.transaction();
 
-            const bookCodes = bookList.map((book) => book.bookCode || "");
-            await this.checkBookCodeValid(bookCodes, account);
-
             if (type == ACTION_TYPE.MANUAL) {
+                const bookCodes = bookList.map((book) => book.bookCode || "");
+
+                await this.checkBookCodeValid(bookCodes, account);
+
                 const bookData = bookList.map((book) => ({
                     bookCode: book.bookCode,
                     statusId: book.statusId,

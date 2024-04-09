@@ -1,16 +1,18 @@
+const { fDate } = require("../../utils/server");
+
 module.exports.mapResponseAccountList = function (accountList) {
     return accountList.map((account) => {
         return {
             id: account.id,
             username: account.username,
             status: account.status,
-            createdAt: account.createdAt,
-            updatedAt: account.updatedAt,
+            createdAt: fDate(account.createdAt),
+            updatedAt: fDate(account.updatedAt),
             userId: account?.user?.id || null,
             fullName: account?.user?.fullName || null,
             photoURL: account?.user?.photoURL || null,
             phone: account?.user?.phone || null,
-            birthday: account?.user?.birthday || null,
+            birthday: fDate(account?.user?.birthday) || null,
             email: account?.user?.email || null,
             perName: account?.permission?.perName || null,
             role:
@@ -25,14 +27,14 @@ module.exports.mapResponseAccountItem = function (account) {
         id: account.id,
         username: account.username,
         status: account.status,
-        createdAt: account.createdAt,
-        updatedAt: account.updatedAt,
+        createdAt: fDate(account.createdAt),
+        updatedAt: fDate(account.updatedAt),
         password: account.password,
         fullName: account?.user?.fullName || null,
         userId: account?.user?.id || null,
         photoURL: account?.user?.photoURL || null,
         phone: account?.user?.phone || null,
-        birthday: account?.user?.birthday || null,
+        birthday: fDate(account?.user?.birthday) || null,
         email: account?.user?.email || null,
         perName: account?.permission?.perName || null,
         perId: account?.permission?.id || null,

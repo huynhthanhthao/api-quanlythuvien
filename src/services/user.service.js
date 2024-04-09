@@ -42,7 +42,7 @@ class UserService {
                     { transaction }
                 );
 
-            if (USER_TYPE.READER) {
+            if (newUser.type == USER_TYPE.READER) {
                 if (!newUser.effectiveTime)
                     throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA, {
                         field: "effectiveTime",

@@ -21,8 +21,8 @@ module.exports.mapResponseUserList = function (userList) {
             groupName: user.readerGroup?.groupName || null,
             className: user.classHasUser[0]?.class?.className || null,
             year: user.classHasUser[0]?.class?.schoolYear?.year || null,
-            startDay: user?.userHasEffect?.[0]?.startDay || null,
-            endDay: user?.userHasEffect?.[0]?.endDay || null,
+            startDay: fDate(user?.userHasEffect?.[0]?.startDay) || null,
+            endDay: fDate(user?.userHasEffect?.[0]?.endDay) || null,
         };
     });
 };
@@ -49,7 +49,7 @@ module.exports.mapResponseUserItem = function (user) {
         className: user.classHasUser[0]?.class?.className || null,
         classId: user.classHasUser[0]?.class?.id || null,
         year: user.classHasUser[0]?.class?.schoolYear?.year || null,
-        startDay: user?.userHasEffect?.[0]?.startDay || null,
-        endDay: user?.userHasEffect?.[0]?.endDay || null,
+        startDay: fDate(user?.userHasEffect?.[0]?.startDay) || null,
+        endDay: fDate(user?.userHasEffect?.[0]?.endDay) || null,
     };
 };

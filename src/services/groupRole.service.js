@@ -8,13 +8,11 @@ class GroupRoleService {
 
     static async getGroupRoles(query, account) {
         const groupRole = await db.GroupRole.findAll({
-            where: { active: true },
             attributes: ["id", "groupName"],
             include: [
                 {
                     model: db.Role,
                     as: "roleList",
-                    where: { active: true },
                     attributes: ["id", "roleName", "roleCode"],
                 },
             ],

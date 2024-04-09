@@ -212,7 +212,6 @@ class AccountService {
                         {
                             model: db.Role,
                             as: "role",
-                            where: { active: true },
                             required: false,
                             attributes: ["id", "roleName", "roleCode"],
                         },
@@ -262,7 +261,6 @@ class AccountService {
                         {
                             model: db.Role,
                             as: "role",
-                            where: { active: true },
                             required: false,
                             attributes: ["id", "roleName", "roleCode"],
                         },

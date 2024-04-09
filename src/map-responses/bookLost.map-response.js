@@ -1,4 +1,4 @@
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.mapResponseBookLostList = function (bookLostList) {
     return bookLostList.map((bookLost) => {
@@ -8,12 +8,12 @@ module.exports.mapResponseBookLostList = function (bookLostList) {
             reportDes: bookLost.reportDes,
             createdAt: bookLost.createdAt,
             receiptCode: bookLost?.loanReceipt?.receiptCode || null,
-            receiveDate: bookLost?.loanReceipt?.receiveDate || null,
-            returnDate: bookLost?.loanReceipt?.returnDate || null,
+            receiveDate: fDate(bookLost?.loanReceipt?.receiveDate) || null,
+            returnDate: fDate(bookLost?.loanReceipt?.returnDate) || null,
             userId: bookLost?.loanReceipt?.user?.id || null,
             fullName: bookLost?.loanReceipt?.user?.fullName || null,
             readerCode: bookLost?.loanReceipt?.user?.readerCode || null,
-            photoURL: bookLost?.loanReceipt?.user?.photoURL || null,
+            photoURL: customerURL(bookLost?.loanReceipt?.user?.photoURL) || null,
             phone: bookLost?.loanReceipt?.user?.phone || null,
             address: bookLost?.loanReceipt?.user?.address || null,
             bookList: bookLost.lostReportHasBook?.map((item) => ({
@@ -23,7 +23,7 @@ module.exports.mapResponseBookLostList = function (bookLostList) {
                 otherName: item?.book?.bookGroup?.otherName || null,
                 author: item?.book?.bookGroup?.author || null,
                 price: item?.book?.bookGroup?.price || null,
-                photoURL: item?.book?.bookGroup?.photoURL || null,
+                photoURL: customerURL(item?.book?.bookGroup?.photoURL) || null,
             })),
         };
     });
@@ -37,12 +37,12 @@ module.exports.mapResponseBookLostItem = function (bookLost) {
               reportDes: bookLost.reportDes,
               createdAt: bookLost.createdAt,
               receiptCode: bookLost?.loanReceipt?.receiptCode || null,
-              receiveDate: bookLost?.loanReceipt?.receiveDate || null,
-              returnDate: bookLost?.loanReceipt?.returnDate || null,
+              receiveDate: fDate(bookLost?.loanReceipt?.receiveDate) || null,
+              returnDate: fDate(bookLost?.loanReceipt?.returnDate) || null,
               userId: bookLost?.loanReceipt?.user?.id || null,
               fullName: bookLost?.loanReceipt?.user?.fullName || null,
               readerCode: bookLost?.loanReceipt?.user?.readerCode || null,
-              photoURL: bookLost?.loanReceipt?.user?.photoURL || null,
+              photoURL: customerURL(bookLost?.loanReceipt?.user?.photoURL) || null,
               phone: bookLost?.loanReceipt?.user?.phone || null,
               address: bookLost?.loanReceipt?.user?.address || null,
               bookList: bookLost.lostReportHasBook?.map((item) => ({
@@ -52,7 +52,7 @@ module.exports.mapResponseBookLostItem = function (bookLost) {
                   otherName: item?.book?.bookGroup?.otherName || null,
                   author: item?.book?.bookGroup?.author || null,
                   price: item?.book?.bookGroup?.price || null,
-                  photoURL: item?.book?.bookGroup?.photoURL || null,
+                  photoURL: customerURL(item?.book?.bookGroup?.photoURL) || null,
               })),
           }
         : null;
