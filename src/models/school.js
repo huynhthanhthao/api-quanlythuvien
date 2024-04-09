@@ -1,6 +1,6 @@
 "use strict";
 const { Model, Op } = require("sequelize");
-const { isPhone, isEmail } = require("../../utils/customer-validate");
+const { isPhone, isEmail, isUnique } = require("../../utils/customer-validate");
 
 module.exports = (sequelize, DataTypes) => {
     class School extends Model {
@@ -37,6 +37,14 @@ module.exports = (sequelize, DataTypes) => {
                         args: [0, 255],
                     },
                     notEmpty: true,
+                    async isUnique(value) {
+                        await isUnique({
+                            id: this.id,
+                            field: "schoolDomain",
+                            value,
+                            model: sequelize.models.School,
+                        });
+                    },
                 },
             },
             logo: {

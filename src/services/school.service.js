@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const { QUERY_ONE_TYPE, FULL_ROLE_IDS, USER_TYPE } = require("../../enums/common");
 const { errorCodes } = require("../../enums/error-code");
 const { CatchException } = require("../../utils/api-error");
+const { mapResponseSchool } = require("../map-responses/school.map-response");
 
 class SchoolService {
     static async createSchool(newSchool) {
@@ -90,9 +91,17 @@ class SchoolService {
 
         const school = await db.School.findOne({
             where: whereCondition,
+            include: [
+                {
+                    model: db.SchoolEmailSMTP,
+                    required: false,
+                    as: "schoolEmailSMTP",
+                    where: { active: true },
+                },
+            ],
         });
 
-        return school;
+        return mapResponseSchool(school);
     }
 
     static async updateEmailSMTP(emailSMTPUpdate, account) {

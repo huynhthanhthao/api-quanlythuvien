@@ -15,9 +15,9 @@ const GENDER = {
     OTHER: 3,
 };
 
-const AVATAR_URL_DEFAULT = "/images/users/default_avatar.png";
+const AVATAR_URL_DEFAULT = "public/documents/images/users/default_avatar.png";
 
-const BOOK_URL_DEFAULT = "/images/books/default_book.png";
+const BOOK_URL_DEFAULT = "public/documents/books/default_book.png";
 
 const DEFAULT_YEAR_PUBLICATION = 1;
 
