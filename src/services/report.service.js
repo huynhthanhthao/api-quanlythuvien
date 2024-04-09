@@ -231,7 +231,15 @@ class ReportService {
                     required: false,
                 },
             ],
+            order: [[db.sequelize.fn("COUNT", db.sequelize.col("detailBooks.receiptHasBook.id")), "DESC"]],
             group: ["BookGroup.id", "category.id"],
+            having: db.sequelize.where(
+                db.sequelize.fn("COUNT", db.sequelize.col("detailBooks.receiptHasBook.id")),
+                ">",
+                0
+            ),
+            limit: 10,
+            subQuery: false,
         });
 
         return mapResponseGetMostBorrowedBooksReport(dataReport);
