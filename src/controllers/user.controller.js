@@ -21,8 +21,8 @@ class UserController {
     }
 
     static async createUser(req) {
-        const photoURL = req.file?.path;
-        let { birthday, cardDate, classId } = req.body;
+        const newPhotoURL = req.file?.path;
+        let { birthday, cardDate } = req.body;
 
         if (!isDate(cardDate) && cardDate) {
             throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ.", errorCodes.DATA_INCORRECT_FORMAT, {
@@ -39,7 +39,7 @@ class UserController {
         birthday = convertDate(birthday);
 
         return transformer(
-            await UserService.createUser({ ...req.body, cardDate, birthday, photoURL }, req.account),
+            await UserService.createUser({ ...req.body, cardDate, birthday, newPhotoURL }, req.account),
             "Đã thêm dữ liệu người dùng mới."
         );
     }
