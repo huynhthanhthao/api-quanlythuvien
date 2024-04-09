@@ -11,4 +11,13 @@ router.post("/login", async function (req, res, next) {
     }
 });
 
+router.post("/refresh-token", async function (req, res, next) {
+    try {
+        const data = await AuthController.refreshToken(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = router;

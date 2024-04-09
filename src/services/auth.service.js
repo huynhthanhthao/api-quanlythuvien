@@ -1,5 +1,4 @@
 const { CatchException } = require("../../utils/api-error");
-const HttpStatus = require("http-status-codes");
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcryptjs");
@@ -24,6 +23,19 @@ class AuthService {
         delete accountExisted.password;
 
         return { token, user: accountExisted };
+    }
+
+    static async refreshToken(data) {
+        const token = data.token || "";
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+        if (!decoded) {
+            throw new CatchException("Token không hợp lệ!", errorCodes.INVALID_TOKEN);
+        }
+
+        const accessToken = jwt.sign({ id: decoded.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "48h" });
+
+        return { accessToken };
     }
 }
 
