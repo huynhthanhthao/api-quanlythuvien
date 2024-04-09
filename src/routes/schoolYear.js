@@ -3,8 +3,8 @@ const SchoolYearController = require("../controllers/schoolYear.controller");
 const checkPermission = require("../middlewares/checkPermission");
 const { ROLES } = require("../../enums/permission");
 const router = express.Router();
-// checkPermission([ROLES.YEAR_SCHOOL_CREATE]),
-router.post("/create", async function (req, res, next) {
+
+router.post("/create", checkPermission([ROLES.CLASS_CREATE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.createSchoolYear(req);
         return res.json(data);
@@ -12,8 +12,7 @@ router.post("/create", async function (req, res, next) {
         next(error);
     }
 });
-// checkPermission([ROLES.YEAR_SCHOOL_UPDATE]),
-router.put("/:id/update", async function (req, res, next) {
+router.put("/:id/update", checkPermission([ROLES.CLASS_UPDATE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.updateSchoolYearById(req);
         return res.json(data);
@@ -21,8 +20,8 @@ router.put("/:id/update", async function (req, res, next) {
         next(error);
     }
 });
-// checkPermission([ROLES.YEAR_SCHOOL_UPDATE]),
-router.put("/delete", async function (req, res, next) {
+
+router.put("/delete", checkPermission([ROLES.CLASS_DELETE]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.deleteSchoolYearByIds(req);
         return res.json(data);
@@ -30,8 +29,8 @@ router.put("/delete", async function (req, res, next) {
         next(error);
     }
 });
-// checkPermission([ROLES.YEAR_SCHOOL_VIEW]),
-router.get("/:id", async function (req, res, next) {
+
+router.get("/:id", checkPermission([ROLES.CLASS_VIEW]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.getSchoolYearById(req);
         return res.json(data);
@@ -39,8 +38,8 @@ router.get("/:id", async function (req, res, next) {
         next(error);
     }
 });
-// checkPermission([ROLES.YEAR_SCHOOL_VIEW]),
-router.get("/", async function (req, res, next) {
+
+router.get("/", checkPermission([ROLES.CLASS_VIEW]), async function (req, res, next) {
     try {
         const data = await SchoolYearController.getSchoolYears(req);
         return res.json(data);
