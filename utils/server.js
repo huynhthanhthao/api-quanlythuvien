@@ -82,11 +82,12 @@ module.exports.calculateDaysDiff = function (inputDate) {
 };
 
 module.exports.fDate = function (date) {
-    const utcTime = moment.utc(date);
+    const utcTime = new Date(date); // Tạo một đối tượng Date từ chuỗi ngày
 
-    const vietnamTime = utcTime.add(7, "hours");
+    const vietnamTime = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000); // Thêm 7 giờ (trong mili giây)
 
-    return vietnamTime;
+    // not format
+    return date;
 };
 
 module.exports.getEndOfDay = function (date) {

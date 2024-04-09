@@ -4,7 +4,6 @@ const unidecode = require("unidecode");
 const { bulkUpdate, getPagination } = require("../../utils/customer-sequelize");
 const ReaderGroupService = require("./readerGroup.service");
 const { CatchException } = require("../../utils/api-error");
-const BookService = require("./book.service");
 const ActivityService = require("./activityLog.service");
 const { errorCodes } = require("../../enums/error-code");
 const { TABLE_NAME } = require("../../enums/languages");
