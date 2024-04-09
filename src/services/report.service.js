@@ -1,6 +1,11 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const { mapResponseBorrowReturnReport, mapResponseReaderReport } = require("../map-responses/report.map-response");
+const {
+    mapResponseBorrowReturnReport,
+    mapResponseReaderReport,
+    mapResponseGetMostBorrowedBooksReport,
+    mapResponseLoanReceiptReport,
+} = require("../map-responses/report.map-response");
 const { USER_TYPE } = require("../../enums/common");
 const { getStartOfYear, getEndOfYear, convertDate } = require("../../utils/server");
 
@@ -137,43 +142,51 @@ class ReportService {
     static async getMostBorrowedBooksReport(month, year, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
 
-        const dataReport = await db.Book.findAll({
+        const dataReport = await db.BookGroup.findAll({
             where: whereCondition,
             attributes: [
                 "id",
-                "bookCode",
-                [db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "totalLoans"],
-                [db.sequelize.col("bookGroup.bookName"), "bookName"],
-                [db.sequelize.col("bookGroup.author"), "author"],
+                "bookName",
+                "author",
+                "photoURL",
+                [db.sequelize.fn("COUNT", db.sequelize.col("detailBooks.receiptHasBook.id")), "totalLoans"],
+                [db.sequelize.col("category.categoryName"), "categoryName"],
             ],
             include: [
                 {
-                    model: db.ReceiptHasBook,
-                    as: "receiptHasBook",
-                    where: {
-                        [Op.and]: [
-                            whereCondition,
-                            db.sequelize.literal(`EXTRACT('month' FROM "receiptHasBook"."createdAt") = ${month}`),
-                            db.sequelize.literal(`EXTRACT('year' FROM "receiptHasBook"."createdAt") = ${year}`),
-                        ],
-                    },
+                    model: db.Book,
+                    as: "detailBooks",
+                    attributes: [],
+                    required: false,
+                    include: [
+                        {
+                            model: db.ReceiptHasBook,
+                            as: "receiptHasBook",
+                            attributes: [],
+                            required: false,
+                            where: {
+                                [Op.and]: [
+                                    db.sequelize.literal(
+                                        `EXTRACT('month' FROM "receiptHasBook"."createdAt") = ${month}`
+                                    ),
+                                    db.sequelize.literal(`EXTRACT('year' FROM "receiptHasBook"."createdAt") = ${year}`),
+                                ],
+                                [Op.and]: whereCondition,
+                            },
+                        },
+                    ],
+                },
+                {
+                    model: db.Category,
+                    as: "category",
                     attributes: [],
                     required: false,
                 },
-                {
-                    model: db.BookGroup,
-                    as: "bookGroup",
-                    attributes: [],
-                },
             ],
-            group: ["Book.id", "bookGroup.id"],
-            having: db.sequelize.literal('COUNT("receiptHasBook"."id") > 0'),
-            order: [[db.sequelize.fn("COUNT", db.sequelize.col("receiptHasBook.id")), "DESC"]],
-            limit: 10,
-            subQuery: false,
+            group: ["BookGroup.id", "category.id"],
         });
 
-        return dataReport;
+        return mapResponseGetMostBorrowedBooksReport(dataReport);
     }
 
     static async getCategoryBookCounts(year, account) {
@@ -305,7 +318,7 @@ class ReportService {
             subQuery: false,
         });
 
-        return dataReport;
+        return mapResponseLoanReceiptReport(dataReport);
     }
 }
 

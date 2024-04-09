@@ -1,5 +1,5 @@
 const { DEFAULT_REGULAR_BORROW_COUNT } = require("../../enums/common");
-const { fDate } = require("../../utils/server");
+const { fDate, customerURL } = require("../../utils/server");
 
 module.exports.mapResponseBorrowReturnReport = function (dataList) {
     const result = Array.from({ length: 12 }, (_, monthIndex) => ({
@@ -71,4 +71,26 @@ module.exports.countBorrowsInMonth = function (data, month, year) {
 
         return receiveDate >= startDate && receiveDate < endDate;
     }).length;
+};
+
+module.exports.mapResponseGetMostBorrowedBooksReport = function (data) {
+    return data.map((item) => ({
+        id: item.id,
+        bookName: item?.dataValues?.bookName || null,
+        bookCode: item?.dataValues?.bookCode || null,
+        totalLoans: item?.dataValues?.totalLoans || null,
+        photoURL: customerURL(item?.dataValues?.photoURL) || null,
+        author: item?.dataValues?.author || null,
+        categoryName: item?.dataValues?.categoryName || null,
+    }));
+};
+
+module.exports.mapResponseLoanReceiptReport = function (data) {
+    return data.map((item) => ({
+        fullName: item?.fullName || null,
+        readerCode: item?.readerCode || null,
+        photoURL: customerURL(item?.dataValues?.photoURL) || null,
+        phone: item?.dataValues?.phone || null,
+        totalLoans: item?.dataValues?.totalLoans || null,
+    }));
 };
