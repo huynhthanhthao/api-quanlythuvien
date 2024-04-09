@@ -13,6 +13,7 @@ const { CatchException } = require("../../utils/api-error");
 class UserService {
     static async createUser(newUser, account) {
         let transaction;
+        const type = newUser.type || USER_TYPE.READER;
         try {
             transaction = await db.sequelize.transaction();
 
@@ -42,7 +43,7 @@ class UserService {
                     { transaction }
                 );
 
-            if (newUser.type == USER_TYPE.READER) {
+            if (type == USER_TYPE.READER) {
                 if (!newUser.effectiveTime)
                     throw new CatchException("Thời gian hiệu lực không được để trống!", errorCodes.MISSING_DATA, {
                         field: "effectiveTime",

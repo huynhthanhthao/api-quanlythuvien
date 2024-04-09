@@ -39,41 +39,52 @@ class ReportService {
 
     static async readerReport(query, account) {
         const year = query.year || new Date().getFullYear();
+        const type = query.type || 1;
 
         const whereCondition = { active: true, schoolId: account.schoolId };
 
-        const dataReport = await db.User.findAll({
-            where: {
-                [Op.and]: [
-                    whereCondition,
-                    db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`),
-                    { type: USER_TYPE.READER },
-                ],
-            },
-            attributes: ["fullName", "readerCode", "photoURL", "phone", "createdAt"],
-            include: [
-                {
-                    model: db.LoanReceipt,
-                    as: "loanReceiptList",
-                    where: {
-                        [Op.and]: [
-                            whereCondition,
-                            db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`),
-                        ],
+        // Bạn đọc
+        if (type == 1) {
+            const dataReport = await db.User.findAll({
+                where: {
+                    [Op.and]: [
+                        whereCondition,
+                        db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`),
+                        { type: USER_TYPE.READER },
+                    ],
+                },
+                attributes: ["fullName", "readerCode", "photoURL", "phone", "createdAt"],
+                include: [
+                    {
+                        model: db.LoanReceipt,
+                        as: "loanReceiptList",
+                        where: {
+                            [Op.and]: [
+                                whereCondition,
+                                db.sequelize.literal(`DATE_PART('year', "User"."createdAt") = ${year}`),
+                            ],
+                        },
+                        required: false,
+                        attributes: ["id", "receiveDate"],
                     },
-                    required: false,
-                    attributes: ["id", "receiveDate"],
-                },
-                {
-                    model: db.ReaderGroup,
-                    as: "readerGroup",
-                    where: whereCondition,
-                    required: false,
-                    attributes: ["groupName", "quantityLimit", "timeLimit"],
-                },
-            ],
-        });
-        return mapResponseReaderReport(dataReport, year);
+                    {
+                        model: db.ReaderGroup,
+                        as: "readerGroup",
+                        where: whereCondition,
+                        required: false,
+                        attributes: ["groupName", "quantityLimit", "timeLimit"],
+                    },
+                ],
+            });
+            return mapResponseReaderReport(dataReport, year);
+        }
+
+        // Đọc giả đăng ký sử dụng
+        if (type == 2) {
+            const countRegister = await db.CardOpeningRegistration.count({ where: whereCondition });
+
+            return countRegister;
+        }
     }
 
     static async bookReport(query, account) {
@@ -100,6 +111,18 @@ class ReportService {
             // Sách cho mượn gần đây
             return this.recentBorrowedBooksReport(account);
         }
+
+        if (type == 5) {
+            // Danh sách ấn phẩm
+            return this.totalBookReport(account);
+        }
+    }
+
+    static async totalBookReport(account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
+        const countBook = await db.Book.count({ where: whereCondition });
+
+        return countBook;
     }
 
     static async recentBorrowedBooksReport(account) {

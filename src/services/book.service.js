@@ -74,7 +74,7 @@ class BookService {
                     fileName: file.originalname,
                     fileType: file.mimetype,
                     fileURL: file.path,
-                    bookId: bookGroup.id,
+                    bookGroupId: bookGroup.id,
                     schoolId: account.schoolId,
                     createdBy: account.id,
                     updatedBy: account.id,
