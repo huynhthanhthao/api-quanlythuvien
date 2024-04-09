@@ -1,12 +1,18 @@
+const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const HttpStatus = require("http-status-codes");
-const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
-const { DEFAULT_IMAGE_MAX_SIZE } = require("../../enums/common");
+const { DEFAULT_FILE_MAX_SIZE } = require("../../enums/common");
+const { CatchException } = require("../../utils/api-error");
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "public/documents/books");
+        const dir = "public/documents/books";
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        cb(null, dir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = uuidv4();
@@ -14,7 +20,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const fileSizeLimit = DEFAULT_IMAGE_MAX_SIZE * 1024 * 1024;
+const fileSizeLimit = DEFAULT_FILE_MAX_SIZE * 1024 * 1024;
 const fileFilter = (req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|jfif|pdf|doc|docx|ppt|pptx|xls|xlsx)$/)) {
         return cb(new CatchException("Chỉ chấp nhận dữ liệu là hình ảnh hoặc tài liệu!", errorCodes.INVALID_DATA));

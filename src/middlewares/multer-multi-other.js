@@ -1,10 +1,10 @@
+const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
-const HttpStatus = require("http-status-codes");
 const { CatchException } = require("../../utils/api-error");
+const HttpStatus = require("http-status-codes");
 const { errorCodes } = require("../../enums/error-code");
 const { DEFAULT_IMAGE_MAX_SIZE } = require("../../enums/common");
-const fs = require("fs");
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const dir = "public/documents/others";

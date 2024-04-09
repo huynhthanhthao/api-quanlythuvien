@@ -2,6 +2,8 @@ const DEFAULT_LIMIT = 10;
 
 const DEFAULT_IMAGE_MAX_SIZE = 25;
 
+const DEFAULT_FILE_MAX_SIZE = 25;
+
 const ACCOUNT_STATUS = {
     ACTIVE: 1,
     BLOCKED: 2,
@@ -114,4 +116,5 @@ module.exports = {
     FULL_ROLE_IDS,
     TYPE_LOAN_FEES,
     ACTION_TYPE,
+    DEFAULT_FILE_MAX_SIZE,
 };

@@ -1,13 +1,20 @@
-const { v4: uuidv4 } = require("uuid");
+const fs = require("fs");
 const multer = require("multer");
+const { v4: uuidv4 } = require("uuid");
 const HttpStatus = require("http-status-codes");
-const { CatchException } = require("../../utils/api-error");
 const { errorCodes } = require("../../enums/error-code");
 const { DEFAULT_IMAGE_MAX_SIZE } = require("../../enums/common");
+const { CatchException } = require("../../utils/api-error");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "public/documents/users");
+        const dir = "public/documents/users";
+
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        cb(null, dir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = uuidv4();
