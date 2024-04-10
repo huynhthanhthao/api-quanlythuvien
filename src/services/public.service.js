@@ -74,7 +74,7 @@ class PublishService {
         });
 
         if (countBooking.length + bookBookingIds.length > setting.maxBookingQuantity) {
-            throw new CatchException("Quá số lượng sách đặt trước!", errorCodes.EXCEEDED_MAX_BOOKING_QUANTITY);
+            throw new CatchException("Vượt quá số lượng sách đặt trước!", errorCodes.EXCEEDED_MAX_BOOKING_QUANTITY);
         }
     }
 

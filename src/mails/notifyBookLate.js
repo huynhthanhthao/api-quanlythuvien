@@ -175,8 +175,9 @@ const notifyBookLate = (data) => {
               </tr>
             </thead>
             <tbody>
-              ${data.bookList.map(
-                  (book, index) => `
+              ${data.bookList
+                  .map(
+                      (book, index) => `
                 <tr>
                   <td>${index + 1}</td>
                   <td>${book.bookCode}</td>
@@ -185,7 +186,8 @@ const notifyBookLate = (data) => {
                   <td>${convertDateVi(book.returnDate)}</td>
                 </tr>
               `
-              )}
+                  )
+                  .join(" ")}
             </tbody>
           </table>
           <div class="contact-info"> Đây là email tự động, nếu bạn đọc đã trả sách vui lòng bỏ qua email này. </div>

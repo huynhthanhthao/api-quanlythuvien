@@ -7,7 +7,6 @@ const bookingBookHtml = (data) => {
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XÁC NHẬN ĐẶT TRƯỚC MƯỢN SÁCH</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -118,16 +117,16 @@ const bookingBookHtml = (data) => {
         Danh sách ấn phẩm:
       </div>
       <div class="book-list">
-        <!-- Danh sách ấn phẩm -->
-        ${data.books?.map(
-            (book) => ` 
+        ${data.books
+            ?.map(
+                (book) => `
             <div class="book-item">
-                <div class="book-title" style="font-size:16px">${book?.dataValues?.bookName} (${book?.bookCode})</div>
-                <div style="font-size:16px">Tác Giả: ${book?.dataValues?.author}</div>
-             </div>`
-        )}
+              <div class="book-title" style="font-size:16px">${book?.dataValues?.bookName} (${book?.bookCode})</div>
+              <div style="font-size:16px">Tác Giả: ${book?.dataValues?.author}</div>
+            </div>`
+            )
+            .join(" ")}
       </div>
-      
       <a class="btn-confirm" style="color: #fff !important" href="https://${
           data.school?.schoolDomain
       }/xac-nhan-dang-ky-muon/${data.token}">XÁC NHẬN</a>
