@@ -31,7 +31,7 @@ module.exports.mapResponseBookGroupList = function (bookGroupList) {
                 bookCode: book.bookCode || null,
                 statusName: book?.status?.statusName || null,
                 positionName: book?.position?.positionName || null,
-                isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+                isReady: book?.receiptHasBook?.length > 0 || book?.bookingHasBook?.length > 0 ? false : true || false,
             })),
         };
     });
