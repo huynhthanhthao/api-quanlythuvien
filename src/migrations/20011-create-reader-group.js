@@ -30,6 +30,9 @@ module.exports = {
             timeLimit: {
                 type: Sequelize.INTEGER,
             },
+            maxBookingQuantity: {
+                type: Sequelize.INTEGER,
+            },
             groupDes: {
                 type: Sequelize.TEXT,
             },

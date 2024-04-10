@@ -73,6 +73,10 @@ module.exports = (sequelize, DataTypes) => {
                     },
                 },
             },
+            maxBookingQuantity: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
+            },
             groupDes: {
                 type: DataTypes.TEXT,
             },

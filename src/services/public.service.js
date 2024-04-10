@@ -52,7 +52,19 @@ class PublishService {
 
     static async checkMaxBooking(bookBookingIds, userId, schoolId) {
         const whereCondition = { active: true, schoolId: schoolId };
-        const setting = await db.Setting.findOne({ where: whereCondition });
+        const user = await db.User.findOne({
+            where: { ...whereCondition, id: userId },
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.ReaderGroup,
+                    as: "readerGroup",
+                    where: whereCondition,
+                    required: true,
+                    attributes: ["id", "maxBookingQuantity"],
+                },
+            ],
+        });
 
         const countBooking = await db.BookingHasBook.findAll({
             where: whereCondition,
@@ -73,7 +85,7 @@ class PublishService {
             ],
         });
 
-        if (countBooking.length + bookBookingIds.length > setting.maxBookingQuantity) {
+        if (countBooking.length + bookBookingIds.length > user?.readerGroup?.maxBookingQuantity) {
             throw new CatchException("Vượt quá số lượng sách đặt trước!", errorCodes.EXCEEDED_MAX_BOOKING_QUANTITY);
         }
     }
@@ -86,7 +98,7 @@ class PublishService {
                 where: {
                     ...whereCondition,
                     isConfirmed: true,
-                    receiveDate: { [Op.lte]: getEndOfDay(new Date()) },
+                    receiveDate: { [Op.gte]: getEndOfDay(new Date()) },
                 },
                 attributes: ["id"],
                 include: [
