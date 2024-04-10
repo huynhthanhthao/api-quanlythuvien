@@ -1,24 +1,27 @@
 {
     "development": {
         "username": "postgres",
-        "password": "0000",
+        "password": "anhemiit123",
         "database": "librarian",
         "host": "127.0.0.1",
+        "port": "5433",
         "dialect": "postgres",
         "timezone": "+07:00"
     },
     "test": {
         "username": "postgres",
-        "password": "0000",
+        "password": "anhemiit123",
         "database": "librarian",
-        "host": "127.0.0.1",
-        "dialect": "postgres"
+        "host": "127.0.0.1:5433",
+        "dialect": "postgres",
+        "timezone": "+07:00"
     },
     "production": {
         "username": "postgres",
-        "password": "0000",
+        "password": "anhemiit123",
         "database": "librarian",
-        "host": "127.0.0.1",
-        "dialect": "postgres"
+        "host": "127.0.0.1:5433",
+        "dialect": "postgres",
+        "timezone": "+07:00"
     }
 }
