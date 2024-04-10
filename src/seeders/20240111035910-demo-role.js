@@ -528,6 +528,20 @@ module.exports = {
                 createdAt: "2024-03-14T09:08:18.890Z",
                 updatedAt: "2024-03-14T09:08:18.890Z",
             },
+            {
+                roleName: "Xem thông tin trường",
+                roleCode: "SCHOOL_VIEW",
+                groupId: "23",
+                createdAt: "2024-03-14T09:08:18.890Z",
+                updatedAt: "2024-03-14T09:08:18.890Z",
+            },
+            {
+                roleName: "Cập nhật thông tin trường",
+                roleCode: "SCHOOL_UPDATE",
+                groupId: "23",
+                createdAt: "2024-03-14T09:08:18.890Z",
+                updatedAt: "2024-03-14T09:08:18.890Z",
+            },
         ]);
     },
 
