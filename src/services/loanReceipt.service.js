@@ -80,6 +80,8 @@ class LoanReceiptService {
             );
 
             await transaction.commit();
+
+            return loanReceipt.id;
         } catch (error) {
             await transaction.rollback();
             throw error;
@@ -99,26 +101,19 @@ class LoanReceiptService {
                         as: "bookGroup",
                         where: whereCondition,
                         required: true,
-                        attributes: ["id", "price", "loanFee"],
+                        attributes: ["id", "price", "loanFee", "borrowFeeApplied"],
                     },
                 ],
             });
 
-            if (setting.typeLoanFee == TYPE_LOAN_FEES.FIXED_PRICE) {
-                return books.map((book) => ({
-                    bookId: book.id,
-                    loanFee: setting.valueLoanFee || 0,
-                    loanReceiptId: loanReceiptId,
-                    schoolId: account.schoolId,
-                    createdBy: account.id,
-                    updatedBy: account.id,
-                }));
-            }
-
-            if (setting.typeLoanFee == TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE) {
+            // Tính phí mượn riêng cho từng sách và chung
+            if (setting.individualBookFee) {
                 return books.map((book) => {
-                    let loanFee = (setting.valueLoanFee * (book?.bookGroup?.price || 0)) / 100;
-                    loanFee = isNaN(loanFee) ? 0 : loanFee;
+                    const loanFee = book?.bookGroup?.borrowFeeApplied
+                        ? book?.bookGroup?.loanFee
+                        : setting.typeLoanFee == TYPE_LOAN_FEES.FIXED_PRICE
+                        ? setting.valueLoanFee || 0
+                        : (setting.valueLoanFee * (book?.bookGroup?.price || 0)) / 100 || 0;
                     return {
                         bookId: book.id,
                         loanFee: loanFee,
@@ -128,17 +123,32 @@ class LoanReceiptService {
                         updatedBy: account.id,
                     };
                 });
-            }
+            } else {
+                if (setting.typeLoanFee == TYPE_LOAN_FEES.FIXED_PRICE) {
+                    return books.map((book) => ({
+                        bookId: book.id,
+                        loanFee: setting.valueLoanFee || 0,
+                        loanReceiptId: loanReceiptId,
+                        schoolId: account.schoolId,
+                        createdBy: account.id,
+                        updatedBy: account.id,
+                    }));
+                }
 
-            if (setting.typeLoanFee == TYPE_LOAN_FEES.INDIVIDUAL_BOOK_FEE) {
-                return books.map((book) => ({
-                    bookId: book.id,
-                    loanFee: book?.bookGroup?.loanFee || 0,
-                    loanReceiptId: loanReceiptId,
-                    schoolId: account.schoolId,
-                    createdBy: account.id,
-                    updatedBy: account.id,
-                }));
+                if (setting.typeLoanFee == TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE) {
+                    return books.map((book) => {
+                        let loanFee = (setting.valueLoanFee * (book?.bookGroup?.price || 0)) / 100;
+                        loanFee = isNaN(loanFee) ? 0 : loanFee;
+                        return {
+                            bookId: book.id,
+                            loanFee: loanFee,
+                            loanReceiptId: loanReceiptId,
+                            schoolId: account.schoolId,
+                            createdBy: account.id,
+                            updatedBy: account.id,
+                        };
+                    });
+                }
             }
         }
 

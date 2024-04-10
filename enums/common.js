@@ -86,7 +86,6 @@ const FULL_ROLE_IDS = [
 const TYPE_LOAN_FEES = {
     FIXED_PRICE: 1,
     BOOK_COVER_PERCENTAGE: 2,
-    INDIVIDUAL_BOOK_FEE: 3,
 };
 
 const ACTION_TYPE = {

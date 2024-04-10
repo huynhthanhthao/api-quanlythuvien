@@ -145,6 +145,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
             },
+            borrowFeeApplied: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
             photoURL: {
                 type: DataTypes.TEXT,
                 defaultValue: BOOK_URL_DEFAULT,

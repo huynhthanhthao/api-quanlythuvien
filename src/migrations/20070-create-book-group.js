@@ -48,6 +48,9 @@ module.exports = {
             penaltyApplied: {
                 type: Sequelize.BOOLEAN,
             },
+            borrowFeeApplied: {
+                type: Sequelize.BOOLEAN,
+            },
             bookName: {
                 type: Sequelize.TEXT,
             },

@@ -30,6 +30,9 @@ module.exports = {
             typeLoanFee: {
                 type: Sequelize.INTEGER,
             },
+            individualBookFee: {
+                type: Sequelize.BOOLEAN,
+            },
             valueLoanFee: {
                 type: Sequelize.DOUBLE,
             },

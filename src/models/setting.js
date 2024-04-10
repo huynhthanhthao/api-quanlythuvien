@@ -41,13 +41,13 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 validate: {
                     isInEnum: (value) => {
-                        isInEnum(value, [
-                            TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE,
-                            TYPE_LOAN_FEES.FIXED_PRICE,
-                            TYPE_LOAN_FEES.INDIVIDUAL_BOOK_FEE,
-                        ]);
+                        isInEnum(value, [TYPE_LOAN_FEES.BOOK_COVER_PERCENTAGE, TYPE_LOAN_FEES.FIXED_PRICE]);
                     },
                 },
+            },
+            individualBookFee: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
             },
             valueLoanFee: {
                 type: DataTypes.DOUBLE,
