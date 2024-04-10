@@ -49,6 +49,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            maxBookingQuantity: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
+            },
             valueLoanFee: {
                 type: DataTypes.DOUBLE,
                 validate: {

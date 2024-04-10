@@ -40,12 +40,42 @@ class PublishService {
 
         await this.checkBookIdsReady(bookBookingIds, school.id);
 
+        await this.checkMaxBooking(bookBookingIds, bookingForm.userId, school.id);
+
         await db.BookingBorrowForm.update(
             { isConfirmed: true },
             {
                 where: { ...whereCondition, isConfirmed: false, token: data.token },
             }
         );
+    }
+
+    static async checkMaxBooking(bookBookingIds, userId, schoolId) {
+        const whereCondition = { active: true, schoolId: schoolId };
+        const setting = await db.Setting.findOne({ where: whereCondition });
+
+        const countBooking = await db.BookingHasBook.findAll({
+            where: whereCondition,
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.BookingBorrowForm,
+                    as: "bookingForm",
+                    where: {
+                        ...whereCondition,
+                        isConfirmed: true,
+                        userId,
+                        receiveDate: { [Op.gte]: getEndOfDay(new Date()) },
+                    },
+                    required: true,
+                    attributes: ["id"],
+                },
+            ],
+        });
+
+        if (countBooking.length + bookBookingIds.length > setting.maxBookingQuantity) {
+            throw new CatchException("Quá số lượng sách đặt trước!", errorCodes.EXCEEDED_MAX_BOOKING_QUANTITY);
+        }
     }
 
     static async checkBookIdsReady(bookIds, schoolId) {
