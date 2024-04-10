@@ -1,0 +1,7 @@
+/node_modules
+/public/documents/
+package-lock.json
+ecosystem.config.js
+# /src/config/config.json
+# .env
+# .gitignore
