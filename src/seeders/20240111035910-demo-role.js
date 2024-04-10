@@ -403,18 +403,18 @@ module.exports = {
                 updatedAt: "2024-03-14T09:07:55.283Z",
             },
             {
-                roleName: "Xem nhật ký hệ thống",
-                roleCode: "ACTIVITY_LOG_VIEW",
-                groupId: "19",
-                createdAt: "2024-03-14T09:08:18.890Z",
-                updatedAt: "2024-03-14T09:08:18.890Z",
-            },
-            {
                 roleName: "Xem thông tin cài đặt",
                 roleCode: "SETTING_VIEW",
-                groupId: "18",
+                groupId: "19",
                 createdAt: "2024-03-14T09:08:05.484Z",
                 updatedAt: "2024-03-14T09:08:05.484Z",
+            },
+            {
+                roleName: "Xem nhật ký hệ thống",
+                roleCode: "ACTIVITY_LOG_VIEW",
+                groupId: "18",
+                createdAt: "2024-03-14T09:08:18.890Z",
+                updatedAt: "2024-03-14T09:08:18.890Z",
             },
             {
                 roleName: "Tạo tài khoản",
