@@ -8,6 +8,7 @@ module.exports = {
                 schoolName: "Đại học Cần Thơ",
                 address: "Đường 3/2, P.Hưng Lợi, Q.Ninh Kiều, Cần Thơ",
                 phone: "0988322233",
+                schoolEmailSMTPId: 1,
                 email: "hotline@ctu.edu.vn",
                 representative: "Nguyễn Văn A",
                 representativePhone: "0939888777",

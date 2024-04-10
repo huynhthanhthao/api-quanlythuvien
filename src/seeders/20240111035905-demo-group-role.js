@@ -125,7 +125,7 @@ module.exports = {
             },
             {
                 id: "23",
-                groupName: "c",
+                groupName: "Quản lý thông tin trường học",
                 createdAt: "2024-03-14T07:57:58.981Z",
                 updatedAt: "2024-03-14T07:57:58.981Z",
             },
