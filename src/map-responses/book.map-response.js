@@ -146,7 +146,7 @@ module.exports.mapResponseBookList = function (bookList) {
         pubId: book?.bookGroup?.publisher?.id || null,
         lanName: book?.bookGroup?.language?.lanName || null,
         lanId: book?.bookGroup?.language?.id || null,
-        isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+        isReady: book?.receiptHasBook?.length > 0 || book?.bookingHasBook?.length > 0 ? false : true || false,
         fieldList:
             book?.bookGroup?.fieldHasBook?.map((item) => ({
                 fieldId: item?.field?.id,
@@ -189,7 +189,7 @@ module.exports.mapResponseBookGroupListPublic = function (bookGroupList) {
                 bookCode: book.bookCode || null,
                 statusName: book?.status?.statusName || null,
                 positionName: book?.position?.positionName || null,
-                isReady: book?.receiptHasBook?.length > 0 ? false : true || false,
+                isReady: book?.receiptHasBook?.length > 0 || book?.bookingHasBook?.length > 0 ? false : true || false,
             })),
         };
     });

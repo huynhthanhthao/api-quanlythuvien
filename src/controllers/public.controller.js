@@ -60,12 +60,12 @@ class PublicController {
         );
     }
 
-    static async getBookGroupPublic(req) {
+    static async getBookGroupDetailPublic(req) {
         const { keyword, schoolId = 0 } = req.params;
         const { type } = req.query;
 
         return transformer(
-            await BookService.getBookGroupPublic({ keyword, type }, { schoolId }),
+            await BookService.getBookGroupDetailPublic({ keyword, type }, { schoolId }),
             "Lấy chi tiết thành công."
         );
     }

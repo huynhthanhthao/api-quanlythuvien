@@ -799,6 +799,23 @@ class BookService {
                             required: false,
                             limit: 1,
                         },
+                        {
+                            model: db.BookingHasBook,
+                            as: "bookingHasBook",
+                            required: false,
+                            attributes: ["id"],
+                            where: whereCommonCondition,
+                            required: false,
+                            include: [
+                                {
+                                    model: db.BookingBorrowForm,
+                                    as: "bookingForm",
+                                    where: { ...whereCommonCondition, isConfirmed: true },
+                                    required: true,
+                                    attributes: ["id"],
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
@@ -809,11 +826,12 @@ class BookService {
 
         return {
             pagination: pagination,
+            list: rows,
             list: mapResponseBookGroupListPublic(rows),
         };
     }
 
-    static async getBookGroupPublic(query, account) {
+    static async getBookGroupDetailPublic(query, account) {
         const { keyword } = query;
         const type = query.type || QUERY_ONE_TYPE.SLUG;
 
@@ -908,6 +926,23 @@ class BookService {
                             where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
                             required: false,
                             limit: 1,
+                        },
+                        {
+                            model: db.BookingHasBook,
+                            as: "bookingHasBook",
+                            required: false,
+                            attributes: ["id"],
+                            where: whereCondition,
+                            required: false,
+                            include: [
+                                {
+                                    model: db.BookingBorrowForm,
+                                    as: "bookingForm",
+                                    where: { ...whereCondition, isConfirmed: true },
+                                    required: true,
+                                    attributes: ["id"],
+                                },
+                            ],
                         },
                     ],
                 },
