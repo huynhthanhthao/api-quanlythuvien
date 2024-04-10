@@ -80,6 +80,13 @@ class UserController {
         const { id } = req.params;
         return transformer(await UserService.extendUser({ id, ...req.body }, req.account), "Cập nhật thành công.");
     }
+
+    static async createUserFromExcel(req) {
+        return transformer(
+            await UserService.createUserFromExcel(req.body, req.account),
+            "Dữ liệu sách bạn đọc đã được tạo."
+        );
+    }
 }
 
 module.exports = UserController;

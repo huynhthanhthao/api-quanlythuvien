@@ -19,6 +19,19 @@ router.post(
     }
 );
 
+router.post(
+    "/create-from-excel",
+    checkPermission([ROLES.USER_CREATE, ROLES.ACCOUNT_CREATE]),
+    async function (req, res, next) {
+        try {
+            const data = await UserController.createUserFromExcel(req);
+            return res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
 router.put(
     "/:id/update",
     checkPermission([ROLES.USER_UPDATE, ROLES.ACCOUNT_UPDATE]),

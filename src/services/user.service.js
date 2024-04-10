@@ -69,6 +69,37 @@ class UserService {
         }
     }
 
+    static async createUserFromExcel(dataCreate, account) {
+        const validData = [];
+        const errorData = [];
+
+        dataCreate = dataCreate.map((data) => ({
+            ...data,
+            createdBy: account.id,
+            updatedBy: account.id,
+            schoolId: account.schoolId,
+        }));
+
+        await Promise.all(
+            dataCreate.map(async (data, index) => {
+                try {
+                    await db.User.create(data);
+                    validData.push(data);
+                } catch (error) {
+                    errorData.push({
+                        index: index,
+                        data: data,
+                    });
+                }
+            })
+        );
+
+        return {
+            totalSuccess: validData.length,
+            errorData,
+        };
+    }
+
     static async createEffectReader(effectiveTime, userId, account, transaction) {
         const startDay = new Date();
         const endDay = new Date();
