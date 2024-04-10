@@ -2,13 +2,14 @@ const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
 const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
-const { convertToIntArray, getStartOfDay, getPhotoURLFromLink } = require("../../utils/server");
+const { convertToIntArray, getStartOfDay, getPhotoURLFromLink, convertDate } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
 const { TABLE_NAME } = require("../../enums/languages");
 const { errorCodes } = require("../../enums/error-code");
 const { getPagination } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
 const { CatchException } = require("../../utils/api-error");
+const { isBirthday, isDate } = require("../../utils/customer-validate");
 
 class UserService {
     static async createUser(newUser, account) {
@@ -75,24 +76,70 @@ class UserService {
 
         dataCreate = dataCreate.map((data) => ({
             ...data,
+            type: USER_TYPE.READER,
             createdBy: account.id,
             updatedBy: account.id,
             schoolId: account.schoolId,
         }));
 
-        await Promise.all(
-            dataCreate.map(async (data, index) => {
-                try {
-                    await db.User.create(data);
-                    validData.push(data);
-                } catch (error) {
-                    errorData.push({
-                        index: index,
-                        data: data,
+        for (let index = 0; index < dataCreate.length; index++) {
+            const data = dataCreate[index];
+            let transaction;
+            try {
+                transaction = await db.sequelize.transaction();
+                let { birthday, cardDate } = data;
+
+                if (!isDate(cardDate) && cardDate) {
+                    throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ.", errorCodes.DATA_INCORRECT_FORMAT, {
+                        field: "cardDate",
                     });
                 }
-            })
-        );
+
+                if (!isBirthday(birthday))
+                    throw new CatchException("Dữ liệu ngày tháng năm không hợp lệ.", errorCodes.DATA_INCORRECT_FORMAT, {
+                        field: "birthday",
+                    });
+
+                cardDate = convertDate(cardDate);
+                birthday = convertDate(birthday);
+                const readerCode = await this.generateUserCode(account.schoolId);
+
+                const newUser = await db.User.create({ ...data, readerCode, cardDate, birthday });
+
+                await db.ClassHasUser.create(
+                    {
+                        userId: newUser.id,
+                        classId: data.classId,
+                        schoolId: account.schoolId,
+                        createdBy: account.id,
+                        updatedBy: account.id,
+                    },
+                    { transaction }
+                );
+
+                await this.createEffectReader(+data.effectiveTime, newUser.id, account, transaction);
+
+                await ActivityService.createActivity(
+                    {
+                        dataTarget: newUser.id,
+                        tableTarget: TABLE_NAME.USER,
+                        action: ACTIVITY_TYPE.CREATED,
+                    },
+                    account,
+                    transaction
+                );
+
+                await transaction.commit();
+
+                validData.push(data);
+            } catch (error) {
+                await transaction.rollback();
+                errorData.push({
+                    index: index,
+                    data: data,
+                });
+            }
+        }
 
         return {
             totalSuccess: validData.length,
