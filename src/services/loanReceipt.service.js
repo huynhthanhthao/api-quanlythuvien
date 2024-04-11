@@ -314,13 +314,11 @@ class LoanReceiptService {
                 { schoolId: account.schoolId },
                 from && { receiveDate: { [Op.gte]: getStartOfDay(convertDate(from)) } },
                 to && { receiveDate: { [Op.lte]: getEndOfDay(convertDate(to)) } },
-                types &&
-                    types.includes(LOAN_STATUS.BORROWING) && { returnDate: { [Op.lt]: getStartOfDay(new Date()) } },
             ].filter(Boolean),
         };
 
         const whereUserCondition = {
-            ...(readerCode && { readerCode: readerCode.toUpperCase() }),
+            ...(readerCode && { readerCode: { [Op.iLike]: types } }),
             active: true,
             schoolId: account.schoolId,
         };
