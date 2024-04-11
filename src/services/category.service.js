@@ -88,6 +88,7 @@ class CategoryService {
                 id: updateCategory.id,
                 schoolId: account.schoolId,
                 categoryName: updateCategory.categoryName,
+                categoryCode: updateCategory.categoryCode,
                 categoryDes: updateCategory.categoryDes,
                 updatedBy: account.id,
             },
