@@ -341,7 +341,7 @@ class BookService {
                             as: "receiptHasBook",
                             required: false,
                             attributes: ["id"],
-                            where: whereCommonCondition,
+                            where: { ...whereCommonCondition, type: LOAN_STATUS.BORROWING },
                             required: false,
                             limit: 1,
                         },
@@ -843,8 +843,8 @@ class BookService {
 
         return {
             pagination: pagination,
-            list: rows,
             list: mapResponseBookGroupListPublic(rows),
+            list: rows,
         };
     }
 
