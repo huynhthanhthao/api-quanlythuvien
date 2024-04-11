@@ -7,6 +7,7 @@ const { TABLE_NAME } = require("../../enums/languages");
 const ActivityService = require("./activityLog.service");
 const { CatchException } = require("../../utils/api-error");
 const { getPagination } = require("../../utils/customer-sequelize");
+const { mapResponseClassList, mapResponseClassItem } = require("../map-responses/class.map-response");
 
 class ClassService {
     static async getClasses(query, account) {
@@ -41,6 +42,15 @@ class ClassService {
             attributes: {
                 exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
             },
+            include: [
+                {
+                    model: db.SchoolYear,
+                    as: "schoolYear",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["year", "schoolYearDes"],
+                },
+            ],
             order: [["createdAt", "DESC"]],
             distinct: true,
         });
@@ -49,21 +59,31 @@ class ClassService {
 
         return {
             pagination: pagination,
-            list: rows,
+            list: mapResponseClassList(rows),
         };
     }
 
     static async getClassById(id, account) {
+        const whereCondition = { active: true, schoolId: account.schoolId };
         const classRoom = await db.Class.findOne({
             where: { id, active: true, schoolId: account.schoolId },
             attributes: {
                 exclude: ["updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
             },
+            include: [
+                {
+                    model: db.SchoolYear,
+                    as: "schoolYear",
+                    where: whereCondition,
+                    required: false,
+                    attributes: ["year", "schoolYearDes"],
+                },
+            ],
         });
 
         if (!classRoom) throw new CatchException("Không tìm thấy tài nguyên!", errorCodes.RESOURCE_NOT_FOUND);
 
-        return classRoom;
+        return mapResponseClassItem(classRoom);
     }
 
     static async createClass(newClass, account) {
