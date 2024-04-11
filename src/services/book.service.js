@@ -844,7 +844,6 @@ class BookService {
         return {
             pagination: pagination,
             list: mapResponseBookGroupListPublic(rows),
-            list: rows,
         };
     }
 
