@@ -350,7 +350,7 @@ class LoanReceiptService {
                     model: db.ExtensionHistory,
                     as: "extensionHistory",
                     where: whereCommonCondition,
-                    required: keyword || readerCode ? true : false,
+                    required: false,
                     attributes: ["returnDate", "createdAt"],
                 },
                 {
