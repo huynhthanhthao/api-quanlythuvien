@@ -124,6 +124,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 validate: {
                     isNumeric: true,
+                    isLessThanCurrentYear(value) {
+                        if (+value > new Date().getFullYear()) {
+                            throw new Error("Năm xuất bản phải nhỏ hơn năm hiện tại");
+                        }
+                    },
                 },
             },
             rePublic: {
