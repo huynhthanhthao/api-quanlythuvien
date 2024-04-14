@@ -10,6 +10,7 @@ module.exports.mapResponseSchool = function (school) {
         phone: school.phone,
         email: school.email,
         representative: school.representative,
+        representativePhone: school.representativePhone,
         schoolEmailSMTPId: school.schoolEmailSMTPId,
         emailSMTP: school?.schoolEmailSMTP?.email || null,
         passwordSMTP: school?.schoolEmailSMTP?.password || null,

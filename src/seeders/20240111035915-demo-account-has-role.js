@@ -754,6 +754,26 @@ module.exports = {
                 createdAt: "2024-04-02T11:48:45.457Z",
                 updatedAt: "2024-04-02T11:48:45.457Z",
             },
+            {
+                schoolId: 1,
+                accountId: 1,
+                roleId: 76,
+                createdBy: 1,
+                active: true,
+                updatedBy: 1,
+                createdAt: "2024-04-02T11:48:45.457Z",
+                updatedAt: "2024-04-02T11:48:45.457Z",
+            },
+            {
+                schoolId: 1,
+                accountId: 1,
+                roleId: 77,
+                createdBy: 1,
+                active: true,
+                updatedBy: 1,
+                createdAt: "2024-04-02T11:48:45.457Z",
+                updatedAt: "2024-04-02T11:48:45.457Z",
+            },
         ]);
     },
 
