@@ -324,7 +324,7 @@ class LoanReceiptService {
         };
 
         const whereUserCondition = {
-            ...(readerCode && { readerCode: { [Op.iLike]: readerCode } }),
+            ...(readerCode && { readerCode: { [Op.iLike]: readerCode?.trim() } }),
             active: true,
             schoolId: account.schoolId,
         };
