@@ -396,18 +396,11 @@ module.exports = {
                 updatedAt: "2024-03-14T09:07:07.798Z",
             },
             {
-                roleName: "Quản lý cài đặt",
+                roleName: "Cập nhật cài đặt",
                 roleCode: "SETTING_UPDATE",
                 groupId: "19",
                 createdAt: "2024-03-14T09:07:55.283Z",
                 updatedAt: "2024-03-14T09:07:55.283Z",
-            },
-            {
-                roleName: "Xem thông tin cài đặt",
-                roleCode: "SETTING_VIEW",
-                groupId: "19",
-                createdAt: "2024-03-14T09:08:05.484Z",
-                updatedAt: "2024-03-14T09:08:05.484Z",
             },
             {
                 roleName: "Xem nhật ký hệ thống",

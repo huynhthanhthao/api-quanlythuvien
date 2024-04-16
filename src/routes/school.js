@@ -19,7 +19,7 @@ router.put(
     }
 );
 
-router.get("/me", async function (req, res, next) {
+router.get("/me", checkPermission([ROLES.SCHOOL_UPDATE, ROLES.SCHOOL_VIEW]), async function (req, res, next) {
     try {
         const data = await SchoolController.getSchoolByToken(req);
         return res.json(data);

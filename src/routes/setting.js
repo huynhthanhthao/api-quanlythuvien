@@ -31,7 +31,7 @@ router.put("/update", checkPermission([ROLES.SETTING_UPDATE]), async function (r
 //     }
 // });
 
-router.get("/active", checkPermission([ROLES.SETTING_VIEW]), async function (req, res, next) {
+router.get("/active", checkPermission([ROLES.SETTING_UPDATE]), async function (req, res, next) {
     try {
         const data = await SettingController.getSettingBySchoolId(req);
         return res.json(data);
