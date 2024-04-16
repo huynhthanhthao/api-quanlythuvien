@@ -351,14 +351,6 @@ class BookService {
                             limit: 1,
                         },
                         {
-                            model: db.LostReportHasBook,
-                            as: "lostReportHasBook",
-                            required: false,
-                            attributes: ["id"],
-                            where: { ...whereCommonCondition },
-                            required: false,
-                        },
-                        {
                             model: db.BookingHasBook,
                             as: "bookingHasBook",
                             required: false,
@@ -1112,7 +1104,7 @@ class BookService {
                     as: "receiptHasBook",
                     required: false,
                     attributes: ["id"],
-                    where: { ...whereCondition, type: LOAN_STATUS.BORROWING },
+                    where: { ...whereCondition, type: { [Op.in]: [LOAN_STATUS.BORROWING, LOAN_STATUS.LOST] } },
                     required: false,
                     limit: 1,
                 },
