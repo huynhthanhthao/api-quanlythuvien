@@ -199,7 +199,13 @@ class LoanReceiptService {
         const booksOutOfStock = [];
         for (const bookId of bookIds) {
             const bookBorrowed = await db.ReceiptHasBook.findOne({
-                where: { ...whereCondition, bookId: bookId, type: LOAN_STATUS.BORROWING },
+                where: {
+                    ...whereCondition,
+                    bookId: bookId,
+                    type: {
+                        [Op.in]: [LOAN_STATUS.BORROWING, LOAN_STATUS.LOST],
+                    },
+                },
                 attributes: ["id"],
             });
 

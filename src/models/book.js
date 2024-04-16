@@ -27,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
                 as: "receiptHasBook",
             });
 
+            Book.hasMany(models.LostReportHasBook, {
+                foreignKey: "bookId",
+                as: "lostReportHasBook",
+            });
+
             Book.hasOne(models.FinePolicyHasBook, {
                 foreignKey: "bookId",
                 as: "finePolicyHasBook",

@@ -369,7 +369,7 @@ class UserService {
         };
 
         if (type == QUERY_ONE_TYPE.CODE) {
-            whereCondition.readerCode = { [Op.iLike]: keyword };
+            whereCondition.readerCode = { [Op.iLike]: keyword?.trim() };
         } else {
             whereCondition.id = keyword;
         }

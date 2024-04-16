@@ -21,7 +21,7 @@ function checkToken(req, res, next) {
 
         const account = await AccountService.getRoleSchoolId(decode.id);
 
-        if (account.status == ACCOUNT_STATUS.BLOCKED)
+        if (!account || account?.status == ACCOUNT_STATUS.BLOCKED)
             throw new CatchException("Tài khoản đã bị khóa!", errorCodes.FORBIDDEN);
 
         req.account = { id: decode.id, schoolId: account?.schoolId, permissionId: account.permissionId };
