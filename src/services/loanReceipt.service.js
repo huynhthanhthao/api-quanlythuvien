@@ -320,6 +320,7 @@ class LoanReceiptService {
                 { schoolId: account.schoolId },
                 from && { receiveDate: { [Op.gte]: getStartOfDay(convertDate(from)) } },
                 to && { receiveDate: { [Op.lte]: getEndOfDay(convertDate(to)) } },
+                types.includes(LOAN_STATUS.BORROWING) && { returnDate: { [Op.lte]: getEndOfDay(new Date()) } },
             ].filter(Boolean),
         };
 
