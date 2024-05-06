@@ -120,4 +120,13 @@ router.get("/:schoolId/book-detail", async function (req, res, next) {
     }
 });
 
+router.get("/me", async function (req, res, next) {
+    try {
+        const data = await PublicController.getUserByToken(req);
+        return res.json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = router;

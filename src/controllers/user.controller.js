@@ -87,6 +87,10 @@ class UserController {
             "Dữ liệu sách bạn đọc đã được tạo."
         );
     }
+
+    static async getUserByToken(req) {
+        return transformer(await UserService.getUserByToken(req.body, req.account), "Lấy thông tin thành công.");
+    }
 }
 
 module.exports = UserController;

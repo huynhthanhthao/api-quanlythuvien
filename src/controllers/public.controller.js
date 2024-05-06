@@ -12,6 +12,7 @@ const CardOpeningRegistrationService = require("../services/cardOpeningRegistrat
 const CardOpeningFeeService = require("../services/cardOpeningFee.service");
 const SchoolService = require("../services/school.service");
 const BookingFormService = require("../services/bookingForm.service");
+const UserService = require("../services/user.service");
 
 class PublicController {
     static async getPublicBookGroup(req) {
@@ -125,6 +126,11 @@ class PublicController {
             await CardOpeningFeeService.getCardOpeningFees(req.query, { schoolId }),
             "Lấy danh sách hành công."
         );
+    }
+
+    static async getUserByToken(req) {
+        const token = req.query.token || "";
+        return transformer(await UserService.getUserByToken(token), "Lấy thông tin hành công.");
     }
 }
 

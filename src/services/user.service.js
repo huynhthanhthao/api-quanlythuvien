@@ -1,7 +1,14 @@
 const unidecode = require("unidecode");
 const { Op } = require("sequelize");
 const db = require("../models");
-const { DEFAULT_LIMIT, UNLIMITED, USER_TYPE, ACTIVITY_TYPE, QUERY_ONE_TYPE } = require("../../enums/common");
+const {
+    DEFAULT_LIMIT,
+    UNLIMITED,
+    USER_TYPE,
+    ACTIVITY_TYPE,
+    QUERY_ONE_TYPE,
+    ACCOUNT_STATUS,
+} = require("../../enums/common");
 const { convertToIntArray, getStartOfDay, getPhotoURLFromLink, convertDate } = require("../../utils/server");
 const { mapResponseUserList, mapResponseUserItem } = require("../map-responses/user.map-response");
 const { TABLE_NAME } = require("../../enums/languages");
@@ -10,7 +17,9 @@ const { getPagination } = require("../../utils/customer-sequelize");
 const ActivityService = require("./activityLog.service");
 const { CatchException } = require("../../utils/api-error");
 const { isBirthday, isDate } = require("../../utils/customer-validate");
-
+const jwt = require("jsonwebtoken");
+const AccountService = require("./account.service");
+const { mapResponseAccountItem } = require("../map-responses/account.map-response");
 class UserService {
     static async createUser(newUser, account) {
         let transaction;
@@ -540,6 +549,77 @@ class UserService {
 
         if (endDay && getStartOfDay(endDay) / 1000 < getStartOfDay(new Date()) / 1000)
             throw new CatchException("Bạn đọc này đã hết hạn!", errorCodes.RESOURCE_HAS_EXPIRED, { field: field });
+    }
+
+    static async getUserByToken(token) {
+        if (!token) {
+            throw new CatchException("Không tìm thấy token!", errorCodes.TOKEN_NOT_FOUND);
+        }
+
+        let account = null;
+
+        await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decode) => {
+            if (err) {
+                throw new CatchException("Token không hợp lệ!", errorCodes.INVALID_TOKEN);
+            }
+
+            account = await db.Account.findOne({
+                where: { id: decode.id, active: true },
+                attributes: ["id", "username", "password", "active", "status"],
+                include: [
+                    {
+                        model: db.User,
+                        as: "user",
+                        required: false,
+                        where: { active: true },
+                        attributes: {
+                            exclude: ["createdAt", "updatedAt", "createdBy", "updatedBy", "active", "schoolId"],
+                        },
+                    },
+                    {
+                        model: db.AccountHasRole,
+                        as: "accountHasRole",
+                        where: { active: true },
+                        required: false,
+                        attributes: ["id"],
+                        include: [
+                            {
+                                model: db.Role,
+                                as: "role",
+                                required: false,
+                                attributes: ["roleCode"],
+                            },
+                        ],
+                    },
+                    {
+                        model: db.Permission,
+                        as: "permission",
+                        where: { active: true },
+                        required: false,
+                        attributes: ["perName", "id"],
+                        include: [
+                            {
+                                model: db.PermissionHasRole,
+                                as: "permissionHasRole",
+                                where: { active: true },
+                                required: false,
+                                attributes: ["id"],
+                                include: [
+                                    {
+                                        model: db.Role,
+                                        as: "role",
+                                        required: false,
+                                        attributes: ["roleCode"],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
+        return { token, account: mapResponseAccountItem(account) };
     }
 }
 
