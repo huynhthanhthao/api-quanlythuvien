@@ -4,6 +4,7 @@ const { LOAN_STATUS } = require("../../enums/common");
 const { mapResponseNotificationEmailBookLate } = require("../map-responses/sendLateNotificationEmail.map-response");
 const TransporterService = require("../services/transporter.service");
 const { notifyBookLate } = require("../mails/notifyBookLate");
+const { getStartOfDay } = require("../../utils/server");
 async function sendLateNotificationEmail() {
     const whereCondition = { active: true };
     const users = await db.User.findAll({
@@ -29,7 +30,7 @@ async function sendLateNotificationEmail() {
             {
                 model: db.LoanReceipt,
                 as: "loanReceiptList",
-                where: { ...whereCondition, returnDate: { [Op.lt]: new Date() } },
+                where: { ...whereCondition, returnDate: { [Op.lt]: getStartOfDay(new Date()) } },
                 required: true,
                 attributes: ["id", "receiveDate", "returnDate"],
                 include: [
