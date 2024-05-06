@@ -619,7 +619,7 @@ class UserService {
             });
         });
 
-        return { token, account: mapResponseAccountItem(account) };
+        return { token, user: mapResponseAccountItem(account) };
     }
 }
 
