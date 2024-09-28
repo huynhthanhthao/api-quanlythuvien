@@ -69,20 +69,15 @@ module.exports = (sequelize, DataTypes) => {
             username: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                unique: {
+                    args: true,
+                    msg: "Tên đăng nhập đã tồn tại!",
+                },
                 validate: {
                     len: {
                         args: [0, 255],
                     },
                     notEmpty: true,
-                    async isUnique(value) {
-                        await isUnique({
-                            id: this.id,
-                            field: "username",
-                            value,
-                            model: sequelize.models.Account,
-                            extraConditions: { schoolId: this.schoolId },
-                        });
-                    },
                 },
             },
             password: {

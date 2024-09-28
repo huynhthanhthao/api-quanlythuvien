@@ -8,8 +8,8 @@ module.exports = {
             {
                 schoolId: 1,
                 schoolYearId: 1,
-                classCode: "CSE101",
-                className: "Introduction to Computer Science",
+                classCode: "LH00001",
+                className: "Lớp 1",
                 classDes: "This class introduces basic concepts of computer science.",
                 createdBy: 1,
                 updatedBy: 1,
@@ -19,8 +19,8 @@ module.exports = {
             {
                 schoolId: 1,
                 schoolYearId: 1,
-                classCode: "MATH101",
-                className: "Calculus I",
+                classCode: "LH00002",
+                className: "Lớp 2",
                 classDes: "This class covers fundamental concepts of calculus.",
                 createdBy: 1,
                 updatedBy: 1,

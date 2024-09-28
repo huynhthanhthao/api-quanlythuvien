@@ -1,6 +1,7 @@
 "use strict";
 
 const { ACCOUNT_STATUS } = require("../../enums/common");
+const { isUnique } = require("../../utils/customer-validate");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
@@ -40,6 +41,8 @@ module.exports = {
             },
             username: {
                 type: Sequelize.STRING,
+                allowNull: false,
+                unique: true,
             },
             password: {
                 type: Sequelize.STRING,

@@ -279,7 +279,7 @@ class AccountService {
         const whereCondition = { active: true, schoolId: schoolId };
 
         const account = await db.Account.findOne({
-            where: { username: trimmedUsername, schoolId, active: true },
+            where: { username: trimmedUsername, active: true },
             attributes: ["id", "username", "password", "active", "status"],
             include: [
                 {
@@ -294,7 +294,9 @@ class AccountService {
                 {
                     model: db.AccountHasRole,
                     as: "accountHasRole",
-                    where: whereCondition,
+                    where: {
+                        active: true
+                    },
                     required: false,
                     attributes: ["id"],
                     include: [
@@ -332,7 +334,8 @@ class AccountService {
                 },
             ],
         });
-
+        console.log(account);
+        
         return account ? mapResponseAccountItem(account) : null;
     }
 
