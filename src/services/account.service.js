@@ -334,7 +334,6 @@ class AccountService {
                 },
             ],
         });
-        console.log(account);
         
         return account ? mapResponseAccountItem(account) : null;
     }

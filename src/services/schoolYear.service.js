@@ -31,7 +31,6 @@ class SchoolYearService {
 
     static async updateSchoolYearById(updateSchoolYear, account) {
         const whereCondition = { active: true, schoolId: account.schoolId };
-        console.log(updateSchoolYear.id, 9999);
         const schoolYear = await db.SchoolYear.findOne({
             where: { ...whereCondition, year: updateSchoolYear.year, id: { [Op.notIn]: [updateSchoolYear.id] } },
             attributes: ["id"],
