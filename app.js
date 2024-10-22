@@ -26,14 +26,14 @@ app.set("view engine", "jade");
 
 // ### Fix CORS ###
 const corsOptions = {
-    origin: true,
-    credentials: false, //access-control-allow-credentials:true
-    optionSuccessStatus: 200,
+  origin: true,
+  credentials: false, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
 };
 
 // CRON JOB
 const job = new CronJob("0 0 9 * * *", function () {
-    sendLateNotificationEmail();
+  sendLateNotificationEmail();
 });
 
 job.start();
@@ -48,34 +48,38 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
+
+const publicDir = path.join(process.cwd(), "public");
+
+app.use(express.static(publicDir));
 
 app.use("/api/", indexRouter);
 
 app.use((err, req, res, next) => {
-    console.log(err);
-    if (err instanceof ValidationError) {
-        const validationErrors = {};
-        const errorCustom = customErrorMessage(err);
+  console.log(err);
+  if (err instanceof ValidationError) {
+    const validationErrors = {};
+    const errorCustom = customErrorMessage(err);
 
-        err.errors?.forEach((error) => {
-            validationErrors[error.path] = error.message;
-        });
-
-        return res.status(HttpStatus.default.BAD_REQUEST).json({ status: 0, details: errorCustom });
-    }
-    const errorCustom = customErrorMessageDatabase(err);
-
-    return res.status(HttpStatus.default.BAD_REQUEST).json({
-        status: 0,
-        details: [
-            {
-                code: errorCustom.code || "UNKNOWN_ERROR",
-                message: errorCustom.message,
-                ...errorCustom.option,
-            },
-        ],
+    err.errors?.forEach((error) => {
+      validationErrors[error.path] = error.message;
     });
+
+    return res.status(HttpStatus.default.BAD_REQUEST).json({ status: 0, details: errorCustom });
+  }
+  const errorCustom = customErrorMessageDatabase(err);
+
+  return res.status(HttpStatus.default.BAD_REQUEST).json({
+    status: 0,
+    details: [
+      {
+        code: errorCustom.code || "UNKNOWN_ERROR",
+        message: errorCustom.message,
+        ...errorCustom.option,
+      },
+    ],
+  });
 });
 
 module.exports = app;

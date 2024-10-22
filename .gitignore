@@ -2,6 +2,7 @@
 /public/documents/
 package-lock.json
 ecosystem.config.js
+dist
 # /src/config/config.json
 # .env
 # .gitignore
