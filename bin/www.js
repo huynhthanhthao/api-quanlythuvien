@@ -5,6 +5,7 @@
  */
 
 var app = require("../app");
+var debug = require("debug")("crm-katec-be:server");
 var http = require("http");
 
 let fs = require("fs");
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV === "development") {
   var server = http.createServer(app);
 } else if (process.env.NODE_ENV === "production") {
   let https = require("https");
+  let httpsOptions = {};
   var server = https.createServer(httpsOptions, app);
 }
 
@@ -88,5 +90,8 @@ function onError(error) {
  */
 
 function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
   console.log(`Server listening on ${hostname}:${port}`);
 }
