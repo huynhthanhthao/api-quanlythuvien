@@ -5,6 +5,7 @@
  */
 
 var app = require("../app");
+var debug = require("debug")("crm-katec-be:server");
 var http = require("http");
 
 let fs = require("fs");
@@ -12,7 +13,7 @@ let fs = require("fs");
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(process.env.PORT || "6002");
+var port = normalizePort(process.env.PORT || "6100");
 var hostname = process.env.HOST_NAME || "localhost";
 
 app.set("port", port);
@@ -23,10 +24,15 @@ app.set("port", port);
 
 if (process.env.NODE_ENV === "development") {
   let http = require("http");
+
   var server = http.createServer(app);
 } else if (process.env.NODE_ENV === "production") {
   let https = require("https");
-  var server = https.createServer(app);
+  let httpsOptions = {
+    key: fs.readFileSync(`/etc/pki/tls/private/${port == 3155 ? "apicrm.katec.vn.key" : "apicrmdemo.katec.vn.key"}`, "utf8"),
+    cert: fs.readFileSync(`/etc/pki/tls/certs/${port == 3155 ? "apicrm.katec.vn.cert" : "apicrmdemo.katec.vn.cert"}`, "utf8"),
+  };
+  var server = https.createServer(httpsOptions, app);
 }
 
 /**
@@ -87,5 +93,8 @@ function onError(error) {
  */
 
 function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
   console.log(`Server listening on ${hostname}:${port}`);
 }
