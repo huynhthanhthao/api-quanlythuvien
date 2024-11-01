@@ -22,10 +22,12 @@ app.set("port", port);
  * Create HTTP server.
  */
 
+var server = http.createServer(app);
+
 if (process.env.NODE_ENV === "development") {
   let http = require("http");
 
-  var server = http.createServer(app);
+  server = http.createServer(app);
 }
 /**
  * Listen on provided port, on all network interfaces.
