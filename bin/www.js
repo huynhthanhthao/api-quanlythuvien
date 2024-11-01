@@ -26,15 +26,7 @@ if (process.env.NODE_ENV === "development") {
   let http = require("http");
 
   var server = http.createServer(app);
-} else if (process.env.NODE_ENV === "production") {
-  let https = require("https");
-  let httpsOptions = {
-    key: fs.readFileSync(`/etc/pki/tls/private/${port == 3155 ? "apicrm.katec.vn.key" : "apicrmdemo.katec.vn.key"}`, "utf8"),
-    cert: fs.readFileSync(`/etc/pki/tls/certs/${port == 3155 ? "apicrm.katec.vn.cert" : "apicrmdemo.katec.vn.cert"}`, "utf8"),
-  };
-  var server = https.createServer(httpsOptions, app);
 }
-
 /**
  * Listen on provided port, on all network interfaces.
  */
